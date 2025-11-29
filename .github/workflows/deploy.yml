@@ -29,6 +29,14 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Set SST Secrets
+        run: |
+          npx sst secret set AuthSecret "${{ secrets.AUTH_SECRET }}" --stage production
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+
       - name: Deploy with SST
         run: npx sst deploy --stage production
         env:

@@ -10,17 +10,22 @@ export default $config({
     };
   },
   async run() {
-    // Secrets for authentication
+    // Secret for authentication
     const authSecret = new sst.Secret("AuthSecret");
-    const googleClientId = new sst.Secret("GoogleClientId");
-    const googleClientSecret = new sst.Secret("GoogleClientSecret");
 
     // VPC for database and app
     const vpc = new sst.aws.Vpc("Vpc", { bastion: true, nat: "ec2" });
 
-    // Postgres database
+    // Postgres database (free tier compatible)
     const database = new sst.aws.Postgres("Database", {
       vpc,
+      instance: "t4g.micro",
+      storage: "20 GB",
+      transform: {
+        instance: {
+          backupRetentionPeriod: 0,
+        },
+      },
       dev: {
         username: "postgres",
         password: "password",
@@ -31,16 +36,16 @@ export default $config({
     });
 
     // Next.js app deployed with OpenNext
-    const app = new sst.aws.Nextjs("App", {
+    const site = new sst.aws.Nextjs("Site", {
       vpc,
-      link: [database, authSecret, googleClientId, googleClientSecret],
+      link: [database, authSecret],
       environment: {
         DATABASE_URL: $interpolate`postgresql://${database.username}:${database.password}@${database.host}:${database.port}/${database.database}`,
       },
     });
 
     return {
-      url: app.url,
+      url: site.url,
       database: {
         host: database.host,
         port: database.port,
