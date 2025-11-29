@@ -1,0 +1,242 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import {
+  getCurrentPayPeriod,
+  getPayPeriods,
+  formatPayPeriod,
+  type PayPeriod,
+} from "@/lib/pay-periods";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, ChevronLeft, ChevronRight, DollarSign } from "lucide-react";
+import Link from "next/link";
+import { format, startOfDay, endOfDay } from "date-fns";
+import { PaymentToggle } from "./payment-toggle";
+
+interface BillPaymentWithBill {
+  id: string;
+  billId: string;
+  dueDate: Date;
+  amount: { toString(): string } | number;
+  status: "UNPAID" | "PAID" | "SKIPPED";
+  paidAt: Date | null;
+  bill: {
+    id: string;
+    name: string;
+    category: string;
+  };
+}
+
+async function getPaymentsForPeriod(
+  userId: string,
+  payPeriod: PayPeriod
+): Promise<BillPaymentWithBill[]> {
+  const payments = await prisma.billPayment.findMany({
+    where: {
+      bill: { userId },
+      dueDate: {
+        gte: startOfDay(payPeriod.startDate),
+        lte: endOfDay(payPeriod.endDate),
+      },
+    },
+    include: {
+      bill: {
+        select: { id: true, name: true, category: true },
+      },
+    },
+    orderBy: { dueDate: "asc" },
+  });
+
+  return payments as unknown as BillPaymentWithBill[];
+}
+
+function getPeriodFromOffset(offset: number): PayPeriod {
+  const current = getCurrentPayPeriod();
+  if (offset === 0) return current;
+
+  const periods = getPayPeriods(
+    current.startDate,
+    Math.abs(offset) + 1,
+    offset > 0 ? "forward" : "backward"
+  );
+
+  return periods[Math.abs(offset)];
+}
+
+export default async function PayPeriodsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ offset?: string }>;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+
+  const params = await searchParams;
+  const offset = parseInt(params.offset || "0", 10);
+  const payPeriod = getPeriodFromOffset(offset);
+  const currentPeriod = getCurrentPayPeriod();
+  const isCurrent =
+    payPeriod.startDate.getTime() === currentPeriod.startDate.getTime();
+
+  const payments = await getPaymentsForPeriod(session.user.id, payPeriod);
+
+  const totalDue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPaid = payments
+    .filter((p) => p.status === "PAID")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const remaining = totalDue - totalPaid;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-theme-primary">Pay Periods</h1>
+          <p className="text-theme-secondary mt-1">
+            Track bills and payments by pay period
+          </p>
+        </div>
+      </div>
+
+      <Card className="bg-gradient-to-r from-emerald-900/50 to-emerald-800/30 border-emerald-700/50">
+        <CardContent className="py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-emerald-900/50">
+                <Calendar className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-emerald-400 text-sm font-medium">
+                    {isCurrent ? "Current Pay Period" : "Pay Period"}
+                  </p>
+                  {isCurrent && <Badge variant="success">Active</Badge>}
+                </div>
+                <p className="text-2xl font-bold text-theme-primary">
+                  {formatPayPeriod(payPeriod)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link href={`/dashboard/pay-periods?offset=${offset - 1}`}>
+                <Button variant="secondary" size="sm">
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+              </Link>
+              {offset !== 0 && (
+                <Link href="/dashboard/pay-periods">
+                  <Button variant="secondary" size="sm">
+                    Current
+                  </Button>
+                </Link>
+              )}
+              <Link href={`/dashboard/pay-periods?offset=${offset + 1}`}>
+                <Button variant="secondary" size="sm">
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm text-theme-secondary">Total Due</p>
+                <p className="text-xl font-bold text-theme-primary">
+                  ${totalDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-sm text-theme-secondary">Paid</p>
+                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                  ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/50">
+                <DollarSign className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-sm text-theme-secondary">Remaining</p>
+                <p className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+                  ${remaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Bills Due This Period</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {payments.length === 0 ? (
+            <div className="py-8 text-center">
+              <Calendar className="h-12 w-12 text-theme-muted mx-auto mb-4" />
+              <p className="text-theme-secondary">No bills due in this pay period</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {payments.map((payment) => (
+                <div
+                  key={payment.id}
+                  className="flex items-center justify-between py-3 px-4 rounded-lg bg-theme-tertiary"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-theme-primary">
+                        {payment.bill.name}
+                      </p>
+                      <Badge
+                        variant={payment.status === "PAID" ? "success" : "warning"}
+                      >
+                        {payment.status}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-theme-secondary">
+                      Due {format(new Date(payment.dueDate), "MMM d, yyyy")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p className="text-lg font-semibold text-theme-primary">
+                      ${Number(payment.amount).toFixed(2)}
+                    </p>
+                    <PaymentToggle
+                      paymentId={payment.id}
+                      initialStatus={payment.status}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

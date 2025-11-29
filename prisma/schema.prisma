@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Application models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Paycheck configuration
+  paycheckAmount    Decimal?  @db.Decimal(10, 2)
+  paycheckFrequency String    @default("biweekly") // biweekly, weekly, monthly
+  paycheckDay       Int       @default(3) // 0=Sun, 1=Mon, ..., 3=Wed
+  lastPaycheckDate  DateTime?
+
+  accounts    Account[]
+  sessions    Session[]
+  bills        Bill[]
+  debts        Debt[]
+  payPeriods   PayPeriod[]
+  fooProgress  FOOProgress[]
+  savingsGoals SavingsGoal[]
+}
+
+model PayPeriod {
+  id          String   @id @default(cuid())
+  userId      String
+  startDate   DateTime
+  endDate     DateTime
+  grossIncome Decimal? @db.Decimal(10, 2)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billPayments BillPayment[]
+
+  @@unique([userId, startDate])
+}
+
+enum BillCategory {
+  SUBSCRIPTION
+  UTILITY
+  LOAN
+  BNPL
+  INSURANCE
+  CREDIT_CARD
+  OTHER
+}
+
+enum BillFrequency {
+  ONCE
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model Bill {
+  id          String        @id @default(cuid())
+  userId      String
+  name        String
+  category    BillCategory  @default(OTHER)
+  amount      Decimal       @db.Decimal(10, 2)
+  dueDay      Int // Day of month (1-31) or day offset for other frequencies
+  isRecurring Boolean       @default(true)
+  frequency   BillFrequency @default(MONTHLY)
+  debtId      String? // Optional link to a debt account
+  notes       String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  debt     Debt?         @relation(fields: [debtId], references: [id])
+  payments BillPayment[]
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  SKIPPED
+}
+
+model BillPayment {
+  id          String        @id @default(cuid())
+  billId      String
+  payPeriodId String?
+  dueDate     DateTime
+  amount      Decimal       @db.Decimal(10, 2)
+  status      PaymentStatus @default(UNPAID)
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  bill      Bill       @relation(fields: [billId], references: [id], onDelete: Cascade)
+  payPeriod PayPeriod? @relation(fields: [payPeriodId], references: [id])
+
+  @@unique([billId, dueDate])
+}
+
+enum DebtType {
+  CREDIT_CARD
+  AUTO_LOAN
+  STUDENT_LOAN
+  PERSONAL_LOAN
+  BNPL
+  MORTGAGE
+  OTHER
+}
+
+model Debt {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  type            DebtType
+  currentBalance  Decimal  @db.Decimal(10, 2)
+  originalBalance Decimal  @db.Decimal(10, 2)
+  interestRate    Decimal  @db.Decimal(5, 2) // APR percentage
+  minimumPayment  Decimal  @db.Decimal(10, 2)
+  dueDay          Int // Day of month
+  startDate       DateTime @default(now())
+  isActive        Boolean  @default(true)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bills    Bill[]
+  payments DebtPayment[]
+}
+
+model DebtPayment {
+  id         String   @id @default(cuid())
+  debtId     String
+  date       DateTime
+  amount     Decimal  @db.Decimal(10, 2)
+  principal  Decimal  @db.Decimal(10, 2)
+  interest   Decimal  @db.Decimal(10, 2)
+  newBalance Decimal  @db.Decimal(10, 2)
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  debt Debt @relation(fields: [debtId], references: [id], onDelete: Cascade)
+}
+
+enum FOOStep {
+  DEDUCTIBLES_COVERED
+  EMPLOYER_MATCH
+  HIGH_INTEREST_DEBT
+  EMERGENCY_FUND
+  ROTH_HSA
+  MAX_RETIREMENT
+  HYPERACCUMULATION
+  PREPAY_FUTURE
+  PREPAY_LOW_INTEREST
+}
+
+model SavingsGoal {
+  id            String    @id @default(cuid())
+  userId        String
+  name          String
+  targetAmount  Decimal   @db.Decimal(10, 2)
+  currentAmount Decimal   @default(0) @db.Decimal(10, 2)
+  deadline      DateTime?
+  fooStep       FOOStep?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum FOOStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model FOOProgress {
+  id            String    @id @default(cuid())
+  userId        String
+  step          FOOStep
+  status        FOOStatus @default(NOT_STARTED)
+  targetAmount  Decimal?  @db.Decimal(10, 2)
+  currentAmount Decimal?  @db.Decimal(10, 2)
+  notes         String?
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, step])
+}
