@@ -247,7 +247,25 @@ export default function DebtsPage() {
   }
 
   const totalDebt = debts.reduce((sum, d) => sum + Number(d.currentBalance), 0);
-  const totalMinPayment = debts.reduce((sum, d) => sum + Number(d.minimumPayment), 0);
+  
+  // Separate BNPL from regular monthly debt payments
+  const regularDebts = debts.filter(d => d.type !== "BNPL");
+  const bnplDebts = debts.filter(d => d.type === "BNPL");
+  
+  const monthlyMinPayment = regularDebts.reduce((sum, d) => sum + Number(d.minimumPayment), 0);
+  const bnplMonthlyEstimate = bnplDebts.reduce((sum, d) => {
+    // For BNPL, estimate monthly obligation based on remaining payments
+    if (d.scheduledPayments && d.scheduledPayments.length > 0) {
+      const unpaid = d.scheduledPayments.filter(p => !p.isPaid);
+      if (unpaid.length === 0) return sum;
+      // Count payments in next 30 days as monthly estimate
+      const now = new Date();
+      const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const paymentsThisMonth = unpaid.filter(p => new Date(p.dueDate) <= in30Days);
+      return sum + paymentsThisMonth.reduce((s, p) => s + Number(p.amount), 0);
+    }
+    return sum;
+  }, 0);
 
   if (loading) {
     return (
@@ -285,7 +303,7 @@ export default function DebtsPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="py-4">
             <p className="text-theme-secondary text-sm">Total Debt</p>
@@ -294,9 +312,16 @@ export default function DebtsPage() {
         </Card>
         <Card>
           <CardContent className="py-4">
-            <p className="text-theme-secondary text-sm">Total Minimum Payments</p>
-            <p className="text-2xl font-bold text-theme-primary">{formatCurrency(totalMinPayment)}</p>
-            <p className="text-theme-muted text-xs mt-1">per month</p>
+            <p className="text-theme-secondary text-sm">Monthly Debt Payments</p>
+            <p className="text-2xl font-bold text-theme-primary">{formatCurrency(monthlyMinPayment)}</p>
+            <p className="text-theme-muted text-xs mt-1">recurring minimums</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4">
+            <p className="text-theme-secondary text-sm">BNPL Due This Month</p>
+            <p className="text-2xl font-bold text-orange-500">{formatCurrency(bnplMonthlyEstimate)}</p>
+            <p className="text-theme-muted text-xs mt-1">{bnplDebts.length} active plans</p>
           </CardContent>
         </Card>
       </div>
