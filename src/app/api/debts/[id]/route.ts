@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { DebtType } from "@prisma/client";
+import { DebtType, DebtStatus } from "@prisma/client";
 
 export async function GET(
   request: Request,
@@ -48,11 +48,13 @@ export async function PUT(
   const {
     name,
     type,
+    status,
     currentBalance,
     originalBalance,
     interestRate,
     minimumPayment,
     dueDay,
+    deferredUntil,
     notes,
     isActive,
   } = body;
@@ -61,16 +63,22 @@ export async function PUT(
     return NextResponse.json({ error: "Invalid debt type" }, { status: 400 });
   }
 
+  if (status && !Object.values(DebtStatus).includes(status)) {
+    return NextResponse.json({ error: "Invalid debt status" }, { status: 400 });
+  }
+
   const debt = await prisma.debt.update({
     where: { id },
     data: {
       ...(name !== undefined && { name }),
       ...(type !== undefined && { type }),
+      ...(status !== undefined && { status }),
       ...(currentBalance !== undefined && { currentBalance }),
       ...(originalBalance !== undefined && { originalBalance }),
       ...(interestRate !== undefined && { interestRate }),
       ...(minimumPayment !== undefined && { minimumPayment }),
       ...(dueDay !== undefined && { dueDay }),
+      ...(deferredUntil !== undefined && { deferredUntil: deferredUntil ? new Date(deferredUntil) : null }),
       ...(notes !== undefined && { notes }),
       ...(isActive !== undefined && { isActive }),
     },
