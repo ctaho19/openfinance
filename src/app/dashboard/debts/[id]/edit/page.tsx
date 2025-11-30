@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatPaymentPreview } from "@/lib/bnpl-utils";
+import { formatPaymentPreview, calculateEffectiveAPR } from "@/lib/bnpl-utils";
 import { BankSelector } from "@/components/banks/bank-badge";
 
 const DEBT_TYPES = [
@@ -56,6 +56,8 @@ interface Debt {
   currentBalance: string;
   originalBalance: string;
   interestRate: string;
+  effectiveRate?: string;
+  totalRepayable?: string;
   minimumPayment: string;
   dueDay: number;
   isActive: boolean;
@@ -95,6 +97,8 @@ export default function EditDebtPage() {
   const [paymentFrequency, setPaymentFrequency] = useState("monthly");
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
+  const [totalRepayable, setTotalRepayable] = useState("");
+  const [bnplHasInterest, setBnplHasInterest] = useState(false);
 
   const isBNPL = formData.type === "BNPL";
   const effectivePaymentCount = customPayments ? parseInt(customPayments, 10) : parseInt(numberOfPayments, 10);
@@ -107,9 +111,26 @@ export default function EditDebtPage() {
     if (isNaN(balance) || isNaN(effectivePaymentCount) || balance <= 0 || effectivePaymentCount <= 0) {
       return null;
     }
-    const paymentAmount = Math.round((balance / effectivePaymentCount) * 100) / 100;
+    const total = totalRepayable ? parseFloat(totalRepayable) : balance;
+    const paymentAmount = Math.round((total / effectivePaymentCount) * 100) / 100;
     return formatPaymentPreview(effectivePaymentCount, paymentAmount, new Date(firstPaymentDate + "T00:00:00"));
-  }, [isBNPL, formData.currentBalance, effectivePaymentCount, firstPaymentDate]);
+  }, [isBNPL, formData.currentBalance, totalRepayable, effectivePaymentCount, firstPaymentDate]);
+
+  // Calculate effective APR for BNPL when total repayable differs from principal
+  const computedEffectiveAPR = useMemo(() => {
+    if (!isBNPL || !formData.currentBalance || !effectivePaymentCount) return null;
+    const principal = parseFloat(formData.currentBalance);
+    const total = totalRepayable ? parseFloat(totalRepayable) : principal;
+    if (isNaN(principal) || isNaN(total) || principal <= 0 || total <= 0) return null;
+    if (Math.abs(total - principal) < 0.01) return null;
+    
+    return calculateEffectiveAPR({
+      principal,
+      totalRepayable: total,
+      numberOfPayments: effectivePaymentCount,
+      frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
+    });
+  }, [isBNPL, formData.currentBalance, totalRepayable, effectivePaymentCount, paymentFrequency]);
 
   useEffect(() => {
     async function fetchData() {
@@ -136,6 +157,14 @@ export default function EditDebtPage() {
         });
         if (data.bankAccountId) {
           setSelectedBankAccountId(data.bankAccountId);
+        }
+        // Load BNPL-specific data
+        if (data.totalRepayable) {
+          setTotalRepayable(data.totalRepayable);
+          setBnplHasInterest(true);
+        }
+        if (data.type === "BNPL" && parseFloat(data.interestRate) > 0) {
+          setBnplHasInterest(true);
         }
       } else {
         setError("Failed to load debt");
@@ -174,8 +203,9 @@ export default function EditDebtPage() {
 
     // Calculate payment amount for BNPL
     const balance = parseFloat(formData.currentBalance);
+    const total = isBNPL && totalRepayable ? parseFloat(totalRepayable) : balance;
     const paymentAmount = isBNPL && effectivePaymentCount > 0 
-      ? Math.round((balance / effectivePaymentCount) * 100) / 100
+      ? Math.round((total / effectivePaymentCount) * 100) / 100
       : parseFloat(formData.minimumPayment);
 
     const data: Record<string, unknown> = {
@@ -183,7 +213,7 @@ export default function EditDebtPage() {
       type: formData.type,
       currentBalance: balance,
       originalBalance: parseFloat(formData.originalBalance),
-      interestRate: isBNPL ? 0 : parseFloat(formData.interestRate),
+      interestRate: parseFloat(formData.interestRate) || 0,
       minimumPayment: paymentAmount,
       dueDay: parseInt(formData.dueDay, 10),
       status: formData.status,
@@ -197,6 +227,13 @@ export default function EditDebtPage() {
       data.firstPaymentDate = firstPaymentDate;
       data.paymentFrequency = paymentFrequency;
       data.regenerateSchedule = true;
+    }
+
+    // Include total repayable for effective rate calculation
+    if (isBNPL && totalRepayable && parseFloat(totalRepayable) !== balance) {
+      data.totalRepayable = parseFloat(totalRepayable);
+    } else if (isBNPL) {
+      data.totalRepayable = null;
     }
 
     data.bankAccountId = selectedBankAccountId || null;
@@ -325,9 +362,11 @@ export default function EditDebtPage() {
                   value={formData.deferredUntil}
                   onChange={(e) => setFormData({ ...formData, deferredUntil: e.target.value })}
                 />
-                <p className="text-xs text-theme-muted mt-1">
-                  Interest will continue to accrue during deferment
-                </p>
+                {!isBNPL && (
+                  <p className="text-xs text-theme-muted mt-1">
+                    Interest will continue to accrue during deferment
+                  </p>
+                )}
               </div>
             )}
 
@@ -433,13 +472,84 @@ export default function EditDebtPage() {
                     <span className="font-medium text-accent">New Schedule:</span> {paymentPreview}
                   </div>
                 )}
+
+                {/* BNPL Interest Options */}
+                <div className="border-t border-theme pt-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="bnplHasInterest"
+                      checked={bnplHasInterest}
+                      onChange={(e) => setBnplHasInterest(e.target.checked)}
+                      className="h-4 w-4 rounded border-theme bg-theme-secondary text-accent focus:ring-accent"
+                    />
+                    <label htmlFor="bnplHasInterest" className="text-sm text-theme-secondary">
+                      This BNPL loan has interest or finance charges
+                    </label>
+                  </div>
+
+                  {bnplHasInterest && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
+                      <div>
+                        <label htmlFor="bnplInterestRate" className={labelClasses}>
+                          Stated APR (%) <span className="text-theme-muted font-normal">- if shown</span>
+                        </label>
+                        <input
+                          type="number"
+                          id="bnplInterestRate"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          placeholder="0.00"
+                          className={inputClasses}
+                          value={formData.interestRate}
+                          onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="totalRepayable" className={labelClasses}>
+                          Total to Repay ($) <span className="text-theme-muted font-normal">- if different</span>
+                        </label>
+                        <input
+                          type="number"
+                          id="totalRepayable"
+                          min="0"
+                          step="0.01"
+                          placeholder={formData.currentBalance || "0.00"}
+                          className={inputClasses}
+                          value={totalRepayable}
+                          onChange={(e) => setTotalRepayable(e.target.value)}
+                        />
+                        <p className="text-xs text-theme-muted mt-1">
+                          Total amount including any built-in interest
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {computedEffectiveAPR !== null && computedEffectiveAPR > 0 && (
+                    <div className="p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg text-sm">
+                      <span className="font-medium text-orange-600 dark:text-orange-400">Effective APR:</span>{" "}
+                      <span className="text-theme-primary">{computedEffectiveAPR.toFixed(2)}%</span>
+                      <span className="text-theme-muted ml-2">
+                        (computed from total repayable vs principal)
+                      </span>
+                    </div>
+                  )}
+
+                  {!bnplHasInterest && (
+                    <p className="text-xs text-theme-muted pl-7">
+                      Leave unchecked for 0% promo BNPL
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="currentBalance" className={labelClasses}>
-                  {isBNPL ? "Total Amount ($)" : "Current Balance ($)"}
+                  {isBNPL ? "Principal Amount ($)" : "Current Balance ($)"}
                 </label>
                 <input
                   type="number"

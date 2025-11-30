@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { DebtType, BillCategory } from "@prisma/client";
-import { generatePaymentSchedule } from "@/lib/bnpl-utils";
+import { generatePaymentSchedule, calculateEffectiveAPR } from "@/lib/bnpl-utils";
 
 const debtTypeToBillCategory: Record<DebtType, BillCategory> = {
   [DebtType.CREDIT_CARD]: BillCategory.CREDIT_CARD,
@@ -14,16 +14,50 @@ const debtTypeToBillCategory: Record<DebtType, BillCategory> = {
   [DebtType.OTHER]: BillCategory.OTHER,
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Get sort parameter: 'apr' (default), 'effective', or 'balance'
+  const sortBy = request.nextUrl.searchParams.get("sortBy") || "effective";
+
+  let orderBy: Record<string, "asc" | "desc">;
+  switch (sortBy) {
+    case "apr":
+      orderBy = { interestRate: "desc" };
+      break;
+    case "balance":
+      orderBy = { currentBalance: "desc" };
+      break;
+    case "effective":
+    default:
+      // Sort by effective rate first, then stated APR
+      // We'll sort in memory since effectiveRate can be null
+      orderBy = { interestRate: "desc" };
+      break;
+  }
+
   const debts = await prisma.debt.findMany({
     where: { userId: session.user.id },
-    orderBy: { interestRate: "desc" },
+    orderBy,
   });
+
+  // For effective rate sorting, sort in memory using the higher of effectiveRate or interestRate
+  if (sortBy === "effective") {
+    debts.sort((a, b) => {
+      const aRate = Math.max(
+        Number(a.effectiveRate) || 0,
+        Number(a.interestRate) || 0
+      );
+      const bRate = Math.max(
+        Number(b.effectiveRate) || 0,
+        Number(b.interestRate) || 0
+      );
+      return bRate - aRate; // descending
+    });
+  }
 
   return NextResponse.json(debts);
 }
@@ -48,6 +82,7 @@ export async function POST(request: Request) {
     firstPaymentDate,
     paymentFrequency,
     bankAccountId,
+    totalRepayable,
   } = body;
 
   if (!name || !type || currentBalance === undefined || originalBalance === undefined || interestRate === undefined || minimumPayment === undefined || dueDay === undefined) {
@@ -64,6 +99,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "BNPL debts require numberOfPayments, firstPaymentDate, and paymentFrequency" }, { status: 400 });
   }
 
+  // Calculate effective rate for BNPL if total repayable is provided
+  let effectiveRate = null;
+  if (isBNPL && totalRepayable && totalRepayable !== currentBalance) {
+    effectiveRate = calculateEffectiveAPR({
+      principal: currentBalance,
+      totalRepayable,
+      numberOfPayments,
+      frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
+    });
+  }
+
   const debt = await prisma.debt.create({
     data: {
       userId: session.user.id,
@@ -72,6 +118,8 @@ export async function POST(request: Request) {
       currentBalance,
       originalBalance,
       interestRate,
+      effectiveRate,
+      totalRepayable: totalRepayable || null,
       minimumPayment,
       dueDay,
       notes: notes || null,

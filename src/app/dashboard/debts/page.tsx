@@ -34,6 +34,8 @@ interface Debt {
   currentBalance: string;
   originalBalance: string;
   interestRate: string;
+  effectiveRate: string | null;
+  totalRepayable: string | null;
   minimumPayment: string;
   dueDay: number;
   deferredUntil: string | null;
@@ -43,7 +45,7 @@ interface Debt {
   scheduledPayments?: ScheduledPayment[];
 }
 
-type SortField = "name" | "interestRate" | "currentBalance" | "dueDay" | "status";
+type SortField = "name" | "interestRate" | "effectiveRate" | "currentBalance" | "dueDay" | "status";
 type SortDirection = "asc" | "desc";
 
 const DEBT_TYPE_LABELS: Record<string, string> = {
@@ -153,7 +155,7 @@ export default function DebtsPage() {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
   const [paymentDebt, setPaymentDebt] = useState<Debt | null>(null);
-  const [sortField, setSortField] = useState<SortField>("interestRate");
+  const [sortField, setSortField] = useState<SortField>("effectiveRate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   useEffect(() => {
@@ -203,6 +205,11 @@ export default function DebtsPage() {
       case "interestRate":
         aVal = Number(a.interestRate);
         bVal = Number(b.interestRate);
+        break;
+      case "effectiveRate":
+        // Use the higher of effective rate or stated APR
+        aVal = Math.max(Number(a.effectiveRate) || 0, Number(a.interestRate) || 0);
+        bVal = Math.max(Number(b.effectiveRate) || 0, Number(b.interestRate) || 0);
         break;
       case "currentBalance":
         aVal = Number(a.currentBalance);
@@ -296,10 +303,10 @@ export default function DebtsPage() {
       {/* Sort controls */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-theme-secondary text-sm">Sort by:</span>
-        <SortButton field="name" label="Name" />
-        <SortButton field="interestRate" label="Interest Rate" />
+        <SortButton field="effectiveRate" label="Effective Rate" />
+        <SortButton field="interestRate" label="Stated APR" />
         <SortButton field="currentBalance" label="Balance" />
-        <SortButton field="dueDay" label="Due Day" />
+        <SortButton field="name" label="Name" />
         <SortButton field="status" label="Status" />
       </div>
 
@@ -318,9 +325,12 @@ export default function DebtsPage() {
             const currentBalance = Number(debt.currentBalance);
             const originalBalance = Number(debt.originalBalance);
             const interestRate = Number(debt.interestRate);
+            const effectiveRate = Number(debt.effectiveRate) || 0;
+            const displayRate = Math.max(effectiveRate, interestRate);
             const progress = originalBalance > 0 ? ((originalBalance - currentBalance) / originalBalance) * 100 : 0;
             const payoffInfo = calculatePayoffInfo(debt);
             const isBNPL = debt.type === "BNPL";
+            const hasEffectiveRate = isBNPL && effectiveRate > 0 && effectiveRate !== interestRate;
 
             return (
               <Card key={debt.id}>
@@ -331,10 +341,14 @@ export default function DebtsPage() {
                         {debt.name}
                       </CardTitle>
                     </Link>
-                    {!isBNPL && (
-                      <Badge variant={interestRate > 15 ? "danger" : interestRate > 7 ? "warning" : "success"}>
-                        {interestRate}% APR
+                    {/* Show rate badge - for BNPL show effective rate if available */}
+                    {displayRate > 0 && (
+                      <Badge variant={displayRate > 15 ? "danger" : displayRate > 7 ? "warning" : "success"}>
+                        {hasEffectiveRate ? `~${effectiveRate.toFixed(1)}% eff.` : `${interestRate}% APR`}
                       </Badge>
+                    )}
+                    {isBNPL && displayRate === 0 && (
+                      <Badge variant="success">0% APR</Badge>
                     )}
                     <Badge>{DEBT_TYPE_LABELS[debt.type] || debt.type}</Badge>
                     {debt.status !== "CURRENT" && (
@@ -417,7 +431,7 @@ export default function DebtsPage() {
                       <span className="text-blue-400">
                         Deferred until {new Date(debt.deferredUntil).toLocaleDateString()}
                       </span>
-                      <span className="text-theme-muted"> — Interest continues to accrue</span>
+                      {!isBNPL && <span className="text-theme-muted"> — Interest continues to accrue</span>}
                     </div>
                   )}
 

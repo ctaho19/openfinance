@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { DebtType, DebtStatus } from "@prisma/client";
+import { calculateEffectiveAPR } from "@/lib/bnpl-utils";
 
 export async function GET(
   request: Request,
@@ -58,6 +59,9 @@ export async function PUT(
     notes,
     isActive,
     bankAccountId,
+    totalRepayable,
+    numberOfPayments,
+    paymentFrequency,
   } = body;
 
   if (type && !Object.values(DebtType).includes(type)) {
@@ -66,6 +70,24 @@ export async function PUT(
 
   if (status && !Object.values(DebtStatus).includes(status)) {
     return NextResponse.json({ error: "Invalid debt status" }, { status: 400 });
+  }
+
+  // Calculate effective rate for BNPL if total repayable is provided
+  let effectiveRate = undefined;
+  const isBNPL = (type || existing.type) === DebtType.BNPL;
+  const balance = currentBalance !== undefined ? currentBalance : Number(existing.currentBalance);
+  
+  if (isBNPL && totalRepayable !== undefined) {
+    if (totalRepayable && totalRepayable !== balance && numberOfPayments && paymentFrequency) {
+      effectiveRate = calculateEffectiveAPR({
+        principal: balance,
+        totalRepayable,
+        numberOfPayments,
+        frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
+      });
+    } else {
+      effectiveRate = null;
+    }
   }
 
   const debt = await prisma.debt.update({
@@ -77,6 +99,8 @@ export async function PUT(
       ...(currentBalance !== undefined && { currentBalance }),
       ...(originalBalance !== undefined && { originalBalance }),
       ...(interestRate !== undefined && { interestRate }),
+      ...(effectiveRate !== undefined && { effectiveRate }),
+      ...(totalRepayable !== undefined && { totalRepayable: totalRepayable || null }),
       ...(minimumPayment !== undefined && { minimumPayment }),
       ...(dueDay !== undefined && { dueDay }),
       ...(deferredUntil !== undefined && { deferredUntil: deferredUntil ? new Date(deferredUntil) : null }),
