@@ -19,6 +19,7 @@ export default $config({
       link: [authSecret, databaseUrl],
       environment: {
         DATABASE_URL: databaseUrl.value,
+        AUTH_TRUST_HOST: "true",
       },
     });
 
