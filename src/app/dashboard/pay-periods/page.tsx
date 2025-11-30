@@ -6,6 +6,7 @@ import {
   formatPayPeriod,
   type PayPeriod,
 } from "@/lib/pay-periods";
+import { ensureBillPaymentsForPayPeriod } from "@/lib/bill-payments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,9 @@ async function getPaymentsForPeriod(
   userId: string,
   payPeriod: PayPeriod
 ): Promise<BillPaymentWithBill[]> {
+  // First, ensure all recurring bill payments exist for this period
+  await ensureBillPaymentsForPayPeriod(userId, payPeriod.startDate, payPeriod.endDate);
+
   const payments = await prisma.billPayment.findMany({
     where: {
       bill: { userId },
