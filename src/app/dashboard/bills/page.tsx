@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus, Receipt } from "lucide-react";
+import { Plus, Receipt, ChevronDown, ChevronRight } from "lucide-react";
 import { BillActions } from "./bill-actions";
+import { BNPLGroup } from "./bnpl-group";
 
 type BillCategory = "SUBSCRIPTION" | "UTILITY" | "LOAN" | "BNPL" | "INSURANCE" | "CREDIT_CARD" | "OTHER";
 type BillFrequency = "ONCE" | "WEEKLY" | "BIWEEKLY" | "MONTHLY" | "YEARLY";
@@ -23,7 +24,17 @@ interface Bill {
   notes: string | null;
   isActive: boolean;
   debt: { id: string; name: string } | null;
-  payments: { dueDate: Date }[];
+  payments: { dueDate: Date; status: string }[];
+}
+
+interface BNPLDebtGroup {
+  debtId: string;
+  debtName: string;
+  bills: Bill[];
+  totalAmount: number;
+  paidCount: number;
+  totalCount: number;
+  nextPayment: { amount: number; dueDate: Date } | null;
 }
 
 const categoryLabels: Record<BillCategory, string> = {
@@ -46,33 +57,80 @@ const categoryColors: Record<BillCategory, "default" | "success" | "warning" | "
   OTHER: "default",
 };
 
-async function getBills(userId: string): Promise<Record<BillCategory, Bill[]>> {
+interface BillsData {
+  regularBills: Record<BillCategory, Bill[]>;
+  bnplGroups: BNPLDebtGroup[];
+}
+
+async function getBills(userId: string): Promise<BillsData> {
   const bills = await prisma.bill.findMany({
     where: { userId },
     include: { 
       debt: true,
       payments: {
-        select: { dueDate: true },
+        select: { dueDate: true, status: true },
         orderBy: { dueDate: "asc" },
-        take: 1,
       },
     },
     orderBy: [{ category: "asc" }, { dueDay: "asc" }],
   });
 
-  const grouped = (bills as unknown as Bill[]).reduce<Record<BillCategory, Bill[]>>(
-    (acc, bill) => {
-      const category = bill.category;
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(bill);
-      return acc;
-    },
-    {} as Record<BillCategory, Bill[]>
-  );
+  const regularBills: Record<BillCategory, Bill[]> = {} as Record<BillCategory, Bill[]>;
+  const bnplByDebt: Record<string, Bill[]> = {};
 
-  return grouped;
+  for (const bill of bills as unknown as Bill[]) {
+    if (bill.category === "BNPL" && bill.debtId) {
+      if (!bnplByDebt[bill.debtId]) {
+        bnplByDebt[bill.debtId] = [];
+      }
+      bnplByDebt[bill.debtId].push(bill);
+    } else {
+      const category = bill.category;
+      if (!regularBills[category]) {
+        regularBills[category] = [];
+      }
+      regularBills[category].push(bill);
+    }
+  }
+
+  // Convert BNPL groups to summary format
+  const bnplGroups: BNPLDebtGroup[] = Object.entries(bnplByDebt).map(([debtId, debtBills]) => {
+    const sortedBills = debtBills.sort((a, b) => {
+      const aDate = a.payments[0]?.dueDate ? new Date(a.payments[0].dueDate).getTime() : 0;
+      const bDate = b.payments[0]?.dueDate ? new Date(b.payments[0].dueDate).getTime() : 0;
+      return aDate - bDate;
+    });
+
+    const paidCount = sortedBills.filter(b => 
+      b.payments.length > 0 && b.payments[0].status === "PAID"
+    ).length;
+
+    const unpaidBill = sortedBills.find(b => 
+      b.payments.length > 0 && b.payments[0].status !== "PAID"
+    );
+
+    return {
+      debtId,
+      debtName: debtBills[0].debt?.name || "Unknown BNPL",
+      bills: sortedBills,
+      totalAmount: sortedBills.reduce((sum, b) => sum + Number(b.amount), 0),
+      paidCount,
+      totalCount: sortedBills.length,
+      nextPayment: unpaidBill ? {
+        amount: Number(unpaidBill.amount),
+        dueDate: new Date(unpaidBill.payments[0].dueDate),
+      } : null,
+    };
+  });
+
+  // Sort BNPL groups by next payment date
+  bnplGroups.sort((a, b) => {
+    if (!a.nextPayment) return 1;
+    if (!b.nextPayment) return -1;
+    return a.nextPayment.dueDate.getTime() - b.nextPayment.dueDate.getTime();
+  });
+
+  return { regularBills, bnplGroups };
 }
 
 function formatFrequency(frequency: string, isRecurring: boolean): string {
@@ -88,12 +146,10 @@ function formatFrequency(frequency: string, isRecurring: boolean): string {
 }
 
 function formatDueDate(bill: Bill): string {
-  // For one-time bills (like BNPL), show the actual due date from payments
   if (!bill.isRecurring && bill.payments.length > 0) {
     const dueDate = new Date(bill.payments[0].dueDate);
     return `Due ${dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
   }
-  // For recurring bills, show the day of month
   return `Due on day ${bill.dueDay}`;
 }
 
@@ -101,13 +157,20 @@ export default async function BillsPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const billsByCategory = await getBills(session.user.id);
-  const categories = Object.keys(billsByCategory) as BillCategory[];
+  const { regularBills, bnplGroups } = await getBills(session.user.id);
+  const categories = Object.keys(regularBills) as BillCategory[];
 
-  const totalMonthly = Object.values(billsByCategory)
+  const totalMonthly = Object.values(regularBills)
     .flat()
     .filter((b) => b.isActive && b.frequency === "MONTHLY")
     .reduce((sum, b) => sum + Number(b.amount), 0);
+
+  const totalBNPLRemaining = bnplGroups.reduce((sum, g) => {
+    const remaining = g.bills
+      .filter(b => b.payments.length > 0 && b.payments[0].status !== "PAID")
+      .reduce((s, b) => s + Number(b.amount), 0);
+    return sum + remaining;
+  }, 0);
 
   return (
     <div className="space-y-8">
@@ -126,25 +189,48 @@ export default async function BillsPage() {
         </Link>
       </div>
 
-      <Card className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 border-blue-700/50">
-        <CardContent className="py-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-blue-900/50">
-              <Receipt className="h-6 w-6 text-blue-400" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 border-blue-700/50">
+          <CardContent className="py-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-blue-900/50">
+                <Receipt className="h-6 w-6 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-blue-400 text-sm font-medium">
+                  Monthly Recurring
+                </p>
+                <p className="text-2xl font-bold text-theme-primary">
+                  ${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-blue-400 text-sm font-medium">
-                Monthly Bills Total
-              </p>
-              <p className="text-2xl font-bold text-theme-primary">
-                ${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {categories.length === 0 ? (
+        <Card className="bg-gradient-to-r from-orange-900/50 to-orange-800/30 border-orange-700/50">
+          <CardContent className="py-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-orange-900/50">
+                <Receipt className="h-6 w-6 text-orange-400" />
+              </div>
+              <div>
+                <p className="text-orange-400 text-sm font-medium">
+                  BNPL Remaining
+                </p>
+                <p className="text-2xl font-bold text-theme-primary">
+                  ${totalBNPLRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+                <p className="text-xs text-theme-muted">
+                  {bnplGroups.length} active plans
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {categories.length === 0 && bnplGroups.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Receipt className="h-12 w-12 text-theme-muted mx-auto mb-4" />
@@ -162,6 +248,28 @@ export default async function BillsPage() {
         </Card>
       ) : (
         <div className="space-y-6">
+          {/* BNPL Section - Consolidated */}
+          {bnplGroups.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Badge variant="danger">Buy Now Pay Later</Badge>
+                  <span className="text-theme-secondary text-sm font-normal">
+                    ({bnplGroups.length} plans)
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {bnplGroups.map((group) => (
+                    <BNPLGroup key={group.debtId} group={group} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Regular Bills by Category */}
           {categories.map((category) => (
             <Card key={category}>
               <CardHeader>
@@ -170,13 +278,13 @@ export default async function BillsPage() {
                     {categoryLabels[category]}
                   </Badge>
                   <span className="text-theme-secondary text-sm font-normal">
-                    ({billsByCategory[category].length} bills)
+                    ({regularBills[category].length} bills)
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {billsByCategory[category].map((bill) => (
+                  {regularBills[category].map((bill) => (
                     <div
                       key={bill.id}
                       className={`flex items-center justify-between py-3 px-4 rounded-lg bg-theme-secondary ${

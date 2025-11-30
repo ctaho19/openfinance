@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: "OpenFinance - Personal Finance Tracker",
   description:
     "Track your bi-weekly budget, crush your debt, and follow the Financial Order of Operations",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icon.svg",
+  },
+  openGraph: {
+    title: "OpenFinance",
+    description: "Track your bi-weekly budget, crush your debt, and follow the Financial Order of Operations",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

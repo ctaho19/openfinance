@@ -10,10 +10,11 @@ import { ensureBillPaymentsForPayPeriod } from "@/lib/bill-payments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChevronLeft, ChevronRight, DollarSign } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, DollarSign, Zap } from "lucide-react";
 import Link from "next/link";
 import { format, startOfDay, endOfDay } from "date-fns";
 import { PaymentToggle } from "./payment-toggle";
+import { QuickPaymentsSection } from "./quick-payments-section";
 
 interface BillPaymentWithBill {
   id: string;
@@ -55,6 +56,37 @@ async function getPaymentsForPeriod(
   return payments as unknown as BillPaymentWithBill[];
 }
 
+interface QuickPaymentWithDebt {
+  id: string;
+  description: string;
+  amount: { toString(): string } | number;
+  paidAt: Date;
+  category: string;
+  notes: string | null;
+  debt: { id: string; name: string; type: string } | null;
+}
+
+async function getQuickPaymentsForPeriod(
+  userId: string,
+  payPeriod: PayPeriod
+): Promise<QuickPaymentWithDebt[]> {
+  const quickPayments = await prisma.quickPayment.findMany({
+    where: {
+      userId,
+      paidAt: {
+        gte: startOfDay(payPeriod.startDate),
+        lte: endOfDay(payPeriod.endDate),
+      },
+    },
+    include: {
+      debt: { select: { id: true, name: true, type: true } },
+    },
+    orderBy: { paidAt: "asc" },
+  });
+
+  return quickPayments as unknown as QuickPaymentWithDebt[];
+}
+
 function getPeriodFromOffset(offset: number): PayPeriod {
   const current = getCurrentPayPeriod();
   if (offset === 0) return current;
@@ -84,12 +116,15 @@ export default async function PayPeriodsPage({
     payPeriod.startDate.getTime() === currentPeriod.startDate.getTime();
 
   const payments = await getPaymentsForPeriod(session.user.id, payPeriod);
+  const quickPayments = await getQuickPaymentsForPeriod(session.user.id, payPeriod);
 
   const totalDue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const totalPaid = payments
+  const billsPaid = payments
     .filter((p) => p.status === "PAID")
     .reduce((sum, p) => sum + Number(p.amount), 0);
-  const remaining = totalDue - totalPaid;
+  const quickPaid = quickPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPaid = billsPaid + quickPaid;
+  const remaining = totalDue - billsPaid;
 
   return (
     <div className="space-y-8">
@@ -169,10 +204,15 @@ export default async function PayPeriodsPage({
                 <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-theme-secondary">Paid</p>
+                <p className="text-sm text-theme-secondary">Total Paid</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
+                {quickPaid > 0 && (
+                  <p className="text-xs text-theme-muted">
+                    incl. ${quickPaid.toFixed(2)} quick payments
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -241,6 +281,12 @@ export default async function PayPeriodsPage({
           )}
         </CardContent>
       </Card>
+
+      <QuickPaymentsSection
+        quickPayments={quickPayments}
+        payPeriodStart={payPeriod.startDate}
+        payPeriodEnd={payPeriod.endDate}
+      />
     </div>
   );
 }
