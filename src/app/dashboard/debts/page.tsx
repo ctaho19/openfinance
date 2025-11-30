@@ -199,8 +199,9 @@ export default function DebtsPage() {
 
     switch (sortField) {
       case "name":
-        aVal = a.name.toLowerCase();
-        bVal = b.name.toLowerCase();
+        // Use natural sort for names with numbers (e.g., "Affirm - 10" after "Affirm - 9")
+        const comparison = a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
+        return sortDirection === "asc" ? comparison : -comparison;
         break;
       case "interestRate":
         aVal = Number(a.interestRate);
