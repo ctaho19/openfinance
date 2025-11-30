@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PaymentForm } from "./payment-form";
+import { SearchInput } from "@/components/ui/search-input";
 import { ArrowUpDown } from "lucide-react";
 
 interface ScheduledPayment {
@@ -159,6 +160,7 @@ export default function DebtsPage() {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
   const [paymentDebt, setPaymentDebt] = useState<Debt | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Initialize sort from URL params, fallback to defaults
   const urlSortField = searchParams.get("sort") as SortField | null;
@@ -216,7 +218,19 @@ export default function DebtsPage() {
     router.replace(`/dashboard/debts?${params.toString()}`, { scroll: false });
   }
 
-  const sortedDebts = [...debts].sort((a, b) => {
+  // Filter debts by search query
+  const filteredDebts = debts.filter((debt) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      debt.name.toLowerCase().includes(query) ||
+      debt.type.toLowerCase().includes(query) ||
+      debt.status.toLowerCase().includes(query) ||
+      (debt.notes?.toLowerCase().includes(query) ?? false)
+    );
+  });
+
+  const sortedDebts = [...filteredDebts].sort((a, b) => {
     let aVal: string | number;
     let bVal: string | number;
 
@@ -349,14 +363,22 @@ export default function DebtsPage() {
         </Card>
       </div>
 
-      {/* Sort controls */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-theme-secondary text-sm">Sort by:</span>
-        <SortButton field="effectiveRate" label="Effective Rate" />
-        <SortButton field="interestRate" label="Stated APR" />
-        <SortButton field="currentBalance" label="Balance" />
-        <SortButton field="name" label="Name" />
-        <SortButton field="status" label="Status" />
+      {/* Search and Sort controls */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search debts..."
+          className="sm:w-64"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-theme-secondary text-sm">Sort by:</span>
+          <SortButton field="effectiveRate" label="Effective Rate" />
+          <SortButton field="interestRate" label="Stated APR" />
+          <SortButton field="currentBalance" label="Balance" />
+          <SortButton field="name" label="Name" />
+          <SortButton field="status" label="Status" />
+        </div>
       </div>
 
       {debts.length === 0 ? (

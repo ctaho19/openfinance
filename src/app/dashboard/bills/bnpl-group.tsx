@@ -8,7 +8,7 @@ interface Bill {
   id: string;
   name: string;
   amount: number | { toString(): string };
-  payments: { dueDate: Date; status: string }[];
+  payments: { dueDate: Date | string; status: string }[];
 }
 
 interface BNPLDebtGroup {
@@ -18,7 +18,7 @@ interface BNPLDebtGroup {
   totalAmount: number;
   paidCount: number;
   totalCount: number;
-  nextPayment: { amount: number; dueDate: Date } | null;
+  nextPayment: { amount: number; dueDate: Date | string } | null;
 }
 
 export function BNPLGroup({ group }: { group: BNPLDebtGroup }) {
