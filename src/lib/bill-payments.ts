@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { addDays, addWeeks, addMonths, addYears, startOfDay, endOfDay } from "date-fns";
+import { addDays, addWeeks, addMonths, startOfDay, endOfDay } from "date-fns";
+import { Prisma } from "@prisma/client";
 
 interface Bill {
   id: string;
@@ -26,7 +27,7 @@ function getDueDatesForBill(
     return dates;
   }
 
-  // For monthly/yearly bills, check each day in range for matching dueDay
+  // For monthly bills, check each day in range for matching dueDay
   if (bill.frequency === "MONTHLY") {
     let current = new Date(startDate);
     while (current <= endDate) {
@@ -36,13 +37,10 @@ function getDueDatesForBill(
       current = addDays(current, 1);
     }
   } else if (bill.frequency === "YEARLY") {
-    let current = new Date(startDate);
-    while (current <= endDate) {
-      if (current.getDate() === bill.dueDay) {
-        dates.push(new Date(current));
-      }
-      current = addDays(current, 1);
-    }
+    // YEARLY: only match if both month and day match the bill's creation month
+    // For now, skip auto-generation for yearly bills - they should be manually tracked
+    // TODO: Add dueMonth field to Bill model for proper yearly support
+    return dates;
   } else if (bill.frequency === "WEEKLY") {
     // For weekly, we need a reference point - use the dueDay of current month as anchor
     let current = new Date(startDate.getFullYear(), startDate.getMonth(), bill.dueDay);
@@ -97,12 +95,17 @@ export async function ensureBillPaymentsForPeriod(
     const dueDates = getDueDatesForBill(bill as Bill, startDate, endDate);
 
     for (const dueDate of dueDates) {
-      // Check if payment record already exists
-      const existingPayment = await prisma.billPayment.findUnique({
+      const dayStart = startOfDay(dueDate);
+      const dayEnd = addDays(dayStart, 1);
+
+      // Check if payment record already exists for this calendar day
+      // Use range check to handle timezone differences in existing data
+      const existingPayment = await prisma.billPayment.findFirst({
         where: {
-          billId_dueDate: {
-            billId: bill.id,
-            dueDate: startOfDay(dueDate),
+          billId: bill.id,
+          dueDate: {
+            gte: dayStart,
+            lt: dayEnd,
           },
         },
       });
@@ -112,16 +115,25 @@ export async function ensureBillPaymentsForPeriod(
         continue;
       }
 
-      // Create the payment record
-      await prisma.billPayment.create({
-        data: {
-          billId: bill.id,
-          dueDate: startOfDay(dueDate),
-          amount: bill.amount,
-          status: "UNPAID",
-        },
-      });
-      created++;
+      // Create the payment record, handling race conditions
+      try {
+        await prisma.billPayment.create({
+          data: {
+            billId: bill.id,
+            dueDate: dayStart,
+            amount: bill.amount,
+            status: "UNPAID",
+          },
+        });
+        created++;
+      } catch (e) {
+        // Handle unique constraint violation (race condition with another request)
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+          existing++;
+        } else {
+          throw e;
+        }
+      }
     }
   }
 

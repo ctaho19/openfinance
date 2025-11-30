@@ -91,13 +91,18 @@ function getPeriodFromOffset(offset: number): PayPeriod {
   const current = getCurrentPayPeriod();
   if (offset === 0) return current;
 
-  const periods = getPayPeriods(
-    current.startDate,
-    Math.abs(offset) + 1,
-    offset > 0 ? "forward" : "backward"
-  );
-
-  return periods[Math.abs(offset)];
+  // For forward: get periods starting from current, return the one at offset index
+  // For backward: get periods going back, the array is reversed so index 0 = furthest back
+  if (offset > 0) {
+    const periods = getPayPeriods(current.startDate, offset + 1, "forward");
+    return periods[offset];
+  } else {
+    // Going backward: need to get |offset| periods before current
+    const periods = getPayPeriods(current.startDate, Math.abs(offset) + 1, "backward");
+    // After reverse, periods[0] is the furthest back, periods[|offset|] is current
+    // We want periods[0] when offset=-|offset|
+    return periods[0];
+  }
 }
 
 export default async function PayPeriodsPage({

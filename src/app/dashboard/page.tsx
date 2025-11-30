@@ -7,7 +7,7 @@ import {
   formatPayPeriod,
   getNextPayPeriod,
 } from "@/lib/pay-periods";
-import { format, differenceInDays, isToday, isTomorrow, addDays } from "date-fns";
+import { format, differenceInDays, isToday, isTomorrow, addDays, startOfDay, endOfDay } from "date-fns";
 import Link from "next/link";
 import { ArrowRight, Calendar, CreditCard, Receipt, Target, AlertTriangle, DollarSign, CheckCircle } from "lucide-react";
 import type { FOOStep } from "@prisma/client";
@@ -40,7 +40,10 @@ async function getDashboardData(userId: string) {
   const currentPeriod = getCurrentPayPeriod();
   const nextPeriod = getNextPayPeriod();
   const today = new Date();
-  const threeDaysFromNow = addDays(today, 3);
+  
+  // Use consistent date boundaries to match pay-periods page
+  const periodStart = startOfDay(currentPeriod.startDate);
+  const periodEnd = endOfDay(currentPeriod.endDate);
 
   const [user, bills, debts, fooProgress, upcomingPayments, quickPayments] = await Promise.all([
     prisma.user.findUnique({
@@ -54,8 +57,8 @@ async function getDashboardData(userId: string) {
       where: {
         bill: { userId },
         dueDate: {
-          gte: currentPeriod.startDate,
-          lte: currentPeriod.endDate,
+          gte: periodStart,
+          lte: periodEnd,
         },
       },
       include: { bill: true },
@@ -65,8 +68,8 @@ async function getDashboardData(userId: string) {
       where: {
         userId,
         paidAt: {
-          gte: currentPeriod.startDate,
-          lte: currentPeriod.endDate,
+          gte: periodStart,
+          lte: periodEnd,
         },
       },
     }),
@@ -86,15 +89,23 @@ async function getDashboardData(userId: string) {
     0
   );
 
-  const totalDueThisPeriod = upcomingPayments.reduce(
+  // Bills due = only scheduled bill payments (matches pay-periods page "Total Due")
+  const billsDueThisPeriod = upcomingPayments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
-  ) + quickPaymentTotal; // Include quick payments in total due
+  );
   
-  const totalPaidThisPeriod = paidPayments.reduce(
+  // Total due includes quick payments for safe-to-spend calculation
+  const totalDueThisPeriod = billsDueThisPeriod + quickPaymentTotal;
+  
+  // Bills paid from scheduled payments
+  const billsPaidThisPeriod = paidPayments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
-  ) + quickPaymentTotal; // Quick payments are already paid
+  );
+  
+  // Total paid = bills paid + quick payments (quick are always "paid")
+  const totalPaidThisPeriod = billsPaidThisPeriod + quickPaymentTotal;
 
   const completedSteps = fooProgress.filter(
     (p) => p.status === "COMPLETED"
@@ -136,7 +147,8 @@ async function getDashboardData(userId: string) {
     totalDebt,
     debtCount: debts.length,
     upcomingPayments: unpaidPayments.slice(0, 5),
-    totalDueThisPeriod,
+    billsDueThisPeriod, // Bills only (matches pay-periods "Total Due")
+    totalDueThisPeriod, // Bills + quick payments
     totalPaidThisPeriod,
     completedSteps,
     currentFooStep,
@@ -263,7 +275,7 @@ export default async function DashboardPage() {
               <div>
                 <p className="text-sm text-theme-muted">Due This Period</p>
                 <p className="text-2xl font-bold text-theme-primary">
-                  ${data.totalDueThisPeriod.toLocaleString()}
+                  ${data.billsDueThisPeriod.toLocaleString()}
                 </p>
               </div>
             </div>
