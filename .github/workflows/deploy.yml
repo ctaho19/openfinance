@@ -32,6 +32,7 @@ jobs:
       - name: Set SST Secrets
         run: |
           npx sst secret set AuthSecret "${{ secrets.AUTH_SECRET }}" --stage production
+          npx sst secret set DatabaseUrl "${{ secrets.DATABASE_URL }}" --stage production
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

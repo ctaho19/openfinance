@@ -10,48 +10,20 @@ export default $config({
     };
   },
   async run() {
-    // Secret for authentication
+    // Secrets
     const authSecret = new sst.Secret("AuthSecret");
+    const databaseUrl = new sst.Secret("DatabaseUrl");
 
-    // VPC for database and app
-    const vpc = new sst.aws.Vpc("Vpc", { bastion: true, nat: "ec2" });
-
-    // Postgres database (free tier compatible)
-    const database = new sst.aws.Postgres("Database", {
-      vpc,
-      instance: "t4g.micro",
-      storage: "20 GB",
-      transform: {
-        instance: {
-          backupRetentionPeriod: 0,
-        },
-      },
-      dev: {
-        username: "postgres",
-        password: "password",
-        database: "openfinance",
-        host: "localhost",
-        port: 5432,
-      },
-    });
-
-    // Next.js app deployed with OpenNext
+    // Next.js app deployed with OpenNext (no VPC needed with external DB)
     const site = new sst.aws.Nextjs("Site", {
-      vpc,
-      link: [database, authSecret],
+      link: [authSecret, databaseUrl],
       environment: {
-        DATABASE_URL: $interpolate`postgresql://${database.username}:${database.password}@${database.host}:${database.port}/${database.database}`,
+        DATABASE_URL: databaseUrl.value,
       },
     });
 
     return {
       url: site.url,
-      database: {
-        host: database.host,
-        port: database.port,
-        username: database.username,
-        database: database.database,
-      },
     };
   },
 });
