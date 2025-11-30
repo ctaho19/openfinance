@@ -16,6 +16,7 @@ export default $config({
 
     // Next.js app deployed with OpenNext (no VPC needed with external DB)
     const site = new sst.aws.Nextjs("Site", {
+      domain: "openfi.me",
       link: [authSecret, databaseUrl],
       environment: {
         DATABASE_URL: databaseUrl.value,
