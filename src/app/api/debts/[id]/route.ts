@@ -57,6 +57,7 @@ export async function PUT(
     deferredUntil,
     notes,
     isActive,
+    bankAccountId,
   } = body;
 
   if (type && !Object.values(DebtType).includes(type)) {
@@ -81,6 +82,7 @@ export async function PUT(
       ...(deferredUntil !== undefined && { deferredUntil: deferredUntil ? new Date(deferredUntil) : null }),
       ...(notes !== undefined && { notes }),
       ...(isActive !== undefined && { isActive }),
+      ...(bankAccountId !== undefined && { bankAccountId: bankAccountId || null }),
     },
   });
 

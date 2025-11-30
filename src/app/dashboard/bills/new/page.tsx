@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { BankSelector } from "@/components/banks/bank-badge";
 
 const categories = [
   { value: "SUBSCRIPTION", label: "Subscription" },
@@ -31,11 +32,21 @@ interface Debt {
   type: string;
 }
 
+interface BankAccount {
+  id: string;
+  name: string;
+  bank: string;
+  lastFour: string | null;
+  isDefault?: boolean;
+}
+
 export default function NewBillPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -49,11 +60,20 @@ export default function NewBillPage() {
   });
 
   useEffect(() => {
-    fetch("/api/debts")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setDebts(data);
+    Promise.all([
+      fetch("/api/debts").then((res) => res.json()),
+      fetch("/api/bank-accounts").then((res) => res.json()),
+    ])
+      .then(([debtsData, accountsData]) => {
+        if (Array.isArray(debtsData)) {
+          setDebts(debtsData);
+        }
+        if (Array.isArray(accountsData)) {
+          setBankAccounts(accountsData);
+          const defaultAccount = accountsData.find((a: BankAccount) => a.isDefault);
+          if (defaultAccount) {
+            setSelectedBankAccountId(defaultAccount.id);
+          }
         }
       })
       .catch(() => {});
@@ -68,7 +88,10 @@ export default function NewBillPage() {
       const res = await fetch("/api/bills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          bankAccountId: selectedBankAccountId || null,
+        }),
       });
 
       if (!res.ok) {
@@ -252,6 +275,19 @@ export default function NewBillPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+            )}
+
+            {bankAccounts.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-theme-secondary">
+                  Payment Bank Account
+                </label>
+                <BankSelector
+                  value={selectedBankAccountId}
+                  onChange={setSelectedBankAccountId}
+                  banks={bankAccounts}
+                />
               </div>
             )}
 

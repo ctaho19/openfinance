@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatPaymentPreview } from "@/lib/bnpl-utils";
+import { BankSelector } from "@/components/banks/bank-badge";
 
 const DEBT_TYPES = [
   { value: "CREDIT_CARD", label: "Credit Card" },
@@ -38,6 +39,14 @@ interface ScheduledPayment {
   dueDate: string;
   amount: string;
   isPaid: boolean;
+}
+
+interface BankAccount {
+  id: string;
+  name: string;
+  bank: string;
+  lastFour: string | null;
+  isDefault?: boolean;
 }
 
 interface Debt {
@@ -84,6 +93,8 @@ export default function EditDebtPage() {
   const [customPayments, setCustomPayments] = useState("");
   const [firstPaymentDate, setFirstPaymentDate] = useState("");
   const [paymentFrequency, setPaymentFrequency] = useState("monthly");
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
 
   const isBNPL = formData.type === "BNPL";
   const effectivePaymentCount = customPayments ? parseInt(customPayments, 10) : parseInt(numberOfPayments, 10);
@@ -101,10 +112,11 @@ export default function EditDebtPage() {
   }, [isBNPL, formData.currentBalance, effectivePaymentCount, firstPaymentDate]);
 
   useEffect(() => {
-    async function fetchDebt() {
-      const [debtRes, scheduledRes] = await Promise.all([
+    async function fetchData() {
+      const [debtRes, scheduledRes, bankRes] = await Promise.all([
         fetch(`/api/debts/${debtId}`),
         fetch(`/api/debts/${debtId}/scheduled-payments`),
+        fetch("/api/bank-accounts"),
       ]);
 
       if (debtRes.ok) {
@@ -122,6 +134,9 @@ export default function EditDebtPage() {
           deferredUntil: data.deferredUntil ? data.deferredUntil.split("T")[0] : "",
           notes: data.notes || "",
         });
+        if (data.bankAccountId) {
+          setSelectedBankAccountId(data.bankAccountId);
+        }
       } else {
         setError("Failed to load debt");
       }
@@ -140,9 +155,16 @@ export default function EditDebtPage() {
         }
       }
 
+      if (bankRes.ok) {
+        const accounts = await bankRes.json();
+        if (Array.isArray(accounts)) {
+          setBankAccounts(accounts);
+        }
+      }
+
       setLoading(false);
     }
-    fetchDebt();
+    fetchData();
   }, [debtId]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -176,6 +198,8 @@ export default function EditDebtPage() {
       data.paymentFrequency = paymentFrequency;
       data.regenerateSchedule = true;
     }
+
+    data.bankAccountId = selectedBankAccountId || null;
 
     const res = await fetch(`/api/debts/${debtId}`, {
       method: "PUT",
@@ -498,6 +522,17 @@ export default function EditDebtPage() {
                 onChange={(e) => setFormData({ ...formData, dueDay: e.target.value })}
               />
             </div>
+
+            {bankAccounts.length > 0 && (
+              <div>
+                <label className={labelClasses}>Payment Bank Account</label>
+                <BankSelector
+                  value={selectedBankAccountId}
+                  onChange={setSelectedBankAccountId}
+                  banks={bankAccounts}
+                />
+              </div>
+            )}
 
             <div>
               <label htmlFor="notes" className={labelClasses}>

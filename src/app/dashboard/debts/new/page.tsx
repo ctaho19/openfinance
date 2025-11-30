@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatPaymentPreview } from "@/lib/bnpl-utils";
+import { BankSelector } from "@/components/banks/bank-badge";
 
 const DEBT_TYPES = [
   { value: "CREDIT_CARD", label: "Credit Card" },
@@ -26,6 +27,14 @@ const PAYMENT_FREQUENCIES = [
   { value: "monthly", label: "Monthly" },
 ];
 
+interface BankAccount {
+  id: string;
+  name: string;
+  bank: string;
+  lastFour: string | null;
+  isDefault?: boolean;
+}
+
 export default function NewDebtPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -36,8 +45,25 @@ export default function NewDebtPage() {
   const [customPayments, setCustomPayments] = useState("");
   const [firstPaymentDate, setFirstPaymentDate] = useState("");
   const [paymentFrequency, setPaymentFrequency] = useState("monthly");
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
 
   const isBNPL = debtType === "BNPL";
+
+  useEffect(() => {
+    fetch("/api/bank-accounts")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setBankAccounts(data);
+          const defaultAccount = data.find((a: BankAccount) => a.isDefault);
+          if (defaultAccount) {
+            setSelectedBankAccountId(defaultAccount.id);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Use custom payment count if provided, otherwise use dropdown
   const effectivePaymentCount = customPayments ? parseInt(customPayments, 10) : parseInt(numberOfPayments, 10);
@@ -82,6 +108,10 @@ export default function NewDebtPage() {
       data.numberOfPayments = effectivePaymentCount;
       data.firstPaymentDate = firstPaymentDate;
       data.paymentFrequency = paymentFrequency;
+    }
+
+    if (selectedBankAccountId) {
+      data.bankAccountId = selectedBankAccountId;
     }
 
     const res = await fetch("/api/debts", {
@@ -340,6 +370,17 @@ export default function NewDebtPage() {
                 className={inputClasses}
               />
             </div>
+
+            {bankAccounts.length > 0 && (
+              <div>
+                <label className={labelClasses}>Payment Bank Account</label>
+                <BankSelector
+                  value={selectedBankAccountId}
+                  onChange={setSelectedBankAccountId}
+                  banks={bankAccounts}
+                />
+              </div>
+            )}
 
             <div>
               <label htmlFor="notes" className={labelClasses}>

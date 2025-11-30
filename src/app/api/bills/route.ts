@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, category, amount, dueDay, isRecurring, frequency, debtId, notes } = body;
+  const { name, category, amount, dueDay, isRecurring, frequency, debtId, bankAccountId, notes } = body;
 
   if (!name || !amount || !dueDay) {
     return NextResponse.json(
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       isRecurring: isRecurring ?? true,
       frequency: frequency || "MONTHLY",
       debtId: debtId || null,
+      bankAccountId: bankAccountId || null,
       notes: notes || null,
     },
   });

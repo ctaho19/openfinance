@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     numberOfPayments,
     firstPaymentDate,
     paymentFrequency,
+    bankAccountId,
   } = body;
 
   if (!name || !type || currentBalance === undefined || originalBalance === undefined || interestRate === undefined || minimumPayment === undefined || dueDay === undefined) {
@@ -74,6 +75,7 @@ export async function POST(request: Request) {
       minimumPayment,
       dueDay,
       notes: notes || null,
+      bankAccountId: bankAccountId || null,
     },
   });
 
