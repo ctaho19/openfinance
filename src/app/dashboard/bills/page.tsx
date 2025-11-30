@@ -79,11 +79,13 @@ async function getBills(userId: string): Promise<BillsData> {
   const bnplByDebt: Record<string, Bill[]> = {};
 
   for (const bill of bills as unknown as Bill[]) {
-    if (bill.category === "BNPL" && bill.debtId) {
-      if (!bnplByDebt[bill.debtId]) {
-        bnplByDebt[bill.debtId] = [];
+    // All BNPL bills go to the BNPL section (grouped by debt or ungrouped)
+    if (bill.category === "BNPL") {
+      const key = bill.debtId || "ungrouped";
+      if (!bnplByDebt[key]) {
+        bnplByDebt[key] = [];
       }
-      bnplByDebt[bill.debtId].push(bill);
+      bnplByDebt[key].push(bill);
     } else {
       const category = bill.category;
       if (!regularBills[category]) {
@@ -190,10 +192,10 @@ export default async function BillsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700/50">
+        <Card className="bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-blue-500/30">
           <CardContent className="py-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+              <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-500/20">
                 <Receipt className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
@@ -208,10 +210,10 @@ export default async function BillsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-700/50">
+        <Card className="bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-orange-500/30">
           <CardContent className="py-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/50">
+              <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-500/20">
                 <Receipt className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
