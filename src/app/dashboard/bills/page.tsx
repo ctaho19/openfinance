@@ -190,17 +190,17 @@ export default async function BillsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 border-blue-700/50">
+        <Card className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700/50">
           <CardContent className="py-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-blue-900/50">
-                <Receipt className="h-6 w-6 text-blue-400" />
+              <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                <Receipt className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-blue-400 text-sm font-medium">
+                <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                   Monthly Recurring
                 </p>
-                <p className="text-2xl font-bold text-theme-primary">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   ${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
               </div>
@@ -208,20 +208,20 @@ export default async function BillsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-orange-900/50 to-orange-800/30 border-orange-700/50">
+        <Card className="bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-700/50">
           <CardContent className="py-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-orange-900/50">
-                <Receipt className="h-6 w-6 text-orange-400" />
+              <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/50">
+                <Receipt className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-orange-400 text-sm font-medium">
+                <p className="text-orange-600 dark:text-orange-400 text-sm font-medium">
                   BNPL Remaining
                 </p>
-                <p className="text-2xl font-bold text-theme-primary">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   ${totalBNPLRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
-                <p className="text-xs text-theme-muted">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {bnplGroups.length} active plans
                 </p>
               </div>
