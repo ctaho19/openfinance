@@ -42,7 +42,7 @@ async function getDashboardData(userId: string) {
   const today = new Date();
   const threeDaysFromNow = addDays(today, 3);
 
-  const [user, bills, debts, fooProgress, upcomingPayments] = await Promise.all([
+  const [user, bills, debts, fooProgress, upcomingPayments, quickPayments] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: { paycheckAmount: true },
@@ -61,6 +61,15 @@ async function getDashboardData(userId: string) {
       include: { bill: true },
       orderBy: { dueDate: "asc" },
     }),
+    prisma.quickPayment.findMany({
+      where: {
+        userId,
+        paidAt: {
+          gte: currentPeriod.startDate,
+          lte: currentPeriod.endDate,
+        },
+      },
+    }),
   ]);
 
   const totalDebt = debts.reduce(
@@ -71,14 +80,21 @@ async function getDashboardData(userId: string) {
   const paidPayments = upcomingPayments.filter((p) => p.status === "PAID");
   const unpaidPayments = upcomingPayments.filter((p) => p.status === "UNPAID");
 
+  // Quick payments are always "paid" - they're logged after the fact
+  const quickPaymentTotal = quickPayments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0
+  );
+
   const totalDueThisPeriod = upcomingPayments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
-  );
+  ) + quickPaymentTotal; // Include quick payments in total due
+  
   const totalPaidThisPeriod = paidPayments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
-  );
+  ) + quickPaymentTotal; // Quick payments are already paid
 
   const completedSteps = fooProgress.filter(
     (p) => p.status === "COMPLETED"
