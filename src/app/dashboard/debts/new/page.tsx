@@ -17,7 +17,8 @@ const DEBT_TYPES = [
   { value: "OTHER", label: "Other" },
 ];
 
-const PAYMENT_COUNTS = [2, 3, 4, 6, 12];
+// Extended payment count options
+const PAYMENT_COUNTS = [2, 3, 4, 5, 6, 8, 10, 12, 18, 24, 36, 48, 60];
 
 const PAYMENT_FREQUENCIES = [
   { value: "weekly", label: "Weekly" },
@@ -32,23 +33,26 @@ export default function NewDebtPage() {
   const [debtType, setDebtType] = useState("");
   const [currentBalance, setCurrentBalance] = useState("");
   const [numberOfPayments, setNumberOfPayments] = useState("4");
+  const [customPayments, setCustomPayments] = useState("");
   const [firstPaymentDate, setFirstPaymentDate] = useState("");
   const [paymentFrequency, setPaymentFrequency] = useState("monthly");
 
   const isBNPL = debtType === "BNPL";
 
+  // Use custom payment count if provided, otherwise use dropdown
+  const effectivePaymentCount = customPayments ? parseInt(customPayments, 10) : parseInt(numberOfPayments, 10);
+
   const paymentPreview = useMemo(() => {
-    if (!isBNPL || !currentBalance || !numberOfPayments || !firstPaymentDate) {
+    if (!isBNPL || !currentBalance || !effectivePaymentCount || !firstPaymentDate) {
       return null;
     }
     const balance = parseFloat(currentBalance);
-    const payments = parseInt(numberOfPayments, 10);
-    if (isNaN(balance) || isNaN(payments) || balance <= 0 || payments <= 0) {
+    if (isNaN(balance) || isNaN(effectivePaymentCount) || balance <= 0 || effectivePaymentCount <= 0) {
       return null;
     }
-    const paymentAmount = Math.round((balance / payments) * 100) / 100;
-    return formatPaymentPreview(payments, paymentAmount, new Date(firstPaymentDate + "T00:00:00"));
-  }, [isBNPL, currentBalance, numberOfPayments, firstPaymentDate]);
+    const paymentAmount = Math.round((balance / effectivePaymentCount) * 100) / 100;
+    return formatPaymentPreview(effectivePaymentCount, paymentAmount, new Date(firstPaymentDate + "T00:00:00"));
+  }, [isBNPL, currentBalance, effectivePaymentCount, firstPaymentDate]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -56,19 +60,26 @@ export default function NewDebtPage() {
     setError("");
 
     const formData = new FormData(e.currentTarget);
+    
+    // Calculate payment amount for BNPL
+    const balance = parseFloat(formData.get("currentBalance") as string);
+    const paymentAmount = isBNPL && effectivePaymentCount > 0 
+      ? Math.round((balance / effectivePaymentCount) * 100) / 100
+      : parseFloat(formData.get("minimumPayment") as string);
+
     const data: Record<string, unknown> = {
       name: formData.get("name"),
       type: formData.get("type"),
-      currentBalance: parseFloat(formData.get("currentBalance") as string),
+      currentBalance: balance,
       originalBalance: parseFloat(formData.get("originalBalance") as string),
-      interestRate: parseFloat(formData.get("interestRate") as string),
-      minimumPayment: parseFloat(formData.get("minimumPayment") as string),
+      interestRate: isBNPL ? 0 : parseFloat(formData.get("interestRate") as string),
+      minimumPayment: paymentAmount,
       dueDay: parseInt(formData.get("dueDay") as string, 10),
       notes: formData.get("notes") || null,
     };
 
     if (isBNPL) {
-      data.numberOfPayments = parseInt(numberOfPayments, 10);
+      data.numberOfPayments = effectivePaymentCount;
       data.firstPaymentDate = firstPaymentDate;
       data.paymentFrequency = paymentFrequency;
     }
@@ -89,14 +100,14 @@ export default function NewDebtPage() {
   }
 
   const inputClasses =
-    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent";
+    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent";
   const labelClasses = "block text-sm font-medium text-theme-secondary mb-2";
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
         <Link href="/dashboard/debts" className="text-theme-secondary hover:text-theme-primary text-sm">
-          Back to Debts
+          ← Back to Debts
         </Link>
       </div>
 
@@ -107,7 +118,7 @@ export default function NewDebtPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 bg-red-900/50 border border-red-800 rounded-lg text-red-400 text-sm">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600 dark:text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -121,7 +132,7 @@ export default function NewDebtPage() {
                 id="name"
                 name="name"
                 required
-                placeholder="e.g., Chase Sapphire"
+                placeholder="e.g., Chase Sapphire or Affirm - Laptop"
                 className={inputClasses}
               />
             </div>
@@ -150,7 +161,7 @@ export default function NewDebtPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="currentBalance" className={labelClasses}>
-                  Current Balance ($)
+                  {isBNPL ? "Total Amount ($)" : "Current Balance ($)"}
                 </label>
                 <input
                   type="number"
@@ -159,7 +170,7 @@ export default function NewDebtPage() {
                   required
                   min="0"
                   step="0.01"
-                  placeholder="5000.00"
+                  placeholder={isBNPL ? "1200.00" : "5000.00"}
                   className={inputClasses}
                   value={currentBalance}
                   onChange={(e) => setCurrentBalance(e.target.value)}
@@ -177,7 +188,8 @@ export default function NewDebtPage() {
                   required
                   min="0"
                   step="0.01"
-                  placeholder="10000.00"
+                  placeholder={isBNPL ? currentBalance || "1200.00" : "10000.00"}
+                  defaultValue={isBNPL ? currentBalance : ""}
                   className={inputClasses}
                 />
               </div>
@@ -185,7 +197,10 @@ export default function NewDebtPage() {
 
             {isBNPL && (
               <div className="p-4 bg-theme-tertiary border border-theme rounded-lg space-y-4">
-                <h3 className="text-sm font-medium text-emerald-400">BNPL Payment Schedule</h3>
+                <h3 className="text-sm font-medium text-accent">BNPL Payment Schedule</h3>
+                <p className="text-xs text-theme-muted">
+                  For BNPL loans like Affirm, Klarna, or Afterpay, the interest is typically built into the fixed payment amount.
+                </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
@@ -195,10 +210,12 @@ export default function NewDebtPage() {
                     <select
                       id="numberOfPayments"
                       name="numberOfPayments"
-                      required
                       className={inputClasses}
                       value={numberOfPayments}
-                      onChange={(e) => setNumberOfPayments(e.target.value)}
+                      onChange={(e) => {
+                        setNumberOfPayments(e.target.value);
+                        setCustomPayments("");
+                      }}
                     >
                       {PAYMENT_COUNTS.map((count) => (
                         <option key={count} value={count}>
@@ -206,6 +223,17 @@ export default function NewDebtPage() {
                         </option>
                       ))}
                     </select>
+                    <div className="mt-2">
+                      <input
+                        type="number"
+                        placeholder="Or enter custom..."
+                        min="1"
+                        max="360"
+                        className={`${inputClasses} text-sm`}
+                        value={customPayments}
+                        onChange={(e) => setCustomPayments(e.target.value)}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -245,51 +273,61 @@ export default function NewDebtPage() {
                 </div>
 
                 {paymentPreview && (
-                  <div className="p-3 bg-emerald-900/30 border border-emerald-800 rounded-lg text-emerald-400 text-sm">
-                    Preview: {paymentPreview}
+                  <div className="p-3 bg-accent/10 border border-accent/30 rounded-lg text-theme-primary text-sm">
+                    <span className="font-medium text-accent">Preview:</span> {paymentPreview}
                   </div>
                 )}
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="interestRate" className={labelClasses}>
-                  Interest Rate (% APR)
-                </label>
-                <input
-                  type="number"
-                  id="interestRate"
-                  name="interestRate"
-                  required
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  placeholder={isBNPL ? "0" : "19.99"}
-                  className={inputClasses}
-                />
-              </div>
+            {!isBNPL && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="interestRate" className={labelClasses}>
+                    Interest Rate (% APR)
+                  </label>
+                  <input
+                    type="number"
+                    id="interestRate"
+                    name="interestRate"
+                    required
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    placeholder="19.99"
+                    className={inputClasses}
+                  />
+                </div>
 
-              <div>
-                <label htmlFor="minimumPayment" className={labelClasses}>
-                  Minimum Payment ($)
-                </label>
-                <input
-                  type="number"
-                  id="minimumPayment"
-                  name="minimumPayment"
-                  required
-                  min="0"
-                  step="0.01"
-                  placeholder="150.00"
-                  className={inputClasses}
-                />
+                <div>
+                  <label htmlFor="minimumPayment" className={labelClasses}>
+                    Minimum Payment ($)
+                  </label>
+                  <input
+                    type="number"
+                    id="minimumPayment"
+                    name="minimumPayment"
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="150.00"
+                    className={inputClasses}
+                  />
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Hidden fields for BNPL */}
+            {isBNPL && (
+              <>
+                <input type="hidden" name="interestRate" value="0" />
+                <input type="hidden" name="minimumPayment" value={currentBalance && effectivePaymentCount ? (parseFloat(currentBalance) / effectivePaymentCount).toFixed(2) : "0"} />
+              </>
+            )}
 
             <div>
               <label htmlFor="dueDay" className={labelClasses}>
-                Due Day of Month (1-31)
+                {isBNPL ? "First Payment Day of Month (1-31)" : "Due Day of Month (1-31)"}
               </label>
               <input
                 type="number"

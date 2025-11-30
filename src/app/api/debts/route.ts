@@ -101,6 +101,21 @@ export async function POST(request: Request) {
       frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
     });
 
+    // Create scheduled payments for tracking
+    for (let i = 0; i < schedule.paymentDates.length; i++) {
+      const paymentDate = schedule.paymentDates[i];
+
+      await prisma.scheduledPayment.create({
+        data: {
+          debtId: debt.id,
+          dueDate: paymentDate,
+          amount: schedule.paymentAmount,
+          notes: `Payment ${i + 1} of ${numberOfPayments}`,
+        },
+      });
+    }
+
+    // Create bills for bill tracking
     for (let i = 0; i < schedule.paymentDates.length; i++) {
       const paymentDate = schedule.paymentDates[i];
       const paymentNumber = i + 1;
