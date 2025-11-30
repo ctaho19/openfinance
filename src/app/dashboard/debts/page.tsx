@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -152,11 +153,24 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
 }
 
 export default function DebtsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
   const [paymentDebt, setPaymentDebt] = useState<Debt | null>(null);
-  const [sortField, setSortField] = useState<SortField>("effectiveRate");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  
+  // Initialize sort from URL params, fallback to defaults
+  const urlSortField = searchParams.get("sort") as SortField | null;
+  const urlSortDir = searchParams.get("dir") as SortDirection | null;
+  const validSortFields: SortField[] = ["name", "interestRate", "effectiveRate", "currentBalance", "dueDay", "status"];
+  
+  const [sortField, setSortField] = useState<SortField>(
+    urlSortField && validSortFields.includes(urlSortField) ? urlSortField : "effectiveRate"
+  );
+  const [sortDirection, setSortDirection] = useState<SortDirection>(
+    urlSortDir === "asc" || urlSortDir === "desc" ? urlSortDir : "desc"
+  );
 
   useEffect(() => {
     fetchDebts();
@@ -185,12 +199,21 @@ export default function DebtsPage() {
   }
 
   function handleSort(field: SortField) {
+    let newDirection: SortDirection;
     if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      newDirection = sortDirection === "asc" ? "desc" : "asc";
     } else {
-      setSortField(field);
-      setSortDirection(field === "name" ? "asc" : "desc");
+      newDirection = field === "name" ? "asc" : "desc";
     }
+    
+    setSortField(field);
+    setSortDirection(newDirection);
+    
+    // Update URL to persist sort preference
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sort", field);
+    params.set("dir", newDirection);
+    router.replace(`/dashboard/debts?${params.toString()}`, { scroll: false });
   }
 
   const sortedDebts = [...debts].sort((a, b) => {

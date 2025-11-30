@@ -15,6 +15,7 @@ import Link from "next/link";
 import { format, startOfDay, endOfDay } from "date-fns";
 import { PaymentToggle } from "./payment-toggle";
 import { QuickPaymentsSection } from "./quick-payments-section";
+import { BankAllocationSection } from "./bank-allocation";
 
 interface BillPaymentWithBill {
   id: string;
@@ -27,6 +28,12 @@ interface BillPaymentWithBill {
     id: string;
     name: string;
     category: string;
+    bankAccountId: string | null;
+    bankAccount: {
+      id: string;
+      name: string;
+      bank: string;
+    } | null;
   };
 }
 
@@ -47,7 +54,15 @@ async function getPaymentsForPeriod(
     },
     include: {
       bill: {
-        select: { id: true, name: true, category: true },
+        select: {
+          id: true,
+          name: true,
+          category: true,
+          bankAccountId: true,
+          bankAccount: {
+            select: { id: true, name: true, bank: true },
+          },
+        },
       },
     },
     orderBy: { dueDate: "asc" },
@@ -130,6 +145,48 @@ export default async function PayPeriodsPage({
   const quickPaid = quickPayments.reduce((sum, p) => sum + Number(p.amount), 0);
   const totalPaid = billsPaid + quickPaid;
   const remaining = totalDue - billsPaid;
+
+  // Calculate bank allocations for payday
+  const bankAllocationMap = new Map<string, {
+    bankId: string | null;
+    bankName: string;
+    bankType: string;
+    totalAmount: number;
+    bills: { id: string; name: string; amount: number; dueDate: Date; status: string }[];
+  }>();
+
+  for (const payment of payments) {
+    const bankId = payment.bill.bankAccountId || "unassigned";
+    const bankName = payment.bill.bankAccount?.name || "Unassigned Bills";
+    const bankType = payment.bill.bankAccount?.bank || "OTHER";
+
+    if (!bankAllocationMap.has(bankId)) {
+      bankAllocationMap.set(bankId, {
+        bankId: payment.bill.bankAccountId,
+        bankName,
+        bankType,
+        totalAmount: 0,
+        bills: [],
+      });
+    }
+
+    const allocation = bankAllocationMap.get(bankId)!;
+    allocation.totalAmount += Number(payment.amount);
+    allocation.bills.push({
+      id: payment.id,
+      name: payment.bill.name,
+      amount: Number(payment.amount),
+      dueDate: payment.dueDate,
+      status: payment.status,
+    });
+  }
+
+  // Sort allocations: assigned banks first (sorted by amount), unassigned last
+  const bankAllocations = Array.from(bankAllocationMap.values()).sort((a, b) => {
+    if (!a.bankId && b.bankId) return 1;
+    if (a.bankId && !b.bankId) return -1;
+    return b.totalAmount - a.totalAmount;
+  });
 
   return (
     <div className="space-y-8">
@@ -286,6 +343,10 @@ export default async function PayPeriodsPage({
           )}
         </CardContent>
       </Card>
+
+      {isCurrent && bankAllocations.length > 0 && (
+        <BankAllocationSection allocations={bankAllocations} />
+      )}
 
       <QuickPaymentsSection
         quickPayments={quickPayments}
