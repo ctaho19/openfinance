@@ -120,6 +120,11 @@ export default function NewDebtPage() {
       ? (bnplHasInterest && interestRate ? parseFloat(interestRate) : 0)
       : parseFloat(formData.get("interestRate") as string);
 
+    // For BNPL, auto-calculate dueDay from first payment date
+    const dueDay = isBNPL && firstPaymentDate
+      ? new Date(firstPaymentDate + "T00:00:00").getDate()
+      : parseInt(formData.get("dueDay") as string, 10);
+
     const data: Record<string, unknown> = {
       name: formData.get("name"),
       type: formData.get("type"),
@@ -127,7 +132,7 @@ export default function NewDebtPage() {
       originalBalance: parseFloat(formData.get("originalBalance") as string),
       interestRate: statedInterestRate,
       minimumPayment: paymentAmount,
-      dueDay: parseInt(formData.get("dueDay") as string, 10),
+      dueDay,
       notes: formData.get("notes") || null,
     };
 
@@ -446,21 +451,23 @@ export default function NewDebtPage() {
               </div>
             )}
 
-            <div>
-              <label htmlFor="dueDay" className={labelClasses}>
-                Due Day of Month (1-31)
-              </label>
-              <input
-                type="number"
-                id="dueDay"
-                name="dueDay"
-                required
-                min="1"
-                max="31"
-                placeholder="15"
-                className={inputClasses}
-              />
-            </div>
+            {!isBNPL && (
+              <div>
+                <label htmlFor="dueDay" className={labelClasses}>
+                  Due Day of Month (1-31)
+                </label>
+                <input
+                  type="number"
+                  id="dueDay"
+                  name="dueDay"
+                  required
+                  min="1"
+                  max="31"
+                  placeholder="15"
+                  className={inputClasses}
+                />
+              </div>
+            )}
 
             {bankAccounts.length > 0 && (
               <div>

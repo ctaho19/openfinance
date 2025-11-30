@@ -208,6 +208,11 @@ export default function EditDebtPage() {
       ? Math.round((total / effectivePaymentCount) * 100) / 100
       : parseFloat(formData.minimumPayment);
 
+    // For BNPL, auto-calculate dueDay from first payment date
+    const dueDay = isBNPL && firstPaymentDate
+      ? new Date(firstPaymentDate + "T00:00:00").getDate()
+      : parseInt(formData.dueDay, 10);
+
     const data: Record<string, unknown> = {
       name: formData.name,
       type: formData.type,
@@ -215,7 +220,7 @@ export default function EditDebtPage() {
       originalBalance: parseFloat(formData.originalBalance),
       interestRate: parseFloat(formData.interestRate) || 0,
       minimumPayment: paymentAmount,
-      dueDay: parseInt(formData.dueDay, 10),
+      dueDay,
       status: formData.status,
       deferredUntil: formData.deferredUntil || null,
       notes: formData.notes || null,
@@ -617,21 +622,23 @@ export default function EditDebtPage() {
               </div>
             )}
 
-            <div>
-              <label htmlFor="dueDay" className={labelClasses}>
-                Due Day of Month (1-31)
-              </label>
-              <input
-                type="number"
-                id="dueDay"
-                required
-                min="1"
-                max="31"
-                className={inputClasses}
-                value={formData.dueDay}
-                onChange={(e) => setFormData({ ...formData, dueDay: e.target.value })}
-              />
-            </div>
+            {!isBNPL && (
+              <div>
+                <label htmlFor="dueDay" className={labelClasses}>
+                  Due Day of Month (1-31)
+                </label>
+                <input
+                  type="number"
+                  id="dueDay"
+                  required
+                  min="1"
+                  max="31"
+                  className={inputClasses}
+                  value={formData.dueDay}
+                  onChange={(e) => setFormData({ ...formData, dueDay: e.target.value })}
+                />
+              </div>
+            )}
 
             {bankAccounts.length > 0 && (
               <div>
