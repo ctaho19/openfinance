@@ -127,7 +127,7 @@ async function getDashboardData(userId: string) {
   );
 
   const paycheckAmount = user?.paycheckAmount ? Number(user.paycheckAmount) : 0;
-  const safeToSpend = paycheckAmount - totalDueThisPeriod + totalPaidThisPeriod;
+  const safeToSpend = paycheckAmount - totalDueThisPeriod;
 
   return {
     currentPeriod,
