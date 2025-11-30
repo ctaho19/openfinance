@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { revalidatePath } from "next/cache";
 import { Button } from "@/components/ui/button";
 import { AppearanceSettings } from "@/components/ui/appearance-settings";
+import { BankAccountsSection } from "./bank-accounts-section";
 
 async function getUserSettings(userId: string) {
   const user = await prisma.user.findUnique({
@@ -91,6 +92,8 @@ export default async function SettingsPage() {
             <AppearanceSettings />
           </CardContent>
         </Card>
+
+        <BankAccountsSection />
 
         <Card className="md:col-span-2">
           <CardHeader>

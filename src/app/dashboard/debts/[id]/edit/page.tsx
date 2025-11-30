@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatPaymentPreview } from "@/lib/bnpl-utils";
 
 const DEBT_TYPES = [
   { value: "CREDIT_CARD", label: "Credit Card" },
@@ -23,6 +24,21 @@ const DEBT_STATUSES = [
   { value: "IN_COLLECTIONS", label: "In Collections" },
   { value: "PAID_OFF", label: "Paid Off" },
 ];
+
+const PAYMENT_COUNTS = [2, 3, 4, 5, 6, 8, 10, 12, 18, 24, 36, 48, 60];
+
+const PAYMENT_FREQUENCIES = [
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Bi-weekly" },
+  { value: "monthly", label: "Monthly" },
+];
+
+interface ScheduledPayment {
+  id: string;
+  dueDate: string;
+  amount: string;
+  isPaid: boolean;
+}
 
 interface Debt {
   id: string;
@@ -48,6 +64,7 @@ export default function EditDebtPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [debt, setDebt] = useState<Debt | null>(null);
+  const [scheduledPayments, setScheduledPayments] = useState<ScheduledPayment[]>([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -62,11 +79,36 @@ export default function EditDebtPage() {
     notes: "",
   });
 
+  // BNPL specific state
+  const [numberOfPayments, setNumberOfPayments] = useState("4");
+  const [customPayments, setCustomPayments] = useState("");
+  const [firstPaymentDate, setFirstPaymentDate] = useState("");
+  const [paymentFrequency, setPaymentFrequency] = useState("monthly");
+
+  const isBNPL = formData.type === "BNPL";
+  const effectivePaymentCount = customPayments ? parseInt(customPayments, 10) : parseInt(numberOfPayments, 10);
+
+  const paymentPreview = useMemo(() => {
+    if (!isBNPL || !formData.currentBalance || !effectivePaymentCount || !firstPaymentDate) {
+      return null;
+    }
+    const balance = parseFloat(formData.currentBalance);
+    if (isNaN(balance) || isNaN(effectivePaymentCount) || balance <= 0 || effectivePaymentCount <= 0) {
+      return null;
+    }
+    const paymentAmount = Math.round((balance / effectivePaymentCount) * 100) / 100;
+    return formatPaymentPreview(effectivePaymentCount, paymentAmount, new Date(firstPaymentDate + "T00:00:00"));
+  }, [isBNPL, formData.currentBalance, effectivePaymentCount, firstPaymentDate]);
+
   useEffect(() => {
     async function fetchDebt() {
-      const res = await fetch(`/api/debts/${debtId}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [debtRes, scheduledRes] = await Promise.all([
+        fetch(`/api/debts/${debtId}`),
+        fetch(`/api/debts/${debtId}/scheduled-payments`),
+      ]);
+
+      if (debtRes.ok) {
+        const data = await debtRes.json();
         setDebt(data);
         setFormData({
           name: data.name || "",
@@ -83,6 +125,21 @@ export default function EditDebtPage() {
       } else {
         setError("Failed to load debt");
       }
+
+      if (scheduledRes.ok) {
+        const payments = await scheduledRes.json();
+        setScheduledPayments(payments);
+        
+        // If there are scheduled payments, set BNPL form state
+        if (payments.length > 0) {
+          setNumberOfPayments(payments.length.toString());
+          const firstPayment = payments[0];
+          if (firstPayment?.dueDate) {
+            setFirstPaymentDate(firstPayment.dueDate.split("T")[0]);
+          }
+        }
+      }
+
       setLoading(false);
     }
     fetchDebt();
@@ -93,18 +150,32 @@ export default function EditDebtPage() {
     setSaving(true);
     setError("");
 
-    const data = {
+    // Calculate payment amount for BNPL
+    const balance = parseFloat(formData.currentBalance);
+    const paymentAmount = isBNPL && effectivePaymentCount > 0 
+      ? Math.round((balance / effectivePaymentCount) * 100) / 100
+      : parseFloat(formData.minimumPayment);
+
+    const data: Record<string, unknown> = {
       name: formData.name,
       type: formData.type,
-      currentBalance: parseFloat(formData.currentBalance),
+      currentBalance: balance,
       originalBalance: parseFloat(formData.originalBalance),
-      interestRate: parseFloat(formData.interestRate),
-      minimumPayment: parseFloat(formData.minimumPayment),
+      interestRate: isBNPL ? 0 : parseFloat(formData.interestRate),
+      minimumPayment: paymentAmount,
       dueDay: parseInt(formData.dueDay, 10),
       status: formData.status,
       deferredUntil: formData.deferredUntil || null,
       notes: formData.notes || null,
     };
+
+    // Include BNPL schedule info if updating to regenerate payments
+    if (isBNPL && firstPaymentDate) {
+      data.numberOfPayments = effectivePaymentCount;
+      data.firstPaymentDate = firstPaymentDate;
+      data.paymentFrequency = paymentFrequency;
+      data.regenerateSchedule = true;
+    }
 
     const res = await fetch(`/api/debts/${debtId}`, {
       method: "PUT",
@@ -122,7 +193,7 @@ export default function EditDebtPage() {
   }
 
   const inputClasses =
-    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent";
+    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent";
   const labelClasses = "block text-sm font-medium text-theme-secondary mb-2";
 
   if (loading) {
@@ -136,8 +207,8 @@ export default function EditDebtPage() {
   if (!debt) {
     return (
       <div className="p-6">
-        <p className="text-red-400">Debt not found</p>
-        <Link href="/dashboard/debts" className="text-emerald-400 hover:underline">
+        <p className="text-red-500 dark:text-red-400">Debt not found</p>
+        <Link href="/dashboard/debts" className="text-accent hover:underline">
           Back to Debts
         </Link>
       </div>
@@ -159,7 +230,7 @@ export default function EditDebtPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 bg-red-900/50 border border-red-800 rounded-lg text-red-400 text-sm">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600 dark:text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -236,10 +307,115 @@ export default function EditDebtPage() {
               </div>
             )}
 
+            {/* BNPL Payment Schedule */}
+            {isBNPL && (
+              <div className="p-4 bg-theme-tertiary border border-theme rounded-lg space-y-4">
+                <h3 className="text-sm font-medium text-accent">BNPL Payment Schedule</h3>
+                
+                {scheduledPayments.length > 0 && (
+                  <div className="p-3 bg-theme-secondary rounded-lg">
+                    <p className="text-xs text-theme-muted mb-2">Current Schedule: {scheduledPayments.length} payments</p>
+                    <div className="flex flex-wrap gap-2">
+                      {scheduledPayments.slice(0, 6).map((payment, i) => (
+                        <span
+                          key={payment.id}
+                          className={`text-xs px-2 py-1 rounded ${
+                            payment.isPaid 
+                              ? "bg-green-500/20 text-green-600 dark:text-green-400 line-through" 
+                              : "bg-theme-tertiary text-theme-secondary"
+                          }`}
+                        >
+                          {new Date(payment.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </span>
+                      ))}
+                      {scheduledPayments.length > 6 && (
+                        <span className="text-xs text-theme-muted">+{scheduledPayments.length - 6} more</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-xs text-theme-muted">
+                  Update the schedule below to regenerate payment dates
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="numberOfPayments" className={labelClasses}>
+                      Number of Payments
+                    </label>
+                    <select
+                      id="numberOfPayments"
+                      className={inputClasses}
+                      value={numberOfPayments}
+                      onChange={(e) => {
+                        setNumberOfPayments(e.target.value);
+                        setCustomPayments("");
+                      }}
+                    >
+                      {PAYMENT_COUNTS.map((count) => (
+                        <option key={count} value={count}>
+                          {count} payments
+                        </option>
+                      ))}
+                    </select>
+                    <div className="mt-2">
+                      <input
+                        type="number"
+                        placeholder="Or enter custom..."
+                        min="1"
+                        max="360"
+                        className={`${inputClasses} text-sm`}
+                        value={customPayments}
+                        onChange={(e) => setCustomPayments(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="firstPaymentDate" className={labelClasses}>
+                      First Payment Date
+                    </label>
+                    <input
+                      type="date"
+                      id="firstPaymentDate"
+                      className={inputClasses}
+                      value={firstPaymentDate}
+                      onChange={(e) => setFirstPaymentDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="paymentFrequency" className={labelClasses}>
+                      Payment Frequency
+                    </label>
+                    <select
+                      id="paymentFrequency"
+                      className={inputClasses}
+                      value={paymentFrequency}
+                      onChange={(e) => setPaymentFrequency(e.target.value)}
+                    >
+                      {PAYMENT_FREQUENCIES.map((freq) => (
+                        <option key={freq.value} value={freq.value}>
+                          {freq.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {paymentPreview && (
+                  <div className="p-3 bg-accent/10 border border-accent/30 rounded-lg text-theme-primary text-sm">
+                    <span className="font-medium text-accent">New Schedule:</span> {paymentPreview}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="currentBalance" className={labelClasses}>
-                  Current Balance ($)
+                  {isBNPL ? "Total Amount ($)" : "Current Balance ($)"}
                 </label>
                 <input
                   type="number"
@@ -270,40 +446,42 @@ export default function EditDebtPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="interestRate" className={labelClasses}>
-                  Interest Rate (% APR)
-                </label>
-                <input
-                  type="number"
-                  id="interestRate"
-                  required
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  className={inputClasses}
-                  value={formData.interestRate}
-                  onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
-                />
-              </div>
+            {!isBNPL && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="interestRate" className={labelClasses}>
+                    Interest Rate (% APR)
+                  </label>
+                  <input
+                    type="number"
+                    id="interestRate"
+                    required
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    className={inputClasses}
+                    value={formData.interestRate}
+                    onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
+                  />
+                </div>
 
-              <div>
-                <label htmlFor="minimumPayment" className={labelClasses}>
-                  Minimum Payment ($)
-                </label>
-                <input
-                  type="number"
-                  id="minimumPayment"
-                  required
-                  min="0"
-                  step="0.01"
-                  className={inputClasses}
-                  value={formData.minimumPayment}
-                  onChange={(e) => setFormData({ ...formData, minimumPayment: e.target.value })}
-                />
+                <div>
+                  <label htmlFor="minimumPayment" className={labelClasses}>
+                    Minimum Payment ($)
+                  </label>
+                  <input
+                    type="number"
+                    id="minimumPayment"
+                    required
+                    min="0"
+                    step="0.01"
+                    className={inputClasses}
+                    value={formData.minimumPayment}
+                    onChange={(e) => setFormData({ ...formData, minimumPayment: e.target.value })}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div>
               <label htmlFor="dueDay" className={labelClasses}>
