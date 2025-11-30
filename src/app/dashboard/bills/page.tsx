@@ -23,6 +23,7 @@ interface Bill {
   notes: string | null;
   isActive: boolean;
   debt: { id: string; name: string } | null;
+  payments: { dueDate: Date }[];
 }
 
 const categoryLabels: Record<BillCategory, string> = {
@@ -48,7 +49,14 @@ const categoryColors: Record<BillCategory, "default" | "success" | "warning" | "
 async function getBills(userId: string): Promise<Record<BillCategory, Bill[]>> {
   const bills = await prisma.bill.findMany({
     where: { userId },
-    include: { debt: true },
+    include: { 
+      debt: true,
+      payments: {
+        select: { dueDate: true },
+        orderBy: { dueDate: "asc" },
+        take: 1,
+      },
+    },
     orderBy: [{ category: "asc" }, { dueDay: "asc" }],
   });
 
@@ -77,6 +85,16 @@ function formatFrequency(frequency: string, isRecurring: boolean): string {
     YEARLY: "Yearly",
   };
   return labels[frequency] || frequency;
+}
+
+function formatDueDate(bill: Bill): string {
+  // For one-time bills (like BNPL), show the actual due date from payments
+  if (!bill.isRecurring && bill.payments.length > 0) {
+    const dueDate = new Date(bill.payments[0].dueDate);
+    return `Due ${dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+  }
+  // For recurring bills, show the day of month
+  return `Due on day ${bill.dueDay}`;
 }
 
 export default async function BillsPage() {
@@ -176,7 +194,7 @@ export default async function BillsPage() {
                           )}
                         </div>
                         <p className="text-sm text-theme-secondary">
-                          Due on day {bill.dueDay} - {formatFrequency(bill.frequency, bill.isRecurring)}
+                          {formatDueDate(bill)} - {formatFrequency(bill.frequency, bill.isRecurring)}
                         </p>
                       </div>
                       <div className="flex items-center gap-4">
