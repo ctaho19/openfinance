@@ -62,10 +62,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         focus-visible:ring-accent-500
       `,
       danger: `
-        bg-danger-600 text-white
-        hover:bg-danger-700
-        focus-visible:ring-danger-500
+        text-white
+        focus-visible:ring-red-500
         shadow-sm hover:shadow-md
+        [background-color:#dc2626] hover:[background-color:#b91c1c]
       `,
       success: `
         bg-success-600 text-white

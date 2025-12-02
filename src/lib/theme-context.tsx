@@ -83,6 +83,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setMode = (newMode: Mode) => {
     setModeState(newMode);
     localStorage.setItem("theme-mode", newMode);
+    
+    // Immediately apply theme to prevent flicker/delay
+    const resolved = newMode === "system" ? getSystemTheme() : newMode;
+    setResolvedMode(resolved);
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(resolved);
   };
 
   const setAccentColor = (newColor: AccentColor) => {

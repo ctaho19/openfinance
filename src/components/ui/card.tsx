@@ -146,18 +146,18 @@ export function StatCard({
   variant = "default",
   className = "",
 }: StatCardProps) {
-  const iconVariants = {
-    default: "bg-theme-tertiary text-theme-secondary",
-    success: "bg-success-100 text-success-600 dark:bg-success-600/20 dark:text-success-500",
-    warning: "bg-warning-100 text-warning-600 dark:bg-warning-600/20 dark:text-warning-500",
-    danger: "bg-danger-100 text-danger-600 dark:bg-danger-600/20 dark:text-danger-500",
-    info: "bg-info-100 text-info-600 dark:bg-info-600/20 dark:text-info-500",
-  };
-
   const trendColors = {
     up: "text-success-600 dark:text-success-500",
     down: "text-danger-600 dark:text-danger-500",
     neutral: "text-theme-muted",
+  };
+
+  const iconColorStyles: Record<string, React.CSSProperties> = {
+    default: {},
+    success: { backgroundColor: "#d1fae5", color: "#059669" },
+    warning: { backgroundColor: "#fef3c7", color: "#d97706" },
+    danger: { backgroundColor: "#fee2e2", color: "#dc2626" },
+    info: { backgroundColor: "#dbeafe", color: "#2563eb" },
   };
 
   return (
@@ -165,7 +165,10 @@ export function StatCard({
       <CardContent className="py-5">
         <div className="flex items-center gap-4">
           {icon && (
-            <div className={`p-3 rounded-xl ${iconVariants[variant]}`}>
+            <div 
+              className="p-3 rounded-xl bg-theme-tertiary"
+              style={iconColorStyles[variant]}
+            >
               {icon}
             </div>
           )}

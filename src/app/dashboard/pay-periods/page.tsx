@@ -198,17 +198,17 @@ export default async function PayPeriodsPage({
         <CardContent className="py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-white/10">
-                <Calendar className="h-6 w-6 text-white" />
+              <div className="p-3 rounded-xl" style={{ backgroundColor: "rgba(255,255,255,0.1)" }}>
+                <Calendar className="h-6 w-6" style={{ color: "#ffffff" }} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-white/80 text-sm font-medium">
+                  <p style={{ color: "rgba(255,255,255,0.8)" }} className="text-sm font-medium">
                     {isCurrent ? "Current Pay Period" : "Pay Period"}
                   </p>
                   {isCurrent && <Badge variant="success" size="sm">Active</Badge>}
                 </div>
-                <p className="text-2xl font-bold text-white mt-1">
+                <p style={{ color: "#ffffff" }} className="text-2xl font-bold mt-1">
                   {formatPayPeriod(payPeriod)}
                 </p>
               </div>

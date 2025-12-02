@@ -138,23 +138,23 @@ export default async function FOOPage() {
         <CardContent className="py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-white/20">
-                <Target className="h-8 w-8 text-white" />
+              <div className="p-3 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.2)" }}>
+                <Target className="h-8 w-8" style={{ color: "#ffffff" }} />
               </div>
               <div>
-                <p className="text-white/80 text-sm font-medium">
+                <p style={{ color: "rgba(255,255,255,0.8)" }} className="text-sm font-medium">
                   Your Progress
                 </p>
-                <p className="text-2xl font-bold text-white mt-1">
+                <p style={{ color: "#ffffff" }} className="text-2xl font-bold mt-1">
                   {completedCount} of 9 Steps Complete
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-white/80 text-sm font-medium">
+              <p style={{ color: "rgba(255,255,255,0.8)" }} className="text-sm font-medium">
                 Current Focus
               </p>
-              <p className="text-xl font-bold text-white mt-1">
+              <p style={{ color: "#ffffff" }} className="text-xl font-bold mt-1">
                 {currentStep <= 9
                   ? `Step ${currentStep}: ${FOO_STEPS[currentStep - 1].name}`
                   : "All Complete!"}
@@ -170,13 +170,14 @@ export default async function FOOPage() {
                 return (
                   <div
                     key={step.step}
-                    className={`h-2 flex-1 rounded-full ${
-                      status === "COMPLETED"
-                        ? "bg-white"
+                    className="h-2 flex-1 rounded-full"
+                    style={{
+                      backgroundColor: status === "COMPLETED"
+                        ? "#ffffff"
                         : status === "IN_PROGRESS"
-                          ? "bg-white/50"
-                          : "bg-white/20"
-                    }`}
+                          ? "rgba(255,255,255,0.5)"
+                          : "rgba(255,255,255,0.2)"
+                    }}
                     title={`Step ${i + 1}: ${step.name}`}
                   />
                 );
