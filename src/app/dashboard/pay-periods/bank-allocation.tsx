@@ -47,14 +47,18 @@ function AllocationCard({ allocation }: { allocation: BankAllocation }) {
         className="w-full flex items-center justify-between p-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className={`w-3 h-3 rounded-full ${colors.dot}`} />
-          <div className="text-left">
-            <span className={`font-semibold ${colors.text}`}>
-              {allocation.bankName}
-            </span>
-            {!allocation.bankId && (
-              <Badge variant="default" size="sm" className="ml-2">No Bank</Badge>
-            )}
+          <div className={`w-3 h-3 rounded-full shrink-0 ${colors.dot}`} />
+          <div className="text-left min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`font-semibold ${colors.text}`}>
+                {allocation.bankName}
+              </span>
+              {!allocation.bankId && (
+                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200">
+                  No Bank
+                </span>
+              )}
+            </div>
             <p className="text-sm text-theme-muted mt-0.5">
               {allocation.bills.length} bill{allocation.bills.length !== 1 ? "s" : ""} • {paidBills.length} paid
             </p>

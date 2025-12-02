@@ -225,40 +225,40 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {/* Current Period */}
             <div>
-              <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
+              <p style={{ color: "rgba(255,255,255,0.8)" }} className="text-sm font-medium uppercase tracking-wider">
                 Current Pay Period
               </p>
-              <p className="text-2xl lg:text-3xl font-bold text-white mt-2">
+              <p style={{ color: "#ffffff" }} className="text-2xl lg:text-3xl font-bold mt-2">
                 {formatPayPeriod(data.currentPeriod)}
               </p>
             </div>
             
             {/* Safe to Spend - Featured */}
             <div className="md:text-center md:border-x md:border-white/20 md:px-8">
-              <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
+              <p style={{ color: "rgba(255,255,255,0.8)" }} className="text-sm font-medium uppercase tracking-wider">
                 Safe to Spend
               </p>
-              <p className="text-3xl lg:text-4xl font-bold text-white mt-2">
+              <p style={{ color: "#ffffff" }} className="text-3xl lg:text-4xl font-bold mt-2">
                 ${data.safeToSpend.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
-              <p className="text-white/60 text-sm mt-1">
+              <p style={{ color: "rgba(255,255,255,0.6)" }} className="text-sm mt-1">
                 After all obligations
               </p>
             </div>
             
             {/* Next Payday */}
             <div className="md:text-right">
-              <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
+              <p style={{ color: "rgba(255,255,255,0.8)" }} className="text-sm font-medium uppercase tracking-wider">
                 Next Payday
               </p>
-              <p className="text-2xl lg:text-3xl font-bold text-white mt-2">
+              <p style={{ color: "#ffffff" }} className="text-2xl lg:text-3xl font-bold mt-2">
                 {daysUntilPayday === 0
                   ? "Today!"
                   : daysUntilPayday === 1
                     ? "Tomorrow"
                     : `${daysUntilPayday} days`}
               </p>
-              <p className="text-white/60 text-sm mt-1">
+              <p style={{ color: "rgba(255,255,255,0.6)" }} className="text-sm mt-1">
                 {format(data.nextPeriod.startDate, "EEEE, MMM d")}
               </p>
             </div>

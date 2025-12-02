@@ -85,7 +85,7 @@ const DEBT_TYPE_ICONS: Record<string, LucideIcon> = {
   AUTO_LOAN: Car,
   STUDENT_LOAN: GraduationCap,
   PERSONAL_LOAN: Banknote,
-  BNPL: ShoppingBag,
+  BNPL: Calendar,
   MORTGAGE: Home,
   OTHER: FileText,
 };
@@ -466,21 +466,21 @@ export default function DebtsPage() {
                 className={`animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
                 hover
               >
-                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <div className="p-2.5 rounded-xl bg-accent-100 dark:bg-accent-600/20">
+                <CardHeader className="flex flex-col gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 rounded-xl bg-accent-100 dark:bg-accent-600/20 shrink-0">
                       {(() => {
                         const IconComponent = DEBT_TYPE_ICONS[debt.type] || FileText;
                         return <IconComponent className="h-5 w-5 text-accent-600 dark:text-accent-400" />;
                       })()}
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <Link href={`/dashboard/debts/${debt.id}`}>
                         <CardTitle className="hover:text-accent-600 dark:hover:text-accent-400 cursor-pointer transition-colors">
                           {debt.name}
                         </CardTitle>
                       </Link>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         {displayRate > 0 && (
                           <Badge 
                             variant={displayRate > 15 ? "danger" : displayRate > 7 ? "warning" : "success"}
