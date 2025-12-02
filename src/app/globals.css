@@ -462,3 +462,26 @@ select option {
   background-color: var(--accent-700);
   color: var(--accent-100);
 }
+
+/* ============================================
+   ACCESSIBILITY - REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   ADDITIONAL HOVER UTILITIES
+   ============================================ */
+
+.hover\:bg-accent-50:hover { background-color: var(--accent-50); }
+.hover\:border-accent-500\/50:hover { border-color: color-mix(in srgb, var(--accent-500) 50%, transparent); }
+.dark .dark\:hover\:bg-accent-600\/10:hover { background-color: color-mix(in srgb, var(--accent-600) 10%, transparent); }

@@ -60,7 +60,7 @@ export function QuickPaymentsSection({
             <Zap className="h-5 w-5 text-amber-500" />
             <CardTitle>Quick Payments</CardTitle>
             {quickPayments.length > 0 && (
-              <Badge variant="default">{quickPayments.length}</Badge>
+              <Badge variant="accent">{quickPayments.length}</Badge>
             )}
           </div>
           <Button size="sm" onClick={() => setShowForm(true)}>

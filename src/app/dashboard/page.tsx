@@ -22,6 +22,7 @@ import {
   Clock,
   ChevronRight,
   Plus,
+  CheckCircle2,
 } from "lucide-react";
 import type { FOOStep } from "@prisma/client";
 
@@ -334,8 +335,9 @@ export default async function DashboardPage() {
                       Step {FOO_STEP_NAMES[data.currentFooStep].number}
                     </p>
                   ) : data.completedSteps === 9 ? (
-                    <p className="text-lg font-bold text-success-600 dark:text-success-400 mt-0.5">
-                      Complete! ✓
+                    <p className="text-lg font-bold text-success-600 dark:text-success-400 mt-0.5 flex items-center gap-1.5">
+                      Complete!
+                      <CheckCircle2 className="h-4 w-4" />
                     </p>
                   ) : (
                     <p className="text-lg font-bold text-theme-primary mt-0.5">

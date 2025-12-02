@@ -468,10 +468,10 @@ export default function DebtsPage() {
               >
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <div className="p-2 rounded-xl bg-theme-tertiary">
+                    <div className="p-2.5 rounded-xl bg-accent-100 dark:bg-accent-600/20">
                       {(() => {
                         const IconComponent = DEBT_TYPE_ICONS[debt.type] || FileText;
-                        return <IconComponent className="h-5 w-5 text-theme-secondary" />;
+                        return <IconComponent className="h-5 w-5 text-accent-600 dark:text-accent-400" />;
                       })()}
                     </div>
                     <div>

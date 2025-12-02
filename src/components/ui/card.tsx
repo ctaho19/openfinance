@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 
 interface CardProps {
   children: ReactNode;
@@ -174,9 +175,10 @@ export function StatCard({
               {value}
             </p>
             {trend && (
-              <p className={`text-xs font-medium mt-1 ${trendColors[trend.direction]}`}>
-                {trend.direction === "up" && "↑"}
-                {trend.direction === "down" && "↓"}
+              <p className={`text-xs font-medium mt-1 flex items-center gap-1 ${trendColors[trend.direction]}`}>
+                {trend.direction === "up" && <ArrowUpRight className="h-3 w-3" />}
+                {trend.direction === "down" && <ArrowDownRight className="h-3 w-3" />}
+                {trend.direction === "neutral" && <Minus className="h-3 w-3" />}
                 {trend.value > 0 ? "+" : ""}{trend.value}% from last period
               </p>
             )}

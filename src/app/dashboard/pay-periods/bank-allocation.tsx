@@ -53,7 +53,7 @@ function AllocationCard({ allocation }: { allocation: BankAllocation }) {
               {allocation.bankName}
             </span>
             {!allocation.bankId && (
-              <Badge variant="warning" size="sm" className="ml-2">No Bank</Badge>
+              <Badge variant="default" size="sm" className="ml-2">No Bank</Badge>
             )}
             <p className="text-sm text-theme-muted mt-0.5">
               {allocation.bills.length} bill{allocation.bills.length !== 1 ? "s" : ""} • {paidBills.length} paid
