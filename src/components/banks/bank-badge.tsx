@@ -1,59 +1,61 @@
 "use client";
 
+import { Building2 } from "lucide-react";
+
 interface BankBadgeProps {
   bank: string;
   size?: "sm" | "md" | "lg";
   showName?: boolean;
 }
 
-const BANK_CONFIG: Record<string, { name: string; bg: string; text: string; icon: string }> = {
+const BANK_CONFIG: Record<string, { name: string; bg: string; text: string; initials: string }> = {
   NAVY_FEDERAL: {
     name: "Navy Federal",
     bg: "bg-gradient-to-r from-blue-900 to-blue-700",
     text: "text-white",
-    icon: "⚓",
+    initials: "NF",
   },
   PNC: {
     name: "PNC",
     bg: "bg-gradient-to-r from-orange-600 to-orange-500",
     text: "text-white",
-    icon: "🏦",
+    initials: "PNC",
   },
   CAPITAL_ONE: {
     name: "Capital One",
     bg: "bg-gradient-to-r from-red-700 to-red-600",
     text: "text-white",
-    icon: "💳",
+    initials: "C1",
   },
   TRUIST: {
     name: "Truist",
     bg: "bg-gradient-to-r from-purple-700 to-purple-600",
     text: "text-white",
-    icon: "🏛️",
+    initials: "T",
   },
   CHASE: {
     name: "Chase",
     bg: "bg-gradient-to-r from-blue-800 to-blue-600",
     text: "text-white",
-    icon: "🔷",
+    initials: "C",
   },
   BANK_OF_AMERICA: {
     name: "Bank of America",
     bg: "bg-gradient-to-r from-red-800 to-blue-800",
     text: "text-white",
-    icon: "🏧",
+    initials: "BoA",
   },
   WELLS_FARGO: {
     name: "Wells Fargo",
     bg: "bg-gradient-to-r from-red-700 to-yellow-600",
     text: "text-white",
-    icon: "🐴",
+    initials: "WF",
   },
   OTHER: {
     name: "Other",
     bg: "bg-gradient-to-r from-gray-600 to-gray-500",
     text: "text-white",
-    icon: "🏦",
+    initials: "",
   },
 };
 
@@ -62,6 +64,16 @@ const SIZE_CLASSES = {
   md: "text-sm px-3 py-1",
   lg: "text-base px-4 py-1.5",
 };
+
+function BankInitials({ initials, size = "sm" }: { initials: string; size?: "sm" | "md" | "lg" }) {
+  const iconSizes = { sm: 12, md: 14, lg: 16 };
+
+  if (!initials) {
+    return <Building2 size={iconSizes[size]} />;
+  }
+
+  return <span className="font-bold tracking-tight">{initials}</span>;
+}
 
 export function BankBadge({ bank, size = "sm", showName = true }: BankBadgeProps) {
   const config = BANK_CONFIG[bank] || BANK_CONFIG.OTHER;
@@ -74,30 +86,28 @@ export function BankBadge({ bank, size = "sm", showName = true }: BankBadgeProps
         shadow-sm
       `}
     >
-      <span>{config.icon}</span>
+      <BankInitials initials={config.initials} size={size} />
       {showName && <span>{config.name}</span>}
     </span>
   );
 }
 
-// SVG-based logos for a more professional look
 export function BankLogo({ bank, size = 24 }: { bank: string; size?: number }) {
   const config = BANK_CONFIG[bank] || BANK_CONFIG.OTHER;
 
   return (
     <div
       className={`
-        inline-flex items-center justify-center rounded-lg
+        inline-flex items-center justify-center rounded-lg font-bold
         ${config.bg} ${config.text}
       `}
-      style={{ width: size, height: size, fontSize: size * 0.5 }}
+      style={{ width: size, height: size, fontSize: size * 0.4 }}
     >
-      {config.icon}
+      {config.initials ? config.initials : <Building2 size={size * 0.5} />}
     </div>
   );
 }
 
-// Compact inline badge for lists
 export function BankTag({ bank, lastFour }: { bank: string; lastFour?: string | null }) {
   const config = BANK_CONFIG[bank] || BANK_CONFIG.OTHER;
 
@@ -108,14 +118,13 @@ export function BankTag({ bank, lastFour }: { bank: string; lastFour?: string | 
         ${config.bg} ${config.text}
       `}
     >
-      <span>{config.icon}</span>
+      <span className="font-bold">{config.initials || <Building2 size={12} />}</span>
       <span className="font-medium">{config.name}</span>
       {lastFour && <span className="opacity-75">•{lastFour}</span>}
     </span>
   );
 }
 
-// Full bank card display
 export function BankCard({
   bank,
   name,
@@ -147,7 +156,9 @@ export function BankCard({
         </span>
       )}
       <div className="flex items-center gap-3">
-        <span className="text-2xl">{config.icon}</span>
+        <span className="text-xl font-bold">
+          {config.initials || <Building2 size={24} />}
+        </span>
         <div>
           <p className="font-semibold">{name}</p>
           <p className="text-sm opacity-75">
@@ -159,7 +170,6 @@ export function BankCard({
   );
 }
 
-// Selector component for forms
 export function BankSelector({
   value,
   onChange,
@@ -201,7 +211,9 @@ export function BankSelector({
             `}
           >
             <div className="flex items-center gap-2">
-              <span>{config.icon}</span>
+              <span className="font-bold">
+                {config.initials || <Building2 size={16} />}
+              </span>
               <div>
                 <p className={`text-sm font-medium ${isSelected ? "" : "text-theme-primary"}`}>
                   {account.name}
@@ -221,5 +233,5 @@ export function BankSelector({
 export const BANK_OPTIONS = Object.entries(BANK_CONFIG).map(([value, config]) => ({
   value,
   label: config.name,
-  icon: config.icon,
+  initials: config.initials,
 }));

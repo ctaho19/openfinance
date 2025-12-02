@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DebtDetailClient } from "./detail-client";
+import { ArrowLeft } from "lucide-react";
 
 const DEBT_TYPE_LABELS: Record<string, string> = {
   CREDIT_CARD: "Credit Card",
@@ -101,11 +102,11 @@ export default async function DebtDetailPage({
   const milestones = [25, 50, 75, 100];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="animate-fade-in space-y-6 lg:space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/debts">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="h-4 w-4" />}>
               Back
             </Button>
           </Link>
@@ -144,7 +145,7 @@ export default async function DebtDetailPage({
         <Card>
           <CardContent className="py-4">
             <p className="text-theme-secondary text-sm">Total Paid</p>
-            <p className="text-2xl font-bold text-emerald-400">
+            <p className="text-2xl font-bold text-accent">
               {formatCurrency(totalPaid)}
             </p>
           </CardContent>
@@ -182,7 +183,7 @@ export default async function DebtDetailPage({
               Paid off: {formatCurrency(totalPaid)} of{" "}
               {formatCurrency(originalBalance)}
             </span>
-            <span className="text-emerald-400 font-medium">
+            <span className="text-accent font-medium">
               {progress.toFixed(1)}%
             </span>
           </div>
@@ -190,7 +191,7 @@ export default async function DebtDetailPage({
           <div className="relative">
             <div className="h-6 bg-theme-tertiary rounded-full overflow-hidden">
               <div
-                className="h-full bg-emerald-500 transition-all duration-500"
+                className="h-full bg-accent transition-all duration-500"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
@@ -203,7 +204,7 @@ export default async function DebtDetailPage({
                 >
                   <div
                     className={`w-0.5 h-6 ${
-                      progress >= milestone ? "bg-emerald-300" : "bg-gray-600"
+                      progress >= milestone ? "bg-accent/60" : "bg-gray-600"
                     }`}
                   />
                 </div>
@@ -215,7 +216,7 @@ export default async function DebtDetailPage({
             {milestones.map((milestone) => (
               <span
                 key={milestone}
-                className={progress >= milestone ? "text-emerald-400" : ""}
+                className={progress >= milestone ? "text-accent" : ""}
               >
                 {milestone}%
               </span>

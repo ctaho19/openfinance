@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import type { FOOStep, FOOStatus, FOOProgress } from "@prisma/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Target } from "lucide-react";
 import { FOOStepCard } from "./foo-step-card";
@@ -122,37 +122,39 @@ export default async function FOOPage() {
   ).length;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-theme-primary">
-          Financial Order of Operations
-        </h1>
-        <p className="text-theme-secondary mt-1">
-          Follow these 9 steps in order to build a strong financial foundation
-        </p>
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-theme-primary">
+            Financial Order of Operations
+          </h1>
+          <p className="text-theme-secondary mt-1">
+            Follow these 9 steps in order to build a strong financial foundation
+          </p>
+        </div>
       </div>
 
-      <Card className="bg-gradient-to-r from-emerald-900/50 to-emerald-800/30 border-emerald-700/50">
+      <Card variant="gradient">
         <CardContent className="py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-emerald-600/30">
-                <Target className="h-8 w-8 text-emerald-400" />
+              <div className="p-3 rounded-full bg-white/20">
+                <Target className="h-8 w-8 text-white" />
               </div>
               <div>
-                <p className="text-emerald-400 text-sm font-medium">
+                <p className="text-white/80 text-sm font-medium">
                   Your Progress
                 </p>
-                <p className="text-2xl font-bold text-theme-primary mt-1">
+                <p className="text-2xl font-bold text-white mt-1">
                   {completedCount} of 9 Steps Complete
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-emerald-400 text-sm font-medium">
+              <p className="text-white/80 text-sm font-medium">
                 Current Focus
               </p>
-              <p className="text-xl font-bold text-theme-primary mt-1">
+              <p className="text-xl font-bold text-white mt-1">
                 {currentStep <= 9
                   ? `Step ${currentStep}: ${FOO_STEPS[currentStep - 1].name}`
                   : "All Complete!"}
@@ -170,10 +172,10 @@ export default async function FOOPage() {
                     key={step.step}
                     className={`h-2 flex-1 rounded-full ${
                       status === "COMPLETED"
-                        ? "bg-emerald-500"
+                        ? "bg-white"
                         : status === "IN_PROGRESS"
-                          ? "bg-emerald-500/50"
-                          : "bg-theme-tertiary"
+                          ? "bg-white/50"
+                          : "bg-white/20"
                     }`}
                     title={`Step ${i + 1}: ${step.name}`}
                   />

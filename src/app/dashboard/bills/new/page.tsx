@@ -118,12 +118,14 @@ export default function NewBillPage() {
     }));
   };
 
+  const inputClasses =
+    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-xl text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500";
+
   return (
-    <div className="space-y-6">
+    <div className="animate-fade-in space-y-6 lg:space-y-8">
       <div className="flex items-center gap-4">
         <Link href="/dashboard/bills">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="h-4 w-4" />}>
             Back
           </Button>
         </Link>
@@ -140,7 +142,7 @@ export default function NewBillPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 rounded-lg bg-red-900/50 border border-red-700 text-red-400 text-sm">
+              <div className="p-3 rounded-xl bg-danger-50 dark:bg-danger-600/10 border border-danger-200 dark:border-danger-600/30 text-danger-700 dark:text-danger-400 text-sm">
                 {error}
               </div>
             )}
@@ -158,7 +160,7 @@ export default function NewBillPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g., Netflix, Electric Bill"
-                  className="w-full px-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className={inputClasses}
                 />
               </div>
 
@@ -171,7 +173,7 @@ export default function NewBillPage() {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className={inputClasses}
                 >
                   {categories.map((cat) => (
                     <option key={cat.value} value={cat.value}>
@@ -197,7 +199,7 @@ export default function NewBillPage() {
                     value={formData.amount}
                     onChange={handleChange}
                     placeholder="0.00"
-                    className="w-full pl-8 pr-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500"
+                    className={`${inputClasses} pl-8`}
                   />
                 </div>
               </div>
@@ -216,7 +218,7 @@ export default function NewBillPage() {
                   value={formData.dueDay}
                   onChange={handleChange}
                   placeholder="15"
-                  className="w-full px-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className={inputClasses}
                 />
               </div>
             </div>
@@ -228,7 +230,7 @@ export default function NewBillPage() {
                 name="isRecurring"
                 checked={formData.isRecurring}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-theme bg-theme-tertiary text-emerald-600 focus:ring-emerald-500 focus:ring-offset-theme-primary"
+                className="h-4 w-4 rounded border-theme bg-theme-secondary text-accent-600 focus:ring-accent-500 focus:ring-offset-theme-primary"
               />
               <label htmlFor="isRecurring" className="text-sm font-medium text-theme-secondary">
                 This is a recurring bill
@@ -245,7 +247,7 @@ export default function NewBillPage() {
                   name="frequency"
                   value={formData.frequency}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className={inputClasses}
                 >
                   {frequencies.map((freq) => (
                     <option key={freq.value} value={freq.value}>
@@ -266,7 +268,7 @@ export default function NewBillPage() {
                   name="debtId"
                   value={formData.debtId}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  className={inputClasses}
                 >
                   <option value="">None</option>
                   {debts.map((debt) => (
@@ -302,7 +304,7 @@ export default function NewBillPage() {
                 value={formData.notes}
                 onChange={handleChange}
                 placeholder="Any additional notes about this bill..."
-                className="w-full px-3 py-2 bg-theme-tertiary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none"
+                className={`${inputClasses} resize-none`}
               />
             </div>
 

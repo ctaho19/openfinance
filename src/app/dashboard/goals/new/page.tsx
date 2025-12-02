@@ -64,18 +64,20 @@ export default function NewGoalPage() {
     }
   };
 
+  const inputClasses =
+    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-xl text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500";
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="animate-fade-in max-w-2xl mx-auto space-y-6 lg:space-y-8">
       <div className="flex items-center gap-4">
         <Link href="/dashboard/goals">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="h-4 w-4" />}>
             Back
           </Button>
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-theme-primary">Create New Goal</h1>
-          <p className="text-theme-secondary">Set up a new savings goal</p>
+          <p className="text-theme-secondary mt-1">Set up a new savings goal</p>
         </div>
       </div>
 
@@ -84,15 +86,15 @@ export default function NewGoalPage() {
           <CardTitle>Goal Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 bg-red-900/50 border border-red-800 rounded-lg text-red-400 text-sm">
+              <div className="p-3 rounded-xl bg-danger-50 dark:bg-danger-600/10 border border-danger-200 dark:border-danger-600/30 text-danger-700 dark:text-danger-400 text-sm">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
+              <label className="block text-sm font-medium text-theme-secondary mb-2">
                 Goal Name *
               </label>
               <input
@@ -101,13 +103,13 @@ export default function NewGoalPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Emergency Fund"
                 required
-                className="w-full px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className={inputClasses}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
+                <label className="block text-sm font-medium text-theme-secondary mb-2">
                   Target Amount *
                 </label>
                 <input
@@ -118,12 +120,12 @@ export default function NewGoalPage() {
                   required
                   min="0"
                   step="0.01"
-                  className="w-full px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className={inputClasses}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
+                <label className="block text-sm font-medium text-theme-secondary mb-2">
                   Current Amount
                 </label>
                 <input
@@ -133,31 +135,31 @@ export default function NewGoalPage() {
                   placeholder="0"
                   min="0"
                   step="0.01"
-                  className="w-full px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className={inputClasses}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
+              <label className="block text-sm font-medium text-theme-secondary mb-2">
                 Deadline (optional)
               </label>
               <input
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className={inputClasses}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
+              <label className="block text-sm font-medium text-theme-secondary mb-2">
                 Linked FOO Step (optional)
               </label>
               <select
                 value={fooStep}
                 onChange={(e) => setFooStep(e.target.value)}
-                className="w-full px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className={inputClasses}
               >
                 <option value="">None</option>
                 {FOO_STEPS.map((step) => (
@@ -169,7 +171,7 @@ export default function NewGoalPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
+              <label className="block text-sm font-medium text-theme-secondary mb-2">
                 Notes (optional)
               </label>
               <textarea
@@ -177,11 +179,11 @@ export default function NewGoalPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Any additional details about this goal..."
                 rows={3}
-                className="w-full px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                className={`${inputClasses} resize-none`}
               />
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-4 pt-4">
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Creating..." : "Create Goal"}
               </Button>

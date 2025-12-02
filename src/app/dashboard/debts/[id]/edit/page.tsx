@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatPaymentPreview, calculateEffectiveAPR } from "@/lib/bnpl-utils";
 import { BankSelector } from "@/components/banks/bank-badge";
+import { ArrowLeft } from "lucide-react";
 
 const DEBT_TYPES = [
   { value: "CREDIT_CARD", label: "Credit Card" },
@@ -90,7 +91,6 @@ export default function EditDebtPage() {
     notes: "",
   });
 
-  // BNPL specific state
   const [numberOfPayments, setNumberOfPayments] = useState("4");
   const [customPayments, setCustomPayments] = useState("");
   const [firstPaymentDate, setFirstPaymentDate] = useState("");
@@ -116,7 +116,6 @@ export default function EditDebtPage() {
     return formatPaymentPreview(effectivePaymentCount, paymentAmount, new Date(firstPaymentDate + "T00:00:00"));
   }, [isBNPL, formData.currentBalance, totalRepayable, effectivePaymentCount, firstPaymentDate]);
 
-  // Calculate effective APR for BNPL when total repayable differs from principal
   const computedEffectiveAPR = useMemo(() => {
     if (!isBNPL || !formData.currentBalance || !effectivePaymentCount) return null;
     const principal = parseFloat(formData.currentBalance);
@@ -158,7 +157,6 @@ export default function EditDebtPage() {
         if (data.bankAccountId) {
           setSelectedBankAccountId(data.bankAccountId);
         }
-        // Load BNPL-specific data
         if (data.totalRepayable) {
           setTotalRepayable(data.totalRepayable);
           setBnplHasInterest(true);
@@ -174,7 +172,6 @@ export default function EditDebtPage() {
         const payments = await scheduledRes.json();
         setScheduledPayments(payments);
         
-        // If there are scheduled payments, set BNPL form state
         if (payments.length > 0) {
           setNumberOfPayments(payments.length.toString());
           const firstPayment = payments[0];
@@ -201,14 +198,12 @@ export default function EditDebtPage() {
     setSaving(true);
     setError("");
 
-    // Calculate payment amount for BNPL
     const balance = parseFloat(formData.currentBalance);
     const total = isBNPL && totalRepayable ? parseFloat(totalRepayable) : balance;
     const paymentAmount = isBNPL && effectivePaymentCount > 0 
       ? Math.round((total / effectivePaymentCount) * 100) / 100
       : parseFloat(formData.minimumPayment);
 
-    // For BNPL, auto-calculate dueDay from first payment date
     const dueDay = isBNPL && firstPaymentDate
       ? new Date(firstPaymentDate + "T00:00:00").getDate()
       : parseInt(formData.dueDay, 10);
@@ -226,7 +221,6 @@ export default function EditDebtPage() {
       notes: formData.notes || null,
     };
 
-    // Include BNPL schedule info if updating to regenerate payments
     if (isBNPL && firstPaymentDate) {
       data.numberOfPayments = effectivePaymentCount;
       data.firstPaymentDate = firstPaymentDate;
@@ -234,7 +228,6 @@ export default function EditDebtPage() {
       data.regenerateSchedule = true;
     }
 
-    // Include total repayable for effective rate calculation
     if (isBNPL && totalRepayable && parseFloat(totalRepayable) !== balance) {
       data.totalRepayable = parseFloat(totalRepayable);
     } else if (isBNPL) {
@@ -259,7 +252,7 @@ export default function EditDebtPage() {
   }
 
   const inputClasses =
-    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent";
+    "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-xl text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500";
   const labelClasses = "block text-sm font-medium text-theme-secondary mb-2";
 
   if (loading) {
@@ -273,7 +266,7 @@ export default function EditDebtPage() {
   if (!debt) {
     return (
       <div className="p-6">
-        <p className="text-red-500 dark:text-red-400">Debt not found</p>
+        <p className="text-danger-600 dark:text-danger-400">Debt not found</p>
         <Link href="/dashboard/debts" className="text-accent hover:underline">
           Back to Debts
         </Link>
@@ -282,21 +275,27 @@ export default function EditDebtPage() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <Link href="/dashboard/debts" className="text-theme-secondary hover:text-theme-primary text-sm">
-          ← Back to Debts
+    <div className="animate-fade-in max-w-2xl mx-auto space-y-6 lg:space-y-8">
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard/debts">
+          <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="h-4 w-4" />}>
+            Back
+          </Button>
         </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-theme-primary">Edit Debt</h1>
+          <p className="text-theme-secondary mt-1">{debt.name}</p>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit Debt: {debt.name}</CardTitle>
+          <CardTitle>Debt Details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600 dark:text-red-400 text-sm">
+              <div className="p-3 rounded-xl bg-danger-50 dark:bg-danger-600/10 border border-danger-200 dark:border-danger-600/30 text-danger-700 dark:text-danger-400 text-sm">
                 {error}
               </div>
             )}
@@ -375,21 +374,20 @@ export default function EditDebtPage() {
               </div>
             )}
 
-            {/* BNPL Payment Schedule */}
             {isBNPL && (
-              <div className="p-4 bg-theme-tertiary border border-theme rounded-lg space-y-4">
+              <div className="p-4 bg-theme-tertiary border border-theme rounded-xl space-y-4">
                 <h3 className="text-sm font-medium text-accent">BNPL Payment Schedule</h3>
                 
                 {scheduledPayments.length > 0 && (
-                  <div className="p-3 bg-theme-secondary rounded-lg">
+                  <div className="p-3 bg-theme-secondary rounded-xl">
                     <p className="text-xs text-theme-muted mb-2">Current Schedule: {scheduledPayments.length} payments</p>
                     <div className="flex flex-wrap gap-2">
-                      {scheduledPayments.slice(0, 6).map((payment, i) => (
+                      {scheduledPayments.slice(0, 6).map((payment) => (
                         <span
                           key={payment.id}
-                          className={`text-xs px-2 py-1 rounded ${
+                          className={`text-xs px-2 py-1 rounded-lg ${
                             payment.isPaid 
-                              ? "bg-green-500/20 text-green-600 dark:text-green-400 line-through" 
+                              ? "bg-success-100 dark:bg-success-600/20 text-success-700 dark:text-success-400 line-through" 
                               : "bg-theme-tertiary text-theme-secondary"
                           }`}
                         >
@@ -473,12 +471,11 @@ export default function EditDebtPage() {
                 </div>
 
                 {paymentPreview && (
-                  <div className="p-3 bg-accent/10 border border-accent/30 rounded-lg text-theme-primary text-sm">
+                  <div className="p-3 bg-accent/10 border border-accent/30 rounded-xl text-theme-primary text-sm">
                     <span className="font-medium text-accent">New Schedule:</span> {paymentPreview}
                   </div>
                 )}
 
-                {/* BNPL Interest Options */}
                 <div className="border-t border-theme pt-4 space-y-3">
                   <div className="flex items-center gap-3">
                     <input
@@ -486,7 +483,7 @@ export default function EditDebtPage() {
                       id="bnplHasInterest"
                       checked={bnplHasInterest}
                       onChange={(e) => setBnplHasInterest(e.target.checked)}
-                      className="h-4 w-4 rounded border-theme bg-theme-secondary text-accent focus:ring-accent"
+                      className="h-4 w-4 rounded border-theme bg-theme-secondary text-accent-600 focus:ring-accent-500"
                     />
                     <label htmlFor="bnplHasInterest" className="text-sm text-theme-secondary">
                       This BNPL loan has interest or finance charges
@@ -533,8 +530,8 @@ export default function EditDebtPage() {
                   )}
 
                   {computedEffectiveAPR !== null && computedEffectiveAPR > 0 && (
-                    <div className="p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg text-sm">
-                      <span className="font-medium text-orange-600 dark:text-orange-400">Effective APR:</span>{" "}
+                    <div className="p-3 bg-warning-50 dark:bg-warning-600/10 border border-warning-200 dark:border-warning-600/30 rounded-xl text-sm">
+                      <span className="font-medium text-warning-700 dark:text-warning-400">Effective APR:</span>{" "}
                       <span className="text-theme-primary">{computedEffectiveAPR.toFixed(2)}%</span>
                       <span className="text-theme-muted ml-2">
                         (computed from total repayable vs principal)

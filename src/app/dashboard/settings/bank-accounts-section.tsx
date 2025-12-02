@@ -131,7 +131,7 @@ export function BankAccountsSection() {
               >
                 {BANK_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
-                    {opt.icon} {opt.label}
+                    {opt.initials ? `${opt.initials} - ` : ""}{opt.label}
                   </option>
                 ))}
               </select>

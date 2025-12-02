@@ -1,9 +1,9 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, StatCard } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus, Receipt } from "lucide-react";
+import { Plus, Receipt, CreditCard, TrendingDown } from "lucide-react";
 import { BillsList } from "./bills-list";
 
 type BillCategory = "SUBSCRIPTION" | "UTILITY" | "LOAN" | "BNPL" | "INSURANCE" | "CREDIT_CARD" | "OTHER";
@@ -57,7 +57,6 @@ async function getBills(userId: string): Promise<BillsData> {
   const bnplByDebt: Record<string, Bill[]> = {};
 
   for (const bill of bills as unknown as Bill[]) {
-    // All BNPL bills go to the BNPL section (grouped by debt or ungrouped)
     if (bill.category === "BNPL") {
       const key = bill.debtId || "ungrouped";
       if (!bnplByDebt[key]) {
@@ -73,7 +72,6 @@ async function getBills(userId: string): Promise<BillsData> {
     }
   }
 
-  // Convert BNPL groups to summary format
   const bnplGroups: BNPLDebtGroup[] = Object.entries(bnplByDebt).map(([debtId, debtBills]) => {
     const sortedBills = debtBills.sort((a, b) => {
       const aDate = a.payments[0]?.dueDate ? new Date(a.payments[0].dueDate).getTime() : 0;
@@ -103,7 +101,6 @@ async function getBills(userId: string): Promise<BillsData> {
     };
   });
 
-  // Sort BNPL groups by next payment date
   bnplGroups.sort((a, b) => {
     if (!a.nextPayment) return 1;
     if (!b.nextPayment) return -1;
@@ -118,7 +115,6 @@ export default async function BillsPage() {
   if (!session?.user?.id) return null;
 
   const { regularBills, bnplGroups } = await getBills(session.user.id);
-  const categories = Object.keys(regularBills) as BillCategory[];
 
   const totalMonthly = Object.values(regularBills)
     .flat()
@@ -132,64 +128,48 @@ export default async function BillsPage() {
     return sum + remaining;
   }, 0);
 
+  const totalBillCount = Object.values(regularBills).flat().length + bnplGroups.reduce((sum, g) => sum + g.bills.length, 0);
+
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 lg:space-y-8 animate-fade-in">
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-theme-primary">Bills</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-theme-primary tracking-tight">Bills</h1>
           <p className="text-theme-secondary mt-1">
             Manage your recurring bills and payments
           </p>
         </div>
         <Link href="/dashboard/bills/new">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button leftIcon={<Plus className="h-4 w-4" />}>
             Add Bill
           </Button>
         </Link>
+      </header>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard
+          label="Monthly Recurring"
+          value={`$${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          icon={<Receipt className="h-5 w-5" />}
+          variant="info"
+        />
+        <StatCard
+          label="BNPL Remaining"
+          value={`$${totalBNPLRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          icon={<CreditCard className="h-5 w-5" />}
+          variant="warning"
+        />
+        <StatCard
+          label="Active Bills"
+          value={totalBillCount.toString()}
+          icon={<TrendingDown className="h-5 w-5" />}
+          variant="success"
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-blue-500/30">
-          <CardContent className="py-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-500/20">
-                <Receipt className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
-                  Monthly Recurring
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-orange-500/30">
-          <CardContent className="py-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-500/20">
-                <Receipt className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <p className="text-orange-600 dark:text-orange-400 text-sm font-medium">
-                  BNPL Remaining
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${totalBNPLRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {bnplGroups.length} active plans
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Bills List */}
       <BillsList 
         regularBills={JSON.parse(JSON.stringify(regularBills))} 
         bnplGroups={JSON.parse(JSON.stringify(bnplGroups))} 

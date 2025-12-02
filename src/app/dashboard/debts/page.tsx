@@ -3,12 +3,32 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent, StatCard } from "@/components/ui/card";
+import { Button, ToggleGroup } from "@/components/ui/button";
+import { Badge, StatusBadge } from "@/components/ui/badge";
 import { PaymentForm } from "./payment-form";
 import { SearchInput } from "@/components/ui/search-input";
-import { ArrowUpDown } from "lucide-react";
+import { 
+  Plus, 
+  CreditCard, 
+  Wallet, 
+  TrendingDown, 
+  Calendar,
+  ArrowUpDown,
+  ChevronRight,
+  Trash2,
+  Pencil,
+  DollarSign,
+  Clock,
+  AlertCircle,
+  Car,
+  GraduationCap,
+  Banknote,
+  ShoppingBag,
+  Home,
+  FileText,
+  type LucideIcon,
+} from "lucide-react";
 
 interface ScheduledPayment {
   id: string;
@@ -60,6 +80,16 @@ const DEBT_TYPE_LABELS: Record<string, string> = {
   OTHER: "Other",
 };
 
+const DEBT_TYPE_ICONS: Record<string, LucideIcon> = {
+  CREDIT_CARD: CreditCard,
+  AUTO_LOAN: Car,
+  STUDENT_LOAN: GraduationCap,
+  PERSONAL_LOAN: Banknote,
+  BNPL: ShoppingBag,
+  MORTGAGE: Home,
+  OTHER: FileText,
+};
+
 const STATUS_LABELS: Record<string, string> = {
   CURRENT: "Current",
   DEFERRED: "Deferred",
@@ -90,7 +120,6 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
   const isBNPL = debt.type === "BNPL";
   const isDeferred = debt.status === "DEFERRED";
 
-  // For BNPL, calculate based on scheduled payments
   if (isBNPL && debt.scheduledPayments && debt.scheduledPayments.length > 0) {
     const unpaidPayments = debt.scheduledPayments.filter(p => !p.isPaid);
     if (unpaidPayments.length === 0) {
@@ -109,7 +138,6 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
     return { months: null, date: "N/A", method: "standard" };
   }
 
-  // For deferred debts, add accrued interest during deferment
   let adjustedBalance = balance;
   if (isDeferred && debt.deferredUntil) {
     const deferredUntil = new Date(debt.deferredUntil);
@@ -117,7 +145,6 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
     if (deferredUntil > now) {
       const monthsDeferred = Math.ceil((deferredUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
       const monthlyRate = rate / 100 / 12;
-      // Compound interest during deferment
       adjustedBalance = balance * Math.pow(1 + monthlyRate, monthsDeferred);
     }
   }
@@ -162,7 +189,6 @@ export default function DebtsPage() {
   const [paymentDebt, setPaymentDebt] = useState<Debt | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Initialize sort from URL params, fallback to defaults
   const urlSortField = searchParams.get("sort") as SortField | null;
   const urlSortDir = searchParams.get("dir") as SortDirection | null;
   const validSortFields: SortField[] = ["name", "interestRate", "effectiveRate", "currentBalance", "dueDay", "status"];
@@ -211,14 +237,12 @@ export default function DebtsPage() {
     setSortField(field);
     setSortDirection(newDirection);
     
-    // Update URL to persist sort preference
     const params = new URLSearchParams(searchParams.toString());
     params.set("sort", field);
     params.set("dir", newDirection);
     router.replace(`/dashboard/debts?${params.toString()}`, { scroll: false });
   }
 
-  // Filter debts by search query
   const filteredDebts = debts.filter((debt) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -236,16 +260,13 @@ export default function DebtsPage() {
 
     switch (sortField) {
       case "name":
-        // Use natural sort for names with numbers (e.g., "Affirm - 10" after "Affirm - 9")
         const comparison = a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
         return sortDirection === "asc" ? comparison : -comparison;
-        break;
       case "interestRate":
         aVal = Number(a.interestRate);
         bVal = Number(b.interestRate);
         break;
       case "effectiveRate":
-        // Use the higher of effective rate or stated APR
         aVal = Math.max(Number(a.effectiveRate) || 0, Number(a.interestRate) || 0);
         bVal = Math.max(Number(b.effectiveRate) || 0, Number(b.interestRate) || 0);
         break;
@@ -284,18 +305,14 @@ export default function DebtsPage() {
   }
 
   const totalDebt = debts.reduce((sum, d) => sum + Number(d.currentBalance), 0);
-  
-  // Separate BNPL from regular monthly debt payments
   const regularDebts = debts.filter(d => d.type !== "BNPL");
   const bnplDebts = debts.filter(d => d.type === "BNPL");
   
   const monthlyMinPayment = regularDebts.reduce((sum, d) => sum + Number(d.minimumPayment), 0);
   const bnplMonthlyEstimate = bnplDebts.reduce((sum, d) => {
-    // For BNPL, estimate monthly obligation based on remaining payments
     if (d.scheduledPayments && d.scheduledPayments.length > 0) {
       const unpaid = d.scheduledPayments.filter(p => !p.isPaid);
       if (unpaid.length === 0) return sum;
-      // Count payments in next 30 days as monthly estimate
       const now = new Date();
       const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
       const paymentsThisMonth = unpaid.filter(p => new Date(p.dueDate) <= in30Days);
@@ -306,8 +323,23 @@ export default function DebtsPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse text-theme-secondary">Loading debts...</div>
+      <div className="space-y-6 lg:space-y-8 animate-fade-in">
+        <header>
+          <h1 className="text-2xl lg:text-3xl font-bold text-theme-primary tracking-tight">Debts</h1>
+          <p className="text-theme-secondary mt-1">Track and manage your debts</p>
+        </header>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="py-5">
+                <div className="animate-pulse space-y-3">
+                  <div className="h-4 w-24 bg-theme-tertiary rounded" />
+                  <div className="h-8 w-32 bg-theme-tertiary rounded" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -315,11 +347,14 @@ export default function DebtsPage() {
   const SortButton = ({ field, label }: { field: SortField; label: string }) => (
     <button
       onClick={() => handleSort(field)}
-      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
-        sortField === field
-          ? "bg-accent text-white"
-          : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"
-      }`}
+      className={`
+        flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+        transition-all duration-200
+        ${sortField === field
+          ? "bg-accent-600 text-white shadow-sm"
+          : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary hover:text-theme-primary"
+        }
+      `}
     >
       {label}
       <ArrowUpDown className="h-3 w-3" />
@@ -327,72 +362,94 @@ export default function DebtsPage() {
   );
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 lg:space-y-8 animate-fade-in">
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-theme-primary">Debts</h1>
-          <p className="text-theme-secondary text-sm mt-1">
+          <h1 className="text-2xl lg:text-3xl font-bold text-theme-primary tracking-tight">Debts</h1>
+          <p className="text-theme-secondary mt-1">
             Track and manage your debts
           </p>
         </div>
         <Link href="/dashboard/debts/new">
-          <Button>Add Debt</Button>
+          <Button leftIcon={<Plus className="h-4 w-4" />}>
+            Add Debt
+          </Button>
         </Link>
-      </div>
+      </header>
 
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="py-4">
-            <p className="text-theme-secondary text-sm">Total Debt</p>
-            <p className="text-2xl font-bold text-theme-primary">{formatCurrency(totalDebt)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="py-4">
-            <p className="text-theme-secondary text-sm">Monthly Debt Payments</p>
-            <p className="text-2xl font-bold text-theme-primary">{formatCurrency(monthlyMinPayment)}</p>
-            <p className="text-theme-muted text-xs mt-1">recurring minimums</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="py-4">
-            <p className="text-theme-secondary text-sm">BNPL Due This Month</p>
-            <p className="text-2xl font-bold text-orange-500">{formatCurrency(bnplMonthlyEstimate)}</p>
-            <p className="text-theme-muted text-xs mt-1">{bnplDebts.length} active plans</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          label="Total Debt"
+          value={formatCurrency(totalDebt)}
+          icon={<CreditCard className="h-5 w-5" />}
+          variant="danger"
+        />
+        <StatCard
+          label="Monthly Payments"
+          value={formatCurrency(monthlyMinPayment)}
+          icon={<Wallet className="h-5 w-5" />}
+          variant="info"
+        />
+        <StatCard
+          label="BNPL Due This Month"
+          value={formatCurrency(bnplMonthlyEstimate)}
+          icon={<TrendingDown className="h-5 w-5" />}
+          variant="warning"
+        />
       </div>
 
-      {/* Search and Sort controls */}
+      {/* Search and Sort */}
       <div className="flex flex-col sm:flex-row gap-4">
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Search debts..."
-          className="sm:w-64"
+          className="sm:max-w-xs"
         />
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-theme-secondary text-sm">Sort by:</span>
+          <span className="text-theme-secondary text-sm font-medium">Sort:</span>
           <SortButton field="effectiveRate" label="Effective Rate" />
-          <SortButton field="interestRate" label="Stated APR" />
+          <SortButton field="interestRate" label="APR" />
           <SortButton field="currentBalance" label="Balance" />
           <SortButton field="name" label="Name" />
-          <SortButton field="status" label="Status" />
         </div>
       </div>
 
+      {/* Debts List */}
       {debts.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-theme-secondary">No debts added yet.</p>
+          <CardContent className="py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-theme-tertiary flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="h-8 w-8 text-theme-muted" />
+            </div>
+            <h3 className="text-lg font-semibold text-theme-primary mb-2">No debts yet</h3>
+            <p className="text-theme-secondary mb-6">
+              Start tracking your debts to monitor your progress
+            </p>
             <Link href="/dashboard/debts/new">
-              <Button className="mt-4">Add Your First Debt</Button>
+              <Button leftIcon={<Plus className="h-4 w-4" />}>
+                Add Your First Debt
+              </Button>
             </Link>
+          </CardContent>
+        </Card>
+      ) : filteredDebts.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-theme-tertiary flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="h-8 w-8 text-theme-muted" />
+            </div>
+            <h3 className="text-lg font-semibold text-theme-primary mb-2">No results found</h3>
+            <p className="text-theme-secondary">
+              No debts match &quot;{searchQuery}&quot;
+            </p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {sortedDebts.map((debt) => {
+          {sortedDebts.map((debt, index) => {
             const currentBalance = Number(debt.currentBalance);
             const originalBalance = Number(debt.originalBalance);
             const interestRate = Number(debt.interestRate);
@@ -404,74 +461,94 @@ export default function DebtsPage() {
             const hasEffectiveRate = isBNPL && effectiveRate > 0 && effectiveRate !== interestRate;
 
             return (
-              <Card key={debt.id}>
-                <CardHeader className="flex flex-row items-center justify-between">
+              <Card 
+                key={debt.id} 
+                className={`animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
+                hover
+              >
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <Link href={`/dashboard/debts/${debt.id}`}>
-                      <CardTitle className="hover:text-accent cursor-pointer">
-                        {debt.name}
-                      </CardTitle>
-                    </Link>
-                    {/* Show rate badge - for BNPL show effective rate if available */}
-                    {displayRate > 0 && (
-                      <Badge variant={displayRate > 15 ? "danger" : displayRate > 7 ? "warning" : "success"}>
-                        {hasEffectiveRate ? `~${effectiveRate.toFixed(1)}% eff.` : `${interestRate}% APR`}
-                      </Badge>
-                    )}
-                    {isBNPL && displayRate === 0 && (
-                      <Badge variant="success">0% APR</Badge>
-                    )}
-                    <Badge>{DEBT_TYPE_LABELS[debt.type] || debt.type}</Badge>
-                    {debt.status !== "CURRENT" && (
-                      <Badge variant={STATUS_COLORS[debt.status] || "default"}>
-                        {STATUS_LABELS[debt.status] || debt.status}
-                      </Badge>
-                    )}
+                    <div className="p-2 rounded-xl bg-theme-tertiary">
+                      {(() => {
+                        const IconComponent = DEBT_TYPE_ICONS[debt.type] || FileText;
+                        return <IconComponent className="h-5 w-5 text-theme-secondary" />;
+                      })()}
+                    </div>
+                    <div>
+                      <Link href={`/dashboard/debts/${debt.id}`}>
+                        <CardTitle className="hover:text-accent-600 dark:hover:text-accent-400 cursor-pointer transition-colors">
+                          {debt.name}
+                        </CardTitle>
+                      </Link>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {displayRate > 0 && (
+                          <Badge 
+                            variant={displayRate > 15 ? "danger" : displayRate > 7 ? "warning" : "success"}
+                            size="sm"
+                          >
+                            {hasEffectiveRate ? `~${effectiveRate.toFixed(1)}% eff.` : `${interestRate}% APR`}
+                          </Badge>
+                        )}
+                        {isBNPL && displayRate === 0 && (
+                          <Badge variant="success" size="sm">0% APR</Badge>
+                        )}
+                        <Badge size="sm">{DEBT_TYPE_LABELS[debt.type] || debt.type}</Badge>
+                        {debt.status !== "CURRENT" && (
+                          <StatusBadge status={debt.status === "DEFERRED" ? "deferred" : debt.status === "PAID_OFF" ? "paid" : "overdue"} />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" onClick={() => setPaymentDebt(debt)}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button size="sm" onClick={() => setPaymentDebt(debt)} leftIcon={<DollarSign className="h-4 w-4" />}>
                       Log Payment
                     </Button>
                     <Link href={`/dashboard/debts/${debt.id}/edit`}>
-                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm" leftIcon={<Pencil className="h-4 w-4" />}>
+                        Edit
+                      </Button>
                     </Link>
-                    <Button variant="danger" size="sm" onClick={() => handleDelete(debt.id)}>
+                    <Button variant="danger" size="sm" onClick={() => handleDelete(debt.id)} leftIcon={<Trash2 className="h-4 w-4" />}>
                       Delete
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Stats Grid */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="text-theme-secondary text-sm">Current Balance</p>
-                      <p className="text-xl font-semibold text-theme-primary">{formatCurrency(currentBalance)}</p>
+                    <div className="p-3 rounded-xl bg-theme-secondary">
+                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">Balance</p>
+                      <p className="text-xl font-bold text-theme-primary mt-1">{formatCurrency(currentBalance)}</p>
                     </div>
-                    <div>
-                      <p className="text-theme-secondary text-sm">Original Balance</p>
-                      <p className="text-lg text-theme-secondary">{formatCurrency(originalBalance)}</p>
+                    <div className="p-3 rounded-xl bg-theme-secondary">
+                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">Original</p>
+                      <p className="text-lg font-semibold text-theme-secondary mt-1">{formatCurrency(originalBalance)}</p>
                     </div>
-                    <div>
-                      <p className="text-theme-secondary text-sm">
-                        {isBNPL ? "Payment Amount" : "Minimum Payment"}
+                    <div className="p-3 rounded-xl bg-theme-secondary">
+                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">
+                        {isBNPL ? "Payment" : "Minimum"}
                       </p>
-                      <p className="text-lg text-theme-secondary">
+                      <p className="text-lg font-semibold text-theme-secondary mt-1">
                         {formatCurrency(Number(debt.minimumPayment))}
-                        {!isBNPL && "/mo"}
+                        {!isBNPL && <span className="text-sm font-normal">/mo</span>}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-theme-secondary text-sm">Est. Payoff</p>
-                      <p className="text-lg text-theme-secondary">{payoffInfo.date}</p>
+                    <div className="p-3 rounded-xl bg-theme-secondary">
+                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">Est. Payoff</p>
+                      <p className="text-lg font-semibold text-theme-secondary mt-1">{payoffInfo.date}</p>
                       {isBNPL && payoffInfo.months !== null && payoffInfo.months > 0 && (
                         <p className="text-xs text-theme-muted">{payoffInfo.months} payments left</p>
                       )}
                     </div>
                   </div>
 
-                  {/* Scheduled payments for BNPL */}
+                  {/* BNPL Scheduled Payments */}
                   {isBNPL && debt.scheduledPayments && debt.scheduledPayments.length > 0 && (
-                    <div className="pt-2 border-t border-theme">
-                      <p className="text-theme-secondary text-xs mb-2">Upcoming Payments</p>
+                    <div className="pt-4 border-t border-theme">
+                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <Calendar className="h-3.5 w-3.5" />
+                        Upcoming Payments
+                      </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {debt.scheduledPayments
                           .filter(p => !p.isPaid)
@@ -479,15 +556,16 @@ export default function DebtsPage() {
                           .map((payment) => (
                             <div
                               key={payment.id}
-                              className="flex justify-between text-sm p-2 rounded bg-theme-tertiary"
+                              className="flex justify-between items-center text-sm p-3 rounded-lg bg-theme-tertiary"
                             >
-                              <span className="text-theme-muted">
+                              <span className="text-theme-muted flex items-center gap-1.5">
+                                <Clock className="h-3 w-3" />
                                 {new Date(payment.dueDate).toLocaleDateString("en-US", {
                                   month: "short",
                                   day: "numeric",
                                 })}
                               </span>
-                              <span className="text-theme-primary font-medium">
+                              <span className="text-theme-primary font-semibold">
                                 {formatCurrency(Number(payment.amount))}
                               </span>
                             </div>
@@ -496,44 +574,51 @@ export default function DebtsPage() {
                     </div>
                   )}
 
-                  {/* Deferment info */}
+                  {/* Deferment Alert */}
                   {debt.status === "DEFERRED" && debt.deferredUntil && (
-                    <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 text-sm">
-                      <span className="text-blue-400">
-                        Deferred until {new Date(debt.deferredUntil).toLocaleDateString()}
-                      </span>
-                      {!isBNPL && <span className="text-theme-muted"> — Interest continues to accrue</span>}
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-info-50 dark:bg-info-600/10 border border-info-200 dark:border-info-600/30">
+                      <AlertCircle className="h-5 w-5 text-info-600 dark:text-info-400 shrink-0" />
+                      <div className="text-sm">
+                        <span className="text-info-700 dark:text-info-400 font-medium">
+                          Deferred until {new Date(debt.deferredUntil).toLocaleDateString()}
+                        </span>
+                        {!isBNPL && (
+                          <span className="text-info-600/80 dark:text-info-400/80"> — Interest continues to accrue</span>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
+                  {/* Progress Bar */}
+                  <div className="pt-2">
+                    <div className="flex justify-between text-sm mb-2">
                       <span className="text-theme-secondary">
-                        Paid off: {formatCurrency(originalBalance - currentBalance)} of {formatCurrency(originalBalance)}
+                        Paid off: {formatCurrency(originalBalance - currentBalance)}
                       </span>
-                      <span className="text-accent font-medium">{progress.toFixed(1)}%</span>
+                      <span className="text-accent-600 dark:text-accent-400 font-semibold">{progress.toFixed(1)}%</span>
                     </div>
-                    <div className="h-3 bg-theme-tertiary rounded-full overflow-hidden">
+                    <div className="progress-bar">
                       <div
-                        className="h-full bg-accent transition-all duration-500"
+                        className="progress-bar-fill"
                         style={{ width: `${Math.min(progress, 100)}%` }}
                       />
                     </div>
                   </div>
 
+                  {/* Recent Payments */}
                   {debt.payments && debt.payments.length > 0 && (
-                    <div className="pt-2 border-t border-theme">
-                      <p className="text-theme-secondary text-xs mb-2">Recent Payments</p>
-                      <div className="space-y-1">
+                    <div className="pt-4 border-t border-theme">
+                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider mb-3">Recent Payments</p>
+                      <div className="space-y-2">
                         {debt.payments.slice(0, 3).map((payment) => (
-                          <div key={payment.id} className="flex justify-between text-sm">
+                          <div key={payment.id} className="flex justify-between items-center text-sm py-1">
                             <span className="text-theme-muted">
                               {new Date(payment.date).toLocaleDateString("en-US", {
                                 month: "short",
                                 day: "numeric",
                               })}
                             </span>
-                            <span className="text-accent">
+                            <span className="text-success-600 dark:text-success-400 font-medium">
                               {formatCurrency(Number(payment.amount))}
                             </span>
                           </div>
@@ -541,17 +626,19 @@ export default function DebtsPage() {
                         {debt.payments.length > 3 && (
                           <Link
                             href={`/dashboard/debts/${debt.id}`}
-                            className="text-xs text-theme-muted hover:text-accent"
+                            className="text-sm text-accent-600 dark:text-accent-400 hover:underline flex items-center gap-1"
                           >
                             +{debt.payments.length - 3} more payments
+                            <ChevronRight className="h-4 w-4" />
                           </Link>
                         )}
                       </div>
                     </div>
                   )}
 
+                  {/* Notes */}
                   {debt.notes && (
-                    <p className="text-theme-muted text-sm">{debt.notes}</p>
+                    <p className="text-theme-muted text-sm pt-2 border-t border-theme italic">{debt.notes}</p>
                   )}
                 </CardContent>
               </Card>
@@ -560,6 +647,7 @@ export default function DebtsPage() {
         </div>
       )}
 
+      {/* Payment Modal */}
       {paymentDebt && (
         <PaymentForm
           debtId={paymentDebt.id}
