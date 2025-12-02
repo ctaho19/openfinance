@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { QuickPaymentCategory } from "@prisma/client";
+
+const quickPaymentSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z.union([z.number(), z.string()]).transform((val) => {
+    const num = typeof val === "string" ? parseFloat(val) : val;
+    if (isNaN(num) || num <= 0) throw new Error("Amount must be a positive number");
+    return num;
+  }),
+  paidAt: z.coerce.date(),
+  debtId: z.string().optional().nullable(),
+  category: z.nativeEnum(QuickPaymentCategory),
+  notes: z.string().optional().nullable(),
+});
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -39,32 +54,23 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { description, amount, paidAt, debtId, category, notes } = body;
+  const result = quickPaymentSchema.safeParse(body);
 
-  if (!description || !amount || !paidAt || !category) {
+  if (!result.success) {
     return NextResponse.json(
-      { error: "Description, amount, paidAt, and category are required" },
+      { error: result.error.issues.map((i) => i.message).join(", ") },
       { status: 400 }
     );
   }
 
-  const validCategories = ["BNPL_CATCHUP", "DEBT_SURPLUS", "ONE_TIME", "OTHER"];
-  if (!validCategories.includes(category)) {
-    return NextResponse.json(
-      { error: "Invalid category" },
-      { status: 400 }
-    );
-  }
+  const { description, amount, paidAt, debtId, category, notes } = result.data;
 
   if (debtId) {
     const debt = await prisma.debt.findFirst({
       where: { id: debtId, userId: session.user.id },
     });
     if (!debt) {
-      return NextResponse.json(
-        { error: "Debt not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Debt not found" }, { status: 404 });
     }
   }
 
@@ -72,8 +78,8 @@ export async function POST(request: NextRequest) {
     data: {
       userId: session.user.id,
       description,
-      amount: parseFloat(amount),
-      paidAt: new Date(paidAt),
+      amount,
+      paidAt,
       debtId: debtId || null,
       category,
       notes: notes || null,

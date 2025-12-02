@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { BankType } from "@prisma/client";
+
+const bankAccountSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  bank: z.nativeEnum(BankType),
+  lastFour: z
+    .string()
+    .length(4, "Last four must be exactly 4 digits")
+    .regex(/^\d{4}$/, "Last four must be numeric")
+    .optional()
+    .nullable(),
+  isDefault: z.boolean().optional(),
+});
 
 export async function GET() {
   const session = await auth();
@@ -24,15 +37,16 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { name, bank, lastFour, isDefault } = body;
+  const result = bankAccountSchema.safeParse(body);
 
-  if (!name || !bank) {
-    return NextResponse.json({ error: "Name and bank are required" }, { status: 400 });
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues.map((i) => i.message).join(", ") },
+      { status: 400 }
+    );
   }
 
-  if (!Object.values(BankType).includes(bank)) {
-    return NextResponse.json({ error: "Invalid bank type" }, { status: 400 });
-  }
+  const { name, bank, lastFour, isDefault } = result.data;
 
   // If setting as default, unset other defaults
   if (isDefault) {

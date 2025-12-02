@@ -448,7 +448,7 @@ export default function DebtsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {sortedDebts.map((debt, index) => {
             const currentBalance = Number(debt.currentBalance);
             const originalBalance = Number(debt.originalBalance);
@@ -459,145 +459,61 @@ export default function DebtsPage() {
             const payoffInfo = calculatePayoffInfo(debt);
             const isBNPL = debt.type === "BNPL";
             const hasEffectiveRate = isBNPL && effectiveRate > 0 && effectiveRate !== interestRate;
+            const IconComponent = DEBT_TYPE_ICONS[debt.type] || FileText;
 
             return (
               <Card 
                 key={debt.id} 
                 className={`animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
-                hover
               >
-                <CardHeader className="flex flex-col gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2.5 rounded-xl bg-accent-100 dark:bg-accent-600/20 shrink-0">
-                      {(() => {
-                        const IconComponent = DEBT_TYPE_ICONS[debt.type] || FileText;
-                        return <IconComponent className="h-5 w-5 text-accent-600 dark:text-accent-400" />;
-                      })()}
+                <CardContent className="py-5">
+                  {/* Main Row: Icon, Name/Type, Balance, Actions */}
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-lg bg-theme-tertiary shrink-0">
+                      <IconComponent className="h-5 w-5 text-theme-secondary" />
                     </div>
+                    
                     <div className="flex-1 min-w-0">
-                      <Link href={`/dashboard/debts/${debt.id}`}>
-                        <CardTitle className="hover:text-accent-600 dark:hover:text-accent-400 cursor-pointer transition-colors">
+                      <Link href={`/dashboard/debts/${debt.id}`} className="group">
+                        <h3 className="font-semibold text-theme-primary group-hover:text-accent-600 transition-colors truncate">
                           {debt.name}
-                        </CardTitle>
+                        </h3>
                       </Link>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        {displayRate > 0 && (
-                          <Badge 
-                            variant={displayRate > 15 ? "danger" : displayRate > 7 ? "warning" : "success"}
-                            size="sm"
-                          >
-                            {hasEffectiveRate ? `~${effectiveRate.toFixed(1)}% eff.` : `${interestRate}% APR`}
-                          </Badge>
-                        )}
-                        {isBNPL && displayRate === 0 && (
-                          <Badge variant="success" size="sm">0% APR</Badge>
-                        )}
-                        <Badge size="sm">{DEBT_TYPE_LABELS[debt.type] || debt.type}</Badge>
-                        {debt.status !== "CURRENT" && (
-                          <StatusBadge status={debt.status === "DEFERRED" ? "deferred" : debt.status === "PAID_OFF" ? "paid" : "overdue"} />
-                        )}
-                      </div>
+                      <p className="text-sm text-theme-muted">
+                        {DEBT_TYPE_LABELS[debt.type] || debt.type}
+                        {displayRate > 0 && ` · ${hasEffectiveRate ? `~${effectiveRate.toFixed(1)}%` : `${interestRate}%`} APR`}
+                        {isBNPL && displayRate === 0 && " · 0% APR"}
+                        {debt.status !== "CURRENT" && ` · ${STATUS_LABELS[debt.status]}`}
+                      </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Button size="sm" onClick={() => setPaymentDebt(debt)} leftIcon={<DollarSign className="h-4 w-4" />}>
-                      Log Payment
-                    </Button>
-                    <Link href={`/dashboard/debts/${debt.id}/edit`}>
-                      <Button variant="ghost" size="sm" leftIcon={<Pencil className="h-4 w-4" />}>
-                        Edit
+
+                    <div className="text-right shrink-0">
+                      <p className="text-lg font-bold text-theme-primary">{formatCurrency(currentBalance)}</p>
+                      <p className="text-xs text-theme-muted">{formatCurrency(Number(debt.minimumPayment))}/mo</p>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="sm" variant="ghost" onClick={() => setPaymentDebt(debt)}>
+                        <DollarSign className="h-4 w-4" />
                       </Button>
-                    </Link>
-                    <Button variant="danger" size="sm" onClick={() => handleDelete(debt.id)} leftIcon={<Trash2 className="h-4 w-4" />}>
-                      Delete
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-3 rounded-xl bg-theme-secondary">
-                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">Balance</p>
-                      <p className="text-xl font-bold text-theme-primary mt-1">{formatCurrency(currentBalance)}</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-theme-secondary">
-                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">Original</p>
-                      <p className="text-lg font-semibold text-theme-secondary mt-1">{formatCurrency(originalBalance)}</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-theme-secondary">
-                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">
-                        {isBNPL ? "Payment" : "Minimum"}
-                      </p>
-                      <p className="text-lg font-semibold text-theme-secondary mt-1">
-                        {formatCurrency(Number(debt.minimumPayment))}
-                        {!isBNPL && <span className="text-sm font-normal">/mo</span>}
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-theme-secondary">
-                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider">Est. Payoff</p>
-                      <p className="text-lg font-semibold text-theme-secondary mt-1">{payoffInfo.date}</p>
-                      {isBNPL && payoffInfo.months !== null && payoffInfo.months > 0 && (
-                        <p className="text-xs text-theme-muted">{payoffInfo.months} payments left</p>
-                      )}
+                      <Link href={`/dashboard/debts/${debt.id}/edit`}>
+                        <Button variant="ghost" size="sm">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(debt.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-
-                  {/* BNPL Scheduled Payments */}
-                  {isBNPL && debt.scheduledPayments && debt.scheduledPayments.length > 0 && (
-                    <div className="pt-4 border-t border-theme">
-                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5" />
-                        Upcoming Payments
-                      </p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {debt.scheduledPayments
-                          .filter(p => !p.isPaid)
-                          .slice(0, 4)
-                          .map((payment) => (
-                            <div
-                              key={payment.id}
-                              className="flex justify-between items-center text-sm p-3 rounded-lg bg-theme-tertiary"
-                            >
-                              <span className="text-theme-muted flex items-center gap-1.5">
-                                <Clock className="h-3 w-3" />
-                                {new Date(payment.dueDate).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                              <span className="text-theme-primary font-semibold">
-                                {formatCurrency(Number(payment.amount))}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Deferment Alert */}
-                  {debt.status === "DEFERRED" && debt.deferredUntil && (
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-info-50 dark:bg-info-600/10 border border-info-200 dark:border-info-600/30">
-                      <AlertCircle className="h-5 w-5 text-info-600 dark:text-info-400 shrink-0" />
-                      <div className="text-sm">
-                        <span className="text-info-700 dark:text-info-400 font-medium">
-                          Deferred until {new Date(debt.deferredUntil).toLocaleDateString()}
-                        </span>
-                        {!isBNPL && (
-                          <span className="text-info-600/80 dark:text-info-400/80"> — Interest continues to accrue</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Progress Bar */}
-                  <div className="pt-2">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-theme-secondary">
-                        Paid off: {formatCurrency(originalBalance - currentBalance)}
-                      </span>
-                      <span className="text-accent-600 dark:text-accent-400 font-semibold">{progress.toFixed(1)}%</span>
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs text-theme-muted mb-1.5">
+                      <span>{progress.toFixed(0)}% paid off</span>
+                      <span>Payoff: {payoffInfo.date}</span>
                     </div>
-                    <div className="progress-bar">
+                    <div className="progress-bar h-1.5">
                       <div
                         className="progress-bar-fill"
                         style={{ width: `${Math.min(progress, 100)}%` }}
@@ -605,40 +521,32 @@ export default function DebtsPage() {
                     </div>
                   </div>
 
-                  {/* Recent Payments */}
-                  {debt.payments && debt.payments.length > 0 && (
-                    <div className="pt-4 border-t border-theme">
-                      <p className="text-theme-muted text-xs font-medium uppercase tracking-wider mb-3">Recent Payments</p>
-                      <div className="space-y-2">
-                        {debt.payments.slice(0, 3).map((payment) => (
-                          <div key={payment.id} className="flex justify-between items-center text-sm py-1">
-                            <span className="text-theme-muted">
-                              {new Date(payment.date).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                            <span className="text-success-600 dark:text-success-400 font-medium">
-                              {formatCurrency(Number(payment.amount))}
-                            </span>
-                          </div>
-                        ))}
-                        {debt.payments.length > 3 && (
-                          <Link
-                            href={`/dashboard/debts/${debt.id}`}
-                            className="text-sm text-accent-600 dark:text-accent-400 hover:underline flex items-center gap-1"
-                          >
-                            +{debt.payments.length - 3} more payments
-                            <ChevronRight className="h-4 w-4" />
-                          </Link>
-                        )}
+                  {/* BNPL Upcoming Payments - Compact */}
+                  {isBNPL && debt.scheduledPayments && debt.scheduledPayments.filter(p => !p.isPaid).length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-theme">
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="text-theme-muted">Next payments:</span>
+                        <div className="flex gap-3 flex-wrap">
+                          {debt.scheduledPayments
+                            .filter(p => !p.isPaid)
+                            .slice(0, 3)
+                            .map((payment) => (
+                              <span key={payment.id} className="text-theme-secondary">
+                                {new Date(payment.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                <span className="text-theme-primary font-medium ml-1">{formatCurrency(Number(payment.amount))}</span>
+                              </span>
+                            ))}
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Notes */}
-                  {debt.notes && (
-                    <p className="text-theme-muted text-sm pt-2 border-t border-theme italic">{debt.notes}</p>
+                  {/* Deferment Notice - Compact */}
+                  {debt.status === "DEFERRED" && debt.deferredUntil && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-theme-muted">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>Deferred until {new Date(debt.deferredUntil).toLocaleDateString()}</span>
+                    </div>
                   )}
                 </CardContent>
               </Card>

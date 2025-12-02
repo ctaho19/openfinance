@@ -485,3 +485,39 @@ select option {
 .hover\:bg-accent-50:hover { background-color: var(--accent-50); }
 .hover\:border-accent-500\/50:hover { border-color: color-mix(in srgb, var(--accent-500) 50%, transparent); }
 .dark .dark\:hover\:bg-accent-600\/10:hover { background-color: color-mix(in srgb, var(--accent-600) 10%, transparent); }
+
+/* ============================================
+   SEMANTIC COLOR UTILITIES (Light + Dark)
+   ============================================ */
+
+/* Success */
+.bg-success-100 { background-color: var(--success-100); }
+.bg-success-600\/20 { background-color: rgb(5 150 105 / 0.2); }
+.text-success-400 { color: #4ade80; }
+.text-success-600 { color: var(--success-600); }
+.dark .dark\:bg-success-600\/20 { background-color: rgb(5 150 105 / 0.2); }
+.dark .dark\:text-success-400 { color: #4ade80; }
+
+/* Warning */
+.bg-warning-100 { background-color: var(--warning-100); }
+.bg-warning-600\/20 { background-color: rgb(217 119 6 / 0.2); }
+.text-warning-400 { color: #fbbf24; }
+.text-warning-600 { color: var(--warning-600); }
+.dark .dark\:bg-warning-600\/20 { background-color: rgb(217 119 6 / 0.2); }
+.dark .dark\:text-warning-400 { color: #fbbf24; }
+
+/* Danger */
+.bg-danger-100 { background-color: var(--danger-100); }
+.bg-danger-600\/20 { background-color: rgb(220 38 38 / 0.2); }
+.text-danger-400 { color: #f87171; }
+.text-danger-600 { color: var(--danger-600); }
+.dark .dark\:bg-danger-600\/20 { background-color: rgb(220 38 38 / 0.2); }
+.dark .dark\:text-danger-400 { color: #f87171; }
+
+/* Info */
+.bg-info-100 { background-color: var(--info-100); }
+.bg-info-600\/20 { background-color: rgb(37 99 235 / 0.2); }
+.text-info-400 { color: #60a5fa; }
+.text-info-600 { color: var(--info-600); }
+.dark .dark\:bg-info-600\/20 { background-color: rgb(37 99 235 / 0.2); }
+.dark .dark\:text-info-400 { color: #60a5fa; }

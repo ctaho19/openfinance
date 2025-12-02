@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { DebtType, BillCategory } from "@prisma/client";
@@ -13,6 +14,22 @@ const debtTypeToBillCategory: Record<DebtType, BillCategory> = {
   [DebtType.MORTGAGE]: BillCategory.LOAN,
   [DebtType.OTHER]: BillCategory.OTHER,
 };
+
+const debtSchema = z.object({
+  name: z.string().min(1),
+  type: z.nativeEnum(DebtType),
+  currentBalance: z.union([z.number(), z.string()]).transform(Number),
+  originalBalance: z.union([z.number(), z.string()]).transform(Number),
+  interestRate: z.union([z.number(), z.string()]).transform(Number),
+  minimumPayment: z.union([z.number(), z.string()]).transform(Number),
+  dueDay: z.number().int().min(1).max(31),
+  notes: z.string().optional(),
+  numberOfPayments: z.number().int().positive().optional(),
+  firstPaymentDate: z.string().optional(),
+  paymentFrequency: z.enum(["weekly", "biweekly", "monthly"]).optional(),
+  bankAccountId: z.string().optional(),
+  totalRepayable: z.union([z.number(), z.string()]).transform(Number).optional(),
+});
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -69,6 +86,15 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const result = debtSchema.safeParse(body);
+
+  if (!result.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: result.error.flatten() },
+      { status: 400 }
+    );
+  }
+
   const {
     name,
     type,
@@ -83,14 +109,16 @@ export async function POST(request: Request) {
     paymentFrequency,
     bankAccountId,
     totalRepayable,
-  } = body;
+  } = result.data;
 
-  if (!name || !type || currentBalance === undefined || originalBalance === undefined || interestRate === undefined || minimumPayment === undefined || dueDay === undefined) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
-
-  if (!Object.values(DebtType).includes(type)) {
-    return NextResponse.json({ error: "Invalid debt type" }, { status: 400 });
+  if (bankAccountId) {
+    const bankAccount = await prisma.bankAccount.findFirst({
+      where: { id: bankAccountId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!bankAccount) {
+      return NextResponse.json({ error: "Invalid bank account reference" }, { status: 400 });
+    }
   }
 
   const isBNPL = type === DebtType.BNPL;
@@ -105,7 +133,7 @@ export async function POST(request: Request) {
     effectiveRate = calculateEffectiveAPR({
       principal: currentBalance,
       totalRepayable,
-      numberOfPayments,
+      numberOfPayments: numberOfPayments!,
       frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
     });
   }
@@ -146,7 +174,7 @@ export async function POST(request: Request) {
   if (isBNPL) {
     const schedule = generatePaymentSchedule({
       totalAmount: currentBalance,
-      numberOfPayments,
+      numberOfPayments: numberOfPayments!,
       firstPaymentDate: new Date(firstPaymentDate + "T00:00:00"),
       frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
     });

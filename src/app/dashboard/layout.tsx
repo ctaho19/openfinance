@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
+import { SessionMonitor } from "@/components/session-monitor";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,7 @@ export default async function DashboardLayout({
 
   return (
     <SessionProvider session={session}>
+      <SessionMonitor />
       <div className="flex h-screen bg-theme-primary overflow-hidden">
         <Sidebar />
         <main className="flex-1 overflow-y-auto">
