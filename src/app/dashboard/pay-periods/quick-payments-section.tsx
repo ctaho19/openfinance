@@ -100,7 +100,7 @@ export function QuickPaymentsSection({
                       )}
                     </p>
                   </div>
-                  <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                  <p className="text-lg font-semibold text-accent-600 dark:text-accent-400">
                     ${Number(payment.amount).toFixed(2)}
                   </p>
                 </div>

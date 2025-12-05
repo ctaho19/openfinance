@@ -86,7 +86,7 @@ export function FOOStepCard({
   function getStatusIcon() {
     switch (status) {
       case "COMPLETED":
-        return <CheckCircle2 className="h-6 w-6 text-emerald-500" />;
+        return <CheckCircle2 className="h-6 w-6 text-accent-500" />;
       case "IN_PROGRESS":
         return <Clock className="h-6 w-6 text-yellow-500" />;
       default:
@@ -109,7 +109,7 @@ export function FOOStepCard({
     <Card
       className={`transition-all ${
         isCurrentStep
-          ? "ring-2 ring-emerald-500/50 bg-theme-secondary"
+          ? "ring-2 ring-accent-500/50 bg-theme-secondary"
           : status === "COMPLETED"
             ? "bg-theme-secondary opacity-80"
             : ""
@@ -123,7 +123,7 @@ export function FOOStepCard({
           <div className="flex items-center gap-4">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-theme-tertiary text-theme-primary font-bold">
               {status === "COMPLETED" ? (
-                <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                <CheckCircle2 className="h-6 w-6 text-accent-500" />
               ) : (
                 number
               )}
@@ -157,11 +157,11 @@ export function FOOStepCard({
                 ${(currentAmount || 0).toLocaleString()} of $
                 {(targetAmount || 0).toLocaleString()}
               </span>
-              <span className="text-emerald-400">{progress.toFixed(0)}%</span>
+              <span className="text-accent-400">{progress.toFixed(0)}%</span>
             </div>
             <div className="h-2 bg-theme-tertiary rounded-full overflow-hidden">
               <div
-                className="h-full bg-emerald-500 rounded-full transition-all"
+                className="h-full bg-accent-500 rounded-full transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -212,7 +212,7 @@ export function FOOStepCard({
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                             formStatus === s
                               ? s === "COMPLETED"
-                                ? "bg-emerald-600 text-white"
+                                ? "bg-accent-600 text-white"
                                 : s === "IN_PROGRESS"
                                   ? "bg-yellow-600 text-white"
                                   : "bg-gray-600 text-white"
@@ -241,7 +241,7 @@ export function FOOStepCard({
                           value={formTarget}
                           onChange={(e) => setFormTarget(e.target.value)}
                           placeholder="0.00"
-                          className="w-full bg-theme-tertiary border border-theme rounded-lg pl-7 pr-3 py-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full bg-theme-tertiary border border-theme rounded-lg pl-7 pr-3 py-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500"
                         />
                       </div>
                     </div>
@@ -258,7 +258,7 @@ export function FOOStepCard({
                           value={formCurrent}
                           onChange={(e) => setFormCurrent(e.target.value)}
                           placeholder="0.00"
-                          className="w-full bg-theme-tertiary border border-theme rounded-lg pl-7 pr-3 py-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full bg-theme-tertiary border border-theme rounded-lg pl-7 pr-3 py-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500"
                         />
                       </div>
                     </div>
@@ -274,7 +274,7 @@ export function FOOStepCard({
                     onChange={(e) => setFormNotes(e.target.value)}
                     placeholder="Add any notes about your progress..."
                     rows={2}
-                    className="w-full bg-theme-tertiary border border-theme rounded-lg px-3 py-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    className="w-full bg-theme-tertiary border border-theme rounded-lg px-3 py-2 text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none"
                   />
                 </div>
 

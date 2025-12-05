@@ -387,7 +387,7 @@ export default function EditDebtPage() {
                           key={payment.id}
                           className={`text-xs px-2 py-1 rounded-lg ${
                             payment.isPaid 
-                              ? "bg-success-100 dark:bg-success-600/20 text-success-700 dark:text-success-400 line-through" 
+                              ? "bg-accent-100 dark:bg-accent-600/20 text-accent-700 dark:text-accent-400 line-through" 
                               : "bg-theme-tertiary text-theme-secondary"
                           }`}
                         >

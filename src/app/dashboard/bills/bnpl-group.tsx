@@ -69,7 +69,7 @@ export function BNPLGroup({ group }: { group: BNPLDebtGroup }) {
           </div>
           <div className="w-24 h-2 bg-theme-tertiary rounded-full overflow-hidden">
             <div 
-              className="h-full bg-emerald-500 transition-all duration-300"
+              className="h-full bg-accent-500 transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -93,7 +93,7 @@ export function BNPLGroup({ group }: { group: BNPLDebtGroup }) {
               >
                 <div className="flex items-center gap-2">
                   {isPaid ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
+                    <Check className="h-4 w-4 text-accent-500" />
                   ) : (
                     <Clock className="h-4 w-4 text-theme-muted" />
                   )}

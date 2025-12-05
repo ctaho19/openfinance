@@ -119,11 +119,11 @@ export function GoalCard({ goal }: { goal: SavingsGoal }) {
             <span className="text-theme-secondary">
               ${current.toLocaleString()} of ${target.toLocaleString()}
             </span>
-            <span className="text-emerald-400">{progress.toFixed(1)}%</span>
+            <span className="text-accent-400">{progress.toFixed(1)}%</span>
           </div>
           <div className="h-3 bg-theme-tertiary rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+              className="h-full bg-accent-500 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -146,7 +146,7 @@ export function GoalCard({ goal }: { goal: SavingsGoal }) {
               value={addAmount}
               onChange={(e) => setAddAmount(e.target.value)}
               placeholder="Amount to add"
-              className="flex-1 px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="flex-1 px-3 py-2 bg-theme-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500"
             />
             <Button
               onClick={handleAddFunds}

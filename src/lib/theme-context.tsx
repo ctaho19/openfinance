@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Mode = "light" | "dark" | "system";
-type AccentColor = "emerald" | "blue" | "purple" | "orange" | "pink";
+type AccentColor = "chase" | "blue" | "purple" | "orange" | "pink";
 
 interface ThemeContextType {
   mode: Mode;
@@ -24,7 +24,7 @@ function getSystemTheme(): "light" | "dark" {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setModeState] = useState<Mode>("system");
-  const [accentColor, setAccentColorState] = useState<AccentColor>("emerald");
+  const [accentColor, setAccentColorState] = useState<AccentColor>("chase");
   const [resolvedMode, setResolvedMode] = useState<"light" | "dark">("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -71,7 +71,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     const root = document.documentElement;
     root.classList.remove(
-      "accent-emerald",
+      "accent-chase",
       "accent-blue",
       "accent-purple",
       "accent-orange",

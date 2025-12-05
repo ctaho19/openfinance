@@ -94,7 +94,7 @@ export function DebtDetailClient({
                       <td className="py-3 px-4 text-theme-primary">
                         {formatDate(payment.date)}
                       </td>
-                      <td className="py-3 px-4 text-right text-emerald-400 font-medium">
+                      <td className="py-3 px-4 text-right text-accent-400 font-medium">
                         {formatCurrency(payment.amount)}
                       </td>
                       <td className="py-3 px-4 text-right text-theme-secondary">

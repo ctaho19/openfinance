@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark accent-emerald" suppressHydrationWarning>
+    <html lang="en" className="dark accent-chase" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>

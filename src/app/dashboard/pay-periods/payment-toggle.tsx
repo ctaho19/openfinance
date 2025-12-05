@@ -46,7 +46,7 @@ export function PaymentToggle({ paymentId, initialStatus }: PaymentToggleProps) 
         variant="ghost"
         size="sm"
         onClick={toggleStatus}
-        className="text-emerald-400 hover:text-emerald-300"
+        className="text-accent-400 hover:text-accent-300"
       >
         <Check className="h-4 w-4 mr-1" />
         Paid

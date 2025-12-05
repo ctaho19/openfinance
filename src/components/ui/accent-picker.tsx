@@ -3,10 +3,10 @@
 import { Check } from "lucide-react";
 import { useTheme } from "@/lib/theme-context";
 
-type AccentColor = "emerald" | "blue" | "purple" | "orange" | "pink";
+type AccentColor = "chase" | "blue" | "purple" | "orange" | "pink";
 
 const accentColors: { value: AccentColor; label: string; color: string }[] = [
-  { value: "emerald", label: "Emerald", color: "#10b981" },
+  { value: "chase", label: "Chase Blue", color: "#117ACA" },
   { value: "blue", label: "Blue", color: "#3b82f6" },
   { value: "purple", label: "Purple", color: "#a855f7" },
   { value: "orange", label: "Orange", color: "#f97316" },
