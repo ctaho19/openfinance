@@ -496,7 +496,7 @@ export default function DebtsPage() {
                       <Button size="sm" variant="ghost" onClick={() => setPaymentDebt(debt)}>
                         <DollarSign className="h-4 w-4" />
                       </Button>
-                      <Link href={`/dashboard/debts/${debt.id}/edit`}>
+                      <Link href={`/dashboard/debts/${debt.id}/edit?sort=${sortField}&dir=${sortDirection}`}>
                         <Button variant="ghost" size="sm">
                           <Pencil className="h-4 w-4" />
                         </Button>

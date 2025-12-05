@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,15 @@ interface Debt {
 export default function EditDebtPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const debtId = params.id as string;
+  
+  // Preserve sort params for navigation back to debts list
+  const sortParam = searchParams.get("sort");
+  const dirParam = searchParams.get("dir");
+  const backUrl = sortParam && dirParam 
+    ? `/dashboard/debts?sort=${sortParam}&dir=${dirParam}`
+    : "/dashboard/debts";
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -243,7 +251,7 @@ export default function EditDebtPage() {
     });
 
     if (res.ok) {
-      router.push("/dashboard/debts");
+      router.push(backUrl);
     } else {
       const result = await res.json();
       setError(result.error || "Failed to update debt");
@@ -267,7 +275,7 @@ export default function EditDebtPage() {
     return (
       <div className="p-6">
         <p className="text-danger-600 dark:text-danger-400">Debt not found</p>
-        <Link href="/dashboard/debts" className="text-accent hover:underline">
+        <Link href={backUrl} className="text-accent hover:underline">
           Back to Debts
         </Link>
       </div>
@@ -277,7 +285,7 @@ export default function EditDebtPage() {
   return (
     <div className="animate-fade-in max-w-2xl mx-auto space-y-6 lg:space-y-8">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/debts">
+        <Link href={backUrl}>
           <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="h-4 w-4" />}>
             Back
           </Button>
@@ -665,7 +673,7 @@ export default function EditDebtPage() {
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-              <Link href="/dashboard/debts">
+              <Link href={backUrl}>
                 <Button type="button" variant="secondary">
                   Cancel
                 </Button>
