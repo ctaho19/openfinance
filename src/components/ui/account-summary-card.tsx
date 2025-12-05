@@ -43,20 +43,20 @@ export function AccountSummaryCard({
 
         {/* Primary Amount */}
         <div className="mb-6">
-          <p className="text-balance-responsive text-white">
+          <p className="text-balance-xl text-white">
             ${formattedAmount}
           </p>
         </div>
 
         {/* Secondary Items */}
         {secondaryItems && secondaryItems.length > 0 && (
-          <div className="flex flex-wrap gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3 pt-4 border-t border-white/20">
+          <div className="flex flex-wrap gap-x-6 gap-y-3 pt-4 border-t border-white/20">
             {secondaryItems.map((item, index) => (
               <div key={index}>
-                <p className="text-[10px] sm:text-[11px] text-white/60 uppercase tracking-wider font-medium">
+                <p className="text-[11px] text-white/60 uppercase tracking-wider font-medium">
                   {item.label}
                 </p>
-                <p className="text-sm sm:text-base text-white font-semibold mt-0.5">
+                <p className="text-white font-semibold mt-0.5">
                   {item.value}
                 </p>
               </div>

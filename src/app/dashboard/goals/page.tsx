@@ -32,19 +32,19 @@ export default async function GoalsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-theme-primary tracking-tight">Savings Goals</h1>
-          <p className="text-theme-secondary mt-1">Track your progress towards financial goals</p>
+          <h1 className="text-2xl font-bold text-theme-primary">Savings Goals</h1>
+          <p className="text-theme-secondary">Track your progress towards financial goals</p>
         </div>
         <Link href="/dashboard/goals/new">
           <Button leftIcon={<Plus className="h-4 w-4" />}>
             New Goal
           </Button>
         </Link>
-      </header>
+      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 animate-fade-in-up">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in-up">
         <StatCard
           label="Total Goals"
           value={totalGoals}
@@ -62,7 +62,6 @@ export default async function GoalsPage() {
           value={`${overallProgress.toFixed(1)}%`}
           icon={<TrendingUp className="h-5 w-5" />}
           variant="success"
-          className="col-span-2 md:col-span-1"
         />
       </div>
 

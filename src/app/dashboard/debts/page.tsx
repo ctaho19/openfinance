@@ -379,7 +379,7 @@ export default function DebtsPage() {
       </header>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
           label="Total Debt"
           value={formatCurrency(totalDebt)}
@@ -397,7 +397,6 @@ export default function DebtsPage() {
           value={formatCurrency(bnplMonthlyEstimate)}
           icon={<TrendingDown className="h-5 w-5" />}
           variant="warning"
-          className="col-span-2 md:col-span-1"
         />
       </div>
 
@@ -467,20 +466,20 @@ export default function DebtsPage() {
                 key={debt.id} 
                 className={`animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
               >
-                <CardContent className="py-4 sm:py-5">
+                <CardContent className="py-5">
                   {/* Main Row: Icon, Name/Type, Balance, Actions */}
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="p-2 sm:p-2.5 rounded-lg bg-theme-tertiary shrink-0">
-                      <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-theme-secondary" />
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-lg bg-theme-tertiary shrink-0">
+                      <IconComponent className="h-5 w-5 text-theme-secondary" />
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <Link href={`/dashboard/debts/${debt.id}`} className="group">
-                        <h3 className="font-semibold text-sm sm:text-base text-theme-primary group-hover:text-accent-600 transition-colors truncate">
+                        <h3 className="font-semibold text-theme-primary group-hover:text-accent-600 transition-colors truncate">
                           {debt.name}
                         </h3>
                       </Link>
-                      <p className="text-xs sm:text-sm text-theme-muted truncate">
+                      <p className="text-sm text-theme-muted">
                         {DEBT_TYPE_LABELS[debt.type] || debt.type}
                         {displayRate > 0 && ` · ${hasEffectiveRate ? `~${effectiveRate.toFixed(1)}%` : `${interestRate}%`} APR`}
                         {isBNPL && displayRate === 0 && " · 0% APR"}
@@ -489,20 +488,20 @@ export default function DebtsPage() {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <p className="text-base sm:text-lg font-bold text-theme-primary">{formatCurrency(currentBalance)}</p>
+                      <p className="text-lg font-bold text-theme-primary">{formatCurrency(currentBalance)}</p>
                       <p className="text-xs text-theme-muted">{formatCurrency(Number(debt.minimumPayment))}/mo</p>
                     </div>
 
-                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-                      <Button size="sm" variant="ghost" onClick={() => setPaymentDebt(debt)} className="p-2">
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="sm" variant="ghost" onClick={() => setPaymentDebt(debt)}>
                         <DollarSign className="h-4 w-4" />
                       </Button>
                       <Link href={`/dashboard/debts/${debt.id}/edit`}>
-                        <Button variant="ghost" size="sm" className="p-2">
+                        <Button variant="ghost" size="sm">
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(debt.id)} className="p-2 hidden sm:flex">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(debt.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

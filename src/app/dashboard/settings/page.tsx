@@ -71,7 +71,7 @@ export default async function SettingsPage() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Account Card */}
         <Card>
           <CardHeader>
@@ -86,14 +86,14 @@ export default async function SettingsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="p-3 sm:p-4 rounded-xl bg-theme-secondary">
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-theme-secondary">
                 <label className="text-xs font-medium text-theme-muted uppercase tracking-wider">Name</label>
-                <p className="text-theme-primary font-medium mt-1 text-sm sm:text-base truncate">{user?.name || "Not set"}</p>
+                <p className="text-theme-primary font-medium mt-1">{user?.name || "Not set"}</p>
               </div>
-              <div className="p-3 sm:p-4 rounded-xl bg-theme-secondary">
+              <div className="p-4 rounded-xl bg-theme-secondary">
                 <label className="text-xs font-medium text-theme-muted uppercase tracking-wider">Email</label>
-                <p className="text-theme-primary font-medium mt-1 text-sm sm:text-base truncate">{user?.email || "Not set"}</p>
+                <p className="text-theme-primary font-medium mt-1">{user?.email || "Not set"}</p>
               </div>
             </div>
           </CardContent>
@@ -137,7 +137,7 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <form action={updatePaycheck} className="max-w-lg">
-              <div className="space-y-4 sm:space-y-5">
+              <div className="space-y-5">
                 <div>
                   <label
                     htmlFor="amount"
