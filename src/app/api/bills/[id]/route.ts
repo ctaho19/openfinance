@@ -15,7 +15,7 @@ export async function GET(
 
   const bill = await prisma.bill.findFirst({
     where: { id, userId: session.user.id },
-    include: { debt: true },
+    include: { debt: true, bankAccount: true },
   });
 
   if (!bill) {
@@ -45,7 +45,7 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const { name, category, amount, dueDay, isRecurring, frequency, debtId, notes, isActive } = body;
+  const { name, category, amount, dueDay, isRecurring, frequency, debtId, bankAccountId, notes, isActive } = body;
 
   const bill = await prisma.bill.update({
     where: { id },
@@ -57,6 +57,7 @@ export async function PUT(
       ...(isRecurring !== undefined && { isRecurring }),
       ...(frequency !== undefined && { frequency }),
       ...(debtId !== undefined && { debtId: debtId || null }),
+      ...(bankAccountId !== undefined && { bankAccountId: bankAccountId || null }),
       ...(notes !== undefined && { notes: notes || null }),
       ...(isActive !== undefined && { isActive }),
     },
