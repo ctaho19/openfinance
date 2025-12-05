@@ -16,6 +16,7 @@ import { format, startOfDay, endOfDay } from "date-fns";
 import { PaymentToggle } from "./payment-toggle";
 import { QuickPaymentsSection } from "./quick-payments-section";
 import { BankAllocationSection } from "./bank-allocation";
+import { AllocationForecast } from "./allocation-forecast";
 
 interface BillPaymentWithBill {
   id: string;
@@ -181,6 +182,66 @@ export default async function PayPeriodsPage({
     return b.totalAmount - a.totalAmount;
   });
 
+  // Generate forecast for next 3 pay periods (only show on current period)
+  let forecastPeriods: {
+    periodLabel: string;
+    startDate: string;
+    endDate: string;
+    allocations: { bankId: string | null; bankName: string; bankType: string; amount: number }[];
+    totalAmount: number;
+  }[] = [];
+
+  if (isCurrent) {
+    const upcomingPeriods = getPayPeriods(payPeriod.startDate, 4, "forward").slice(1); // Skip current
+    
+    for (const period of upcomingPeriods) {
+      await ensureBillPaymentsForPayPeriod(session.user.id, period.startDate, period.endDate);
+      
+      const periodPayments = await prisma.billPayment.findMany({
+        where: {
+          bill: { userId: session.user.id },
+          dueDate: {
+            gte: startOfDay(period.startDate),
+            lte: endOfDay(period.endDate),
+          },
+          status: "UNPAID",
+        },
+        include: {
+          bill: {
+            select: {
+              bankAccountId: true,
+              bankAccount: { select: { id: true, name: true, bank: true } },
+            },
+          },
+        },
+      });
+
+      const periodAllocMap = new Map<string, { bankId: string | null; bankName: string; bankType: string; amount: number }>();
+      
+      for (const payment of periodPayments) {
+        const bankId = payment.bill.bankAccountId || "unassigned";
+        const bankName = payment.bill.bankAccount?.name || "Unassigned Bills";
+        const bankType = payment.bill.bankAccount?.bank || "OTHER";
+
+        if (!periodAllocMap.has(bankId)) {
+          periodAllocMap.set(bankId, { bankId: payment.bill.bankAccountId, bankName, bankType, amount: 0 });
+        }
+        periodAllocMap.get(bankId)!.amount += Number(payment.amount);
+      }
+
+      const periodAllocations = Array.from(periodAllocMap.values()).sort((a, b) => b.amount - a.amount);
+      const totalAmount = periodAllocations.reduce((sum, a) => sum + a.amount, 0);
+
+      forecastPeriods.push({
+        periodLabel: formatPayPeriod(period),
+        startDate: format(period.startDate, "MMM d"),
+        endDate: format(period.endDate, "MMM d"),
+        allocations: periodAllocations,
+        totalAmount,
+      });
+    }
+  }
+
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in">
       {/* Header */}
@@ -306,9 +367,14 @@ export default async function PayPeriodsPage({
         </CardContent>
       </Card>
 
-      {/* Bank Allocation (only for current period) */}
-      {isCurrent && bankAllocations.length > 0 && (
+      {/* Bank Allocation */}
+      {bankAllocations.length > 0 && (
         <BankAllocationSection allocations={bankAllocations} />
+      )}
+
+      {/* Allocation Forecast (only on current period) */}
+      {isCurrent && forecastPeriods.length > 0 && (
+        <AllocationForecast periods={forecastPeriods} />
       )}
 
       {/* Quick Payments */}

@@ -89,8 +89,24 @@ export async function POST(request: Request) {
   const result = debtSchema.safeParse(body);
 
   if (!result.success) {
+    const errors = result.error.flatten();
+    const fieldErrors = errors.fieldErrors;
+    const errorMessages: string[] = [];
+    
+    if (fieldErrors.name) errorMessages.push(`Name: ${fieldErrors.name.join(", ")}`);
+    if (fieldErrors.type) errorMessages.push(`Type: ${fieldErrors.type.join(", ")}`);
+    if (fieldErrors.currentBalance) errorMessages.push(`Current Balance: ${fieldErrors.currentBalance.join(", ")}`);
+    if (fieldErrors.originalBalance) errorMessages.push(`Original Balance: ${fieldErrors.originalBalance.join(", ")}`);
+    if (fieldErrors.interestRate) errorMessages.push(`Interest Rate: ${fieldErrors.interestRate.join(", ")}`);
+    if (fieldErrors.minimumPayment) errorMessages.push(`Minimum Payment: ${fieldErrors.minimumPayment.join(", ")}`);
+    if (fieldErrors.dueDay) errorMessages.push(`Due Day: must be between 1 and 31`);
+    
+    const errorMessage = errorMessages.length > 0 
+      ? errorMessages.join("; ") 
+      : "Please fill in all required fields correctly";
+    
     return NextResponse.json(
-      { error: "Validation failed", details: result.error.flatten() },
+      { error: errorMessage, details: errors },
       { status: 400 }
     );
   }
