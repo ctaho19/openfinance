@@ -213,7 +213,21 @@ export default async function PayPeriodsPage({
       
       const periodPayments = await prisma.billPayment.findMany({
         where: {
-          bill: { userId: session.user.id },
+          bill: {
+            userId: session.user.id,
+            OR: [
+              { debtId: null },
+              {
+                debt: {
+                  OR: [
+                    { status: { not: "DEFERRED" } },
+                    { deferredUntil: null },
+                    { deferredUntil: { lte: period.endDate } },
+                  ],
+                },
+              },
+            ],
+          },
           dueDate: {
             gte: startOfDay(period.startDate),
             lte: endOfDay(period.endDate),
