@@ -186,6 +186,21 @@ export default function EditDebtPage() {
           if (firstPayment?.dueDate) {
             setFirstPaymentDate(firstPayment.dueDate.split("T")[0]);
           }
+          
+          // Infer frequency from the gap between first two payments
+          if (payments.length >= 2) {
+            const date1 = new Date(payments[0].dueDate);
+            const date2 = new Date(payments[1].dueDate);
+            const daysDiff = Math.round((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff <= 9) {
+              setPaymentFrequency("weekly");
+            } else if (daysDiff <= 16) {
+              setPaymentFrequency("biweekly");
+            } else {
+              setPaymentFrequency("monthly");
+            }
+          }
         }
       }
 
