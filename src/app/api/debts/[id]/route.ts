@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { DebtType, DebtStatus } from "@prisma/client";
-import { calculateEffectiveAPR } from "@/lib/bnpl-utils";
+import { calculateEffectiveAPR, generatePaymentSchedule } from "@/lib/bnpl-utils";
 
 export async function GET(
   request: Request,
@@ -61,7 +61,9 @@ export async function PUT(
     bankAccountId,
     totalRepayable,
     numberOfPayments,
+    firstPaymentDate,
     paymentFrequency,
+    regenerateSchedule,
   } = body;
 
   if (type && !Object.values(DebtType).includes(type)) {
@@ -109,6 +111,94 @@ export async function PUT(
       ...(bankAccountId !== undefined && { bankAccountId: bankAccountId || null }),
     },
   });
+
+  // Regenerate BNPL schedule if requested
+  if (isBNPL && regenerateSchedule && numberOfPayments && firstPaymentDate && paymentFrequency) {
+    const totalAmount = totalRepayable || balance;
+    const schedule = generatePaymentSchedule({
+      totalAmount,
+      numberOfPayments,
+      firstPaymentDate: new Date(firstPaymentDate + "T00:00:00"),
+      frequency: paymentFrequency as 'weekly' | 'biweekly' | 'monthly',
+    });
+
+    // Delete existing scheduled payments (only unpaid ones)
+    await prisma.scheduledPayment.deleteMany({
+      where: { debtId: id, isPaid: false },
+    });
+
+    // Delete existing unpaid bills and their bill payments for this debt
+    const existingBills = await prisma.bill.findMany({
+      where: { debtId: id },
+      include: { payments: { where: { status: "UNPAID" } } },
+    });
+
+    for (const bill of existingBills) {
+      // Only delete bills that have unpaid payments
+      if (bill.payments.length > 0) {
+        await prisma.billPayment.deleteMany({
+          where: { billId: bill.id, status: "UNPAID" },
+        });
+        // Check if bill has any remaining payments
+        const remainingPayments = await prisma.billPayment.count({
+          where: { billId: bill.id },
+        });
+        if (remainingPayments === 0) {
+          await prisma.bill.delete({ where: { id: bill.id } });
+        }
+      }
+    }
+
+    // Create new scheduled payments and bills
+    const debtName = name || existing.name;
+    const debtBankAccountId = bankAccountId !== undefined ? bankAccountId : existing.bankAccountId;
+
+    for (let i = 0; i < schedule.paymentDates.length; i++) {
+      const paymentDate = schedule.paymentDates[i];
+      const paymentNumber = i + 1;
+
+      // Create scheduled payment
+      await prisma.scheduledPayment.create({
+        data: {
+          debtId: id,
+          dueDate: paymentDate,
+          amount: schedule.paymentAmount,
+          notes: `Payment ${paymentNumber} of ${numberOfPayments}`,
+        },
+      });
+
+      // Create bill and bill payment
+      const bill = await prisma.bill.create({
+        data: {
+          userId: session.user.id,
+          name: `${debtName} - Payment ${paymentNumber} of ${numberOfPayments}`,
+          category: "BNPL",
+          amount: schedule.paymentAmount,
+          dueDay: paymentDate.getDate(),
+          isRecurring: false,
+          frequency: "ONCE",
+          debtId: id,
+          bankAccountId: debtBankAccountId || null,
+          notes: `Auto-generated BNPL payment for ${debtName}`,
+        },
+      });
+
+      await prisma.billPayment.create({
+        data: {
+          billId: bill.id,
+          dueDate: paymentDate,
+          amount: schedule.paymentAmount,
+          status: "UNPAID",
+        },
+      });
+    }
+
+    // Update debt's minimum payment to new payment amount
+    await prisma.debt.update({
+      where: { id },
+      data: { minimumPayment: schedule.paymentAmount },
+    });
+  }
 
   return NextResponse.json(debt);
 }
