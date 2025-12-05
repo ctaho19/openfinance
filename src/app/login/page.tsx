@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import LoginForm from "./login-form";
+import { CheckCircle2 } from "lucide-react";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -10,42 +11,48 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-theme-primary">
+    <div className="min-h-screen flex items-center justify-center bg-theme-secondary">
       <div className="max-w-md w-full mx-4">
-        <div className="bg-theme-secondary rounded-2xl shadow-xl p-8 border border-theme">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-theme-primary mb-2">OpenFinance</h1>
-            <p className="text-theme-secondary">
-              Take control of your bi-weekly budget
-            </p>
+        {/* Logo and Branding */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-chase-gradient shadow-theme-lg mb-4">
+            <span className="text-white font-bold text-2xl">OF</span>
           </div>
-
-          <LoginForm />
-
-          <div className="mt-8 pt-6 border-t border-theme">
-            <h2 className="text-sm font-medium text-theme-primary mb-4">
-              What you&apos;ll get:
-            </h2>
-            <ul className="space-y-3 text-sm text-theme-secondary">
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-600 dark:text-emerald-500 mt-0.5">✓</span>
-                Bi-weekly pay period tracking
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-600 dark:text-emerald-500 mt-0.5">✓</span>
-                Bill & BNPL payment management
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-600 dark:text-emerald-500 mt-0.5">✓</span>
-                Debt payoff strategies
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-emerald-600 dark:text-emerald-500 mt-0.5">✓</span>
-                FOO (Financial Order of Operations) progress
-              </li>
-            </ul>
-          </div>
+          <h1 className="text-3xl font-bold text-theme-primary tracking-tight">OpenFinance</h1>
+          <p className="text-theme-secondary mt-2">
+            Take control of your financial future
+          </p>
         </div>
+
+        {/* Login Card */}
+        <div className="bg-theme-elevated rounded-2xl shadow-theme-md p-8 border border-theme">
+          <LoginForm />
+        </div>
+
+        {/* Features */}
+        <div className="mt-8 bg-theme-elevated rounded-2xl shadow-theme p-6 border border-theme">
+          <h2 className="text-sm font-semibold text-theme-primary mb-4 uppercase tracking-wide">
+            What you&apos;ll get
+          </h2>
+          <ul className="space-y-3">
+            {[
+              "Bi-weekly pay period tracking",
+              "Bill & BNPL payment management",
+              "Debt payoff strategies",
+              "Financial Order of Operations progress",
+            ].map((feature, index) => (
+              <li key={index} className="flex items-center gap-3 text-sm text-theme-secondary">
+                <CheckCircle2 className="h-4 w-4 text-accent-600 flex-shrink-0" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-theme-muted mt-6">
+          Secure &amp; private financial management
+        </p>
       </div>
     </div>
   );

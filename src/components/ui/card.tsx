@@ -18,18 +18,18 @@ export function Card({
   hover = false,
   animate = false,
 }: CardProps) {
-  const baseStyles = "rounded-xl overflow-hidden transition-all duration-200";
+  const baseStyles = "rounded-2xl overflow-hidden transition-all duration-200";
   
   const variants = {
     default: "bg-theme-elevated border border-theme shadow-theme",
     elevated: "bg-theme-elevated border border-theme shadow-theme-md",
     outlined: "bg-transparent border-2 border-theme",
     glass: "glass border border-theme/50 shadow-theme-lg",
-    gradient: "bg-gradient-to-br from-accent-600 to-accent-700 border-0 text-white",
+    gradient: "bg-chase-gradient border-0 text-white shadow-theme-md",
   };
   
   const hoverStyles = hover 
-    ? "hover:shadow-theme-lg hover:border-accent-500/50 hover:-translate-y-0.5 cursor-pointer" 
+    ? "card-hover-lift cursor-pointer" 
     : "";
   
   const animateStyles = animate ? "animate-fade-in-up" : "";

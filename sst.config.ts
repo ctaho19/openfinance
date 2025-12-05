@@ -9,7 +9,7 @@ export default $config({
       home: "aws",
     };
   },
-  async run() {
+  async run() { 507013
     // Secrets
     const authSecret = new sst.Secret("AuthSecret");
     const databaseUrl = new sst.Secret("DatabaseUrl");
