@@ -47,8 +47,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-theme bg-theme-elevated/95 backdrop-blur-md lg:hidden">
-      <div className="mx-auto flex justify-around items-center h-16 max-w-lg px-2 pb-safe-area">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-theme bg-theme-elevated/95 backdrop-blur-md lg:hidden pb-safe-area">
+      <div className="mx-auto flex justify-around items-center h-16 max-w-lg px-2">
         {navItems.map((item) => {
           const isActive = item.activeMatch(pathname);
           
@@ -69,7 +69,7 @@ export function BottomNav() {
                 relative p-1.5 rounded-xl transition-all duration-200
                 ${isActive ? "bg-accent-50 dark:bg-accent-600/20" : ""}
               `}>
-                <item.icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                <item.icon className={`h-6 w-6 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
               </div>
               <span className={`text-[10px] font-medium tracking-wide ${isActive ? "font-semibold" : ""}`}>
                 {item.name}
@@ -78,8 +78,6 @@ export function BottomNav() {
           );
         })}
       </div>
-      {/* Safe area padding for devices with home indicator */}
-      <div className="h-[env(safe-area-inset-bottom)]" />
     </nav>
   );
 }

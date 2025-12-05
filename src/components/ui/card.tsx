@@ -56,7 +56,7 @@ export function CardHeader({
 }: CardHeaderProps) {
   return (
     <div
-      className={`px-6 py-4 border-b border-theme flex items-center justify-between ${className}`}
+      className={`px-4 py-3 sm:px-6 sm:py-4 border-b border-theme flex items-center justify-between ${className}`}
       onClick={onClick}
     >
       <div className="flex-1">{children}</div>
@@ -105,7 +105,7 @@ export function CardContent({
   noPadding?: boolean;
 }) {
   return (
-    <div className={noPadding ? className : `px-6 py-4 ${className}`}>
+    <div className={noPadding ? className : `px-4 py-3 sm:px-6 sm:py-4 ${className}`}>
       {children}
     </div>
   );
@@ -119,7 +119,7 @@ export function CardFooter({
   className?: string;
 }) {
   return (
-    <div className={`px-6 py-4 border-t border-theme bg-theme-secondary/50 ${className}`}>
+    <div className={`px-4 py-3 sm:px-6 sm:py-4 border-t border-theme bg-theme-secondary/50 ${className}`}>
       {children}
     </div>
   );

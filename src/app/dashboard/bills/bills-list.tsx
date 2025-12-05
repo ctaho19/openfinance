@@ -221,34 +221,36 @@ export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
                   {filteredRegularBills[category].map((bill) => (
                     <div
                       key={bill.id}
-                      className={`flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${
+                      className={`flex items-center justify-between py-3 px-4 sm:py-4 sm:px-6 hover:bg-theme-secondary/50 transition-colors ${
                         !bill.isActive ? "opacity-50" : ""
                       }`}
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-theme-primary">{bill.name}</p>
+                          <p className="font-medium text-theme-primary text-sm sm:text-base">{bill.name}</p>
                           {!bill.isActive && (
                             <Badge variant="default" size="sm">Inactive</Badge>
                           )}
                           {bill.debt && (
-                            <Badge variant="warning" size="sm">Linked to debt</Badge>
+                            <Badge variant="warning" size="sm" className="hidden sm:inline-flex">Linked to debt</Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-sm text-theme-secondary">
+                        <div className="flex items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-sm text-theme-secondary">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {formatDueDate(bill)}
                           </span>
-                          <span className="text-theme-muted">•</span>
-                          <span>{formatFrequency(bill.frequency, bill.isRecurring)}</span>
+                          <span className="text-theme-muted hidden sm:inline">•</span>
+                          <span className="hidden sm:inline">{formatFrequency(bill.frequency, bill.isRecurring)}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <p className="text-lg font-semibold text-theme-primary">
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <p className="text-base sm:text-lg font-semibold text-theme-primary">
                           ${Number(bill.amount).toFixed(2)}
                         </p>
-                        <BillActions bill={{ id: bill.id, name: bill.name, isActive: bill.isActive }} />
+                        <div className="p-1 -mr-1">
+                          <BillActions bill={{ id: bill.id, name: bill.name, isActive: bill.isActive }} />
+                        </div>
                       </div>
                     </div>
                   ))}

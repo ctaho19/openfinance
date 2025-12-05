@@ -148,7 +148,7 @@ export default async function BillsPage() {
       </header>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         <StatCard
           label="Monthly Recurring"
           value={`$${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
@@ -166,6 +166,7 @@ export default async function BillsPage() {
           value={totalBillCount.toString()}
           icon={<TrendingDown className="h-5 w-5" />}
           variant="success"
+          className="col-span-2 md:col-span-1"
         />
       </div>
 

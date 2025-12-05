@@ -213,10 +213,11 @@ export default async function PayPeriodsPage({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <Link href={`/dashboard/pay-periods?offset=${offset - 1}`}>
                 <Button variant="secondary" size="sm" leftIcon={<ChevronLeft className="h-4 w-4" />}>
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Prev</span>
                 </Button>
               </Link>
               {offset !== 0 && (
@@ -237,7 +238,7 @@ export default async function PayPeriodsPage({
       </Card>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         <StatCard
           label="Total Due"
           value={`$${totalDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
@@ -277,21 +278,21 @@ export default async function PayPeriodsPage({
               {payments.map((payment, index) => (
                 <div
                   key={payment.id}
-                  className={`flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
+                  className={`flex items-center justify-between py-3 px-4 sm:py-4 sm:px-6 hover:bg-theme-secondary/50 transition-colors animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-theme-primary">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <p className="font-medium text-theme-primary text-sm sm:text-base truncate">
                         {payment.bill.name}
                       </p>
                       <StatusBadge status={payment.status === "PAID" ? "paid" : "unpaid"} />
                     </div>
-                    <p className="text-sm text-theme-secondary mt-0.5">
+                    <p className="text-xs sm:text-sm text-theme-secondary mt-0.5">
                       Due {format(new Date(payment.dueDate), "MMM d, yyyy")}
                     </p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <p className="text-lg font-semibold text-theme-primary">
+                  <div className="flex items-center gap-2 sm:gap-4 ml-2">
+                    <p className="text-base sm:text-lg font-semibold text-theme-primary">
                       ${Number(payment.amount).toFixed(2)}
                     </p>
                     <PaymentToggle
