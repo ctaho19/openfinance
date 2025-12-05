@@ -73,6 +73,7 @@ function getDueDatesForBill(
 /**
  * Ensure BillPayment records exist for all recurring bills within a date range.
  * Creates missing records, skips existing ones.
+ * Excludes bills linked to deferred debts where deferment extends past the period.
  */
 export async function ensureBillPaymentsForPeriod(
   userId: string,
@@ -80,11 +81,24 @@ export async function ensureBillPaymentsForPeriod(
   endDate: Date
 ): Promise<{ created: number; existing: number }> {
   // Get all active recurring bills for the user
+  // Exclude bills linked to debts that are deferred past this period
   const bills = await prisma.bill.findMany({
     where: {
       userId,
       isActive: true,
       isRecurring: true,
+      OR: [
+        { debtId: null },
+        {
+          debt: {
+            OR: [
+              { status: { not: "DEFERRED" } },
+              { deferredUntil: null },
+              { deferredUntil: { lte: endDate } },
+            ],
+          },
+        },
+      ],
     },
   });
 

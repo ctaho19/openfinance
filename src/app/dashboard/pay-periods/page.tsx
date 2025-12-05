@@ -46,7 +46,21 @@ async function getPaymentsForPeriod(
 
   const payments = await prisma.billPayment.findMany({
     where: {
-      bill: { userId },
+      bill: {
+        userId,
+        OR: [
+          { debtId: null },
+          {
+            debt: {
+              OR: [
+                { status: { not: "DEFERRED" } },
+                { deferredUntil: null },
+                { deferredUntil: { lte: payPeriod.endDate } },
+              ],
+            },
+          },
+        ],
+      },
       dueDate: {
         gte: startOfDay(payPeriod.startDate),
         lte: endOfDay(payPeriod.endDate),

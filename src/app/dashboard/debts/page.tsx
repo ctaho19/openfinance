@@ -460,11 +460,14 @@ export default function DebtsPage() {
             const isBNPL = debt.type === "BNPL";
             const hasEffectiveRate = isBNPL && effectiveRate > 0 && effectiveRate !== interestRate;
             const IconComponent = DEBT_TYPE_ICONS[debt.type] || FileText;
+            const isPastDue = debt.status === "PAST_DUE" || debt.status === "IN_COLLECTIONS";
 
             return (
               <Card 
                 key={debt.id} 
-                className={`animate-fade-in-up stagger-${Math.min(index + 1, 5)}`}
+                className={`animate-fade-in-up stagger-${Math.min(index + 1, 5)} ${
+                  isPastDue ? "border-danger-300 dark:border-danger-600/50 bg-danger-50/50 dark:bg-danger-600/5" : ""
+                }`}
               >
                 <CardContent className="py-5">
                   {/* Main Row: Icon, Name/Type, Balance, Actions */}
@@ -488,8 +491,17 @@ export default function DebtsPage() {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <p className="text-lg font-bold text-theme-primary">{formatCurrency(currentBalance)}</p>
-                      <p className="text-xs text-theme-muted">{formatCurrency(Number(debt.minimumPayment))}/mo</p>
+                      {isPastDue ? (
+                        <div className="px-3 py-1.5 rounded-lg bg-danger-100 dark:bg-danger-600/20 border border-danger-200 dark:border-danger-600/30">
+                          <p className="text-lg font-bold text-danger-700 dark:text-danger-400">{formatCurrency(currentBalance)}</p>
+                          <p className="text-xs text-danger-600 dark:text-danger-400">PAST DUE</p>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-lg font-bold text-theme-primary">{formatCurrency(currentBalance)}</p>
+                          <p className="text-xs text-theme-muted">{formatCurrency(Number(debt.minimumPayment))}/mo</p>
+                        </>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
