@@ -22,12 +22,12 @@ const debtSchema = z.object({
   originalBalance: z.union([z.number(), z.string()]).transform(Number),
   interestRate: z.union([z.number(), z.string()]).transform(Number),
   minimumPayment: z.union([z.number(), z.string()]).transform(Number),
-  dueDay: z.number().int().min(1).max(31),
-  notes: z.string().optional(),
-  numberOfPayments: z.number().int().positive().optional(),
+  dueDay: z.union([z.number(), z.string()]).transform(Number).pipe(z.number().int().min(1).max(31)),
+  notes: z.string().optional().nullable(),
+  numberOfPayments: z.union([z.number(), z.string()]).transform(Number).optional(),
   firstPaymentDate: z.string().optional(),
   paymentFrequency: z.enum(["weekly", "biweekly", "monthly"]).optional(),
-  bankAccountId: z.string().optional(),
+  bankAccountId: z.string().optional().nullable(),
   totalRepayable: z.union([z.number(), z.string()]).transform(Number).optional(),
 });
 
@@ -182,6 +182,7 @@ export async function POST(request: Request) {
         isRecurring: true,
         frequency: "MONTHLY",
         debtId: debt.id,
+        bankAccountId: bankAccountId || null,
         notes: `Auto-generated bill for ${name}`,
       },
     });
@@ -224,6 +225,7 @@ export async function POST(request: Request) {
           isRecurring: false,
           frequency: "ONCE",
           debtId: debt.id,
+          bankAccountId: bankAccountId || null,
           notes: `Auto-generated BNPL payment for ${name}`,
         },
       });
