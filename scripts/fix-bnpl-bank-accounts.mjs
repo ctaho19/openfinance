@@ -2,7 +2,7 @@
  * Script to fix existing BNPL bills that don't have bank accounts assigned.
  * This updates bills to inherit the bankAccountId from their linked debt.
  * 
- * Run with: npx tsx scripts/fix-bnpl-bank-accounts.ts
+ * Run with: node scripts/fix-bnpl-bank-accounts.mjs
  */
 
 import { config } from "dotenv";
@@ -51,7 +51,7 @@ async function main() {
 
     await prisma.bill.update({
       where: { id: bill.id },
-      data: { bankAccountId: bill.debt!.bankAccountId },
+      data: { bankAccountId: bill.debt.bankAccountId },
     });
   }
 

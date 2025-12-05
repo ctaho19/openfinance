@@ -127,6 +127,15 @@ export async function POST(request: Request) {
     totalRepayable,
   } = result.data;
 
+  // Check for duplicate debt name
+  const existingDebt = await prisma.debt.findFirst({
+    where: { userId: session.user.id, name },
+    select: { id: true },
+  });
+  if (existingDebt) {
+    return NextResponse.json({ error: `A debt named "${name}" already exists` }, { status: 400 });
+  }
+
   if (bankAccountId) {
     const bankAccount = await prisma.bankAccount.findFirst({
       where: { id: bankAccountId, userId: session.user.id },
