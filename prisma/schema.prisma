@@ -208,6 +208,7 @@ model Debt {
   effectiveRate   Decimal?   @db.Decimal(5, 2) // Computed effective APR from total cost vs principal
   totalRepayable  Decimal?   @db.Decimal(10, 2) // Total amount to be repaid (for BNPL with built-in interest)
   minimumPayment  Decimal    @db.Decimal(10, 2)
+  pastDueAmount   Decimal?   @db.Decimal(10, 2) // Amount that is past due (for PAST_DUE status)
   dueDay          Int // Day of month
   startDate       DateTime   @default(now())
   deferredUntil   DateTime? // Date when deferment ends

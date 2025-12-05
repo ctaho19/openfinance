@@ -60,11 +60,13 @@ interface Debt {
   effectiveRate?: string;
   totalRepayable?: string;
   minimumPayment: string;
+  pastDueAmount?: string;
   dueDay: number;
   isActive: boolean;
   status?: string;
   deferredUntil?: string;
   notes: string | null;
+  bankAccountId?: string;
 }
 
 export default function EditDebtPage() {
@@ -93,6 +95,7 @@ export default function EditDebtPage() {
     originalBalance: "",
     interestRate: "",
     minimumPayment: "",
+    pastDueAmount: "",
     dueDay: "",
     status: "CURRENT",
     deferredUntil: "",
@@ -157,6 +160,7 @@ export default function EditDebtPage() {
           originalBalance: data.originalBalance || "",
           interestRate: data.interestRate || "",
           minimumPayment: data.minimumPayment || "",
+          pastDueAmount: data.pastDueAmount || "",
           dueDay: data.dueDay?.toString() || "",
           status: data.status || "CURRENT",
           deferredUntil: data.deferredUntil ? data.deferredUntil.split("T")[0] : "",
@@ -231,6 +235,8 @@ export default function EditDebtPage() {
       ? new Date(firstPaymentDate + "T00:00:00").getDate()
       : parseInt(formData.dueDay, 10);
 
+    const isPastDue = formData.status === "PAST_DUE" || formData.status === "IN_COLLECTIONS";
+    
     const data: Record<string, unknown> = {
       name: formData.name,
       type: formData.type,
@@ -238,6 +244,7 @@ export default function EditDebtPage() {
       originalBalance: parseFloat(formData.originalBalance),
       interestRate: parseFloat(formData.interestRate) || 0,
       minimumPayment: paymentAmount,
+      pastDueAmount: isPastDue && formData.pastDueAmount ? parseFloat(formData.pastDueAmount) : null,
       dueDay,
       status: formData.status,
       deferredUntil: formData.deferredUntil || null,
@@ -394,6 +401,27 @@ export default function EditDebtPage() {
                     Interest will continue to accrue during deferment
                   </p>
                 )}
+              </div>
+            )}
+
+            {(formData.status === "PAST_DUE" || formData.status === "IN_COLLECTIONS") && (
+              <div className="p-4 bg-danger-50 dark:bg-danger-600/10 border border-danger-200 dark:border-danger-600/30 rounded-xl">
+                <label htmlFor="pastDueAmount" className={labelClasses}>
+                  <span className="text-danger-700 dark:text-danger-400">Past Due Amount ($)</span>
+                </label>
+                <input
+                  type="number"
+                  id="pastDueAmount"
+                  min="0"
+                  step="0.01"
+                  placeholder="Enter amount past due..."
+                  className={`${inputClasses} border-danger-300 dark:border-danger-600/50`}
+                  value={formData.pastDueAmount}
+                  onChange={(e) => setFormData({ ...formData, pastDueAmount: e.target.value })}
+                />
+                <p className="text-xs text-danger-600 dark:text-danger-400 mt-1">
+                  This amount will be highlighted on the debts page
+                </p>
               </div>
             )}
 

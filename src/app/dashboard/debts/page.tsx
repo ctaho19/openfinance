@@ -59,6 +59,7 @@ interface Debt {
   effectiveRate: string | null;
   totalRepayable: string | null;
   minimumPayment: string;
+  pastDueAmount: string | null;
   dueDay: number;
   deferredUntil: string | null;
   isActive: boolean;
@@ -494,7 +495,13 @@ export default function DebtsPage() {
                       {isPastDue ? (
                         <div className="px-3 py-1.5 rounded-lg bg-danger-100 dark:bg-danger-600/20 border border-danger-200 dark:border-danger-600/30">
                           <p className="text-lg font-bold text-danger-700 dark:text-danger-400">{formatCurrency(currentBalance)}</p>
-                          <p className="text-xs text-danger-600 dark:text-danger-400">PAST DUE</p>
+                          {debt.pastDueAmount ? (
+                            <p className="text-xs text-danger-600 dark:text-danger-400 font-medium">
+                              {formatCurrency(Number(debt.pastDueAmount))} PAST DUE
+                            </p>
+                          ) : (
+                            <p className="text-xs text-danger-600 dark:text-danger-400">PAST DUE</p>
+                          )}
                         </div>
                       ) : (
                         <>
