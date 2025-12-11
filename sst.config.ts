@@ -1,5 +1,8 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+// Migration flag - set to true to deploy Astro instead of Next.js
+const USE_ASTRO = true;
+
 export default $config({
   app(input) {
     return {
@@ -9,23 +12,41 @@ export default $config({
       home: "aws",
     };
   },
-  async run() { 507013
+  async run() {
     // Secrets
     const authSecret = new sst.Secret("AuthSecret");
     const databaseUrl = new sst.Secret("DatabaseUrl");
 
-    // Next.js app deployed with OpenNext (no VPC needed with external DB)
-    const site = new sst.aws.Nextjs("Site", {
-      domain: "openfi.me",
-      link: [authSecret, databaseUrl],
-      environment: {
-        DATABASE_URL: databaseUrl.value,
-        AUTH_TRUST_HOST: "true",
-      },
-    });
+    if (USE_ASTRO) {
+      // Astro app (new)
+      const astroSite = new sst.aws.Astro("Site", {
+        path: "./",
+        domain: "openfi.me",
+        link: [authSecret, databaseUrl],
+        environment: {
+          DATABASE_URL: databaseUrl.value,
+          AUTH_SECRET: authSecret.value,
+          AUTH_TRUST_HOST: "true",
+        },
+      });
 
-    return {
-      url: site.url,
-    };
+      return {
+        url: astroSite.url,
+      };
+    } else {
+      // Next.js app (legacy - remove after migration)
+      const nextSite = new sst.aws.Nextjs("Site", {
+        domain: "openfi.me",
+        link: [authSecret, databaseUrl],
+        environment: {
+          DATABASE_URL: databaseUrl.value,
+          AUTH_TRUST_HOST: "true",
+        },
+      });
+
+      return {
+        url: nextSite.url,
+      };
+    }
   },
 });

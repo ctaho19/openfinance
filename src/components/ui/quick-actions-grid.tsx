@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "./link";
 import { LucideIcon } from "lucide-react";
 
 interface QuickAction {

@@ -1,10 +1,22 @@
-"use client";
-
 import { useEffect, useState, useCallback, useRef } from "react";
-import { signOut } from "next-auth/react";
 
 const IDLE_WARNING_MS = 25 * 60 * 1000; // 25 minutes
 const LOGOUT_COUNTDOWN_MS = 5 * 60 * 1000; // 5 minutes
+
+async function performSignOut() {
+  try {
+    const csrfRes = await fetch("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await fetch("/api/auth/signout", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ csrfToken }),
+    });
+  } catch {
+    // Proceed to redirect even if signout fails
+  }
+  window.location.href = "/login";
+}
 
 export function SessionMonitor() {
   const [showWarning, setShowWarning] = useState(false);
@@ -22,7 +34,7 @@ export function SessionMonitor() {
 
   const handleLogout = useCallback(() => {
     clearAllTimers();
-    signOut({ callbackUrl: "/login" });
+    performSignOut();
   }, [clearAllTimers]);
 
   const startLogoutCountdown = useCallback(() => {

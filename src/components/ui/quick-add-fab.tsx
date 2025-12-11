@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "./link";
 import { Plus, X, Receipt, CreditCard, Wallet } from "lucide-react";
 
 const quickActions = [

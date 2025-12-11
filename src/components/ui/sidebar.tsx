@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "./link";
 import {
   LayoutDashboard,
   Receipt,
@@ -14,6 +11,7 @@ import {
 } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ThemeToggleCompact } from "./theme-toggle";
+import { ThemeProvider } from "@/lib/theme-context";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -56,10 +54,13 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   );
 }
 
-export function Sidebar() {
-  const pathname = usePathname();
+interface SidebarProps {
+  currentPath?: string;
+}
 
+export function Sidebar({ currentPath = "" }: SidebarProps) {
   return (
+    <ThemeProvider>
     <aside className="hidden lg:flex h-full w-72 flex-col bg-theme-elevated border-r border-theme">
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-theme">
@@ -76,7 +77,7 @@ export function Sidebar() {
       {/* Main navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const isActive = currentPath === item.href || (item.href !== "/dashboard" && currentPath.startsWith(item.href));
           return <NavLink key={item.name} item={item} isActive={isActive} />;
         })}
       </nav>
@@ -84,7 +85,7 @@ export function Sidebar() {
       {/* Bottom section */}
       <div className="px-3 py-4 border-t border-theme space-y-1">
         {bottomNav.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const isActive = currentPath === item.href || (item.href !== "/dashboard" && currentPath.startsWith(item.href));
           return <NavLink key={item.name} item={item} isActive={isActive} />;
         })}
         
@@ -94,5 +95,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </ThemeProvider>
   );
 }

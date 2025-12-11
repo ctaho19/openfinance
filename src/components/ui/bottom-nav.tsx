@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "./link";
 import {
   LayoutDashboard,
   Receipt,
@@ -43,14 +42,16 @@ const navItems = [
   },
 ];
 
-export function BottomNav() {
-  const pathname = usePathname();
+interface BottomNavProps {
+  currentPath?: string;
+}
 
+export function BottomNav({ currentPath = "" }: BottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-theme bg-theme-elevated/95 backdrop-blur-md lg:hidden">
       <div className="mx-auto flex justify-around items-center h-16 max-w-lg px-2 pb-safe-area">
         {navItems.map((item) => {
-          const isActive = item.activeMatch(pathname);
+          const isActive = item.activeMatch(currentPath);
           
           return (
             <Link

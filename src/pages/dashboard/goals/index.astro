@@ -1,0 +1,91 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import { SectionCard } from '../../../components/ui/section-card';
+import { getSession } from '../../../lib/get-session-astro';
+import { listGoals } from '../../../lib/services/goals';
+import { Plus, Target, PiggyBank } from 'lucide-react';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+
+const goals = await listGoals(session.user.id);
+---
+<DashboardLayout title="Goals" currentPath="/dashboard/goals" user={session.user} showExploreSidebar={false}>
+  <div class="space-y-6">
+    <header class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-theme-primary">Savings Goals</h1>
+        <p class="text-theme-secondary mt-1">{goals.length} goal{goals.length !== 1 ? 's' : ''}</p>
+      </div>
+      <a 
+        href="/dashboard/goals/new"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl font-medium transition-colors"
+      >
+        <Plus class="h-4 w-4" />
+        Add Goal
+      </a>
+    </header>
+
+    {goals.length === 0 ? (
+      <div class="bg-theme-elevated rounded-2xl border border-theme p-12 text-center">
+        <div class="w-16 h-16 rounded-full bg-accent-50 dark:bg-accent-600/20 flex items-center justify-center mx-auto mb-4">
+          <Target class="h-8 w-8 text-accent-600" />
+        </div>
+        <h2 class="text-xl font-semibold text-theme-primary mb-2">No goals yet</h2>
+        <p class="text-theme-secondary mb-6">Set savings goals to track your progress.</p>
+        <a 
+          href="/dashboard/goals/new"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-xl font-medium transition-colors"
+        >
+          <Plus class="h-5 w-5" />
+          Create Your First Goal
+        </a>
+      </div>
+    ) : (
+      <div class="grid gap-4 md:grid-cols-2">
+        {goals.map((goal) => {
+          const progress = Number(goal.targetAmount) > 0 
+            ? (Number(goal.currentAmount) / Number(goal.targetAmount)) * 100 
+            : 0;
+          return (
+            <div class="bg-theme-elevated rounded-2xl border border-theme p-5 card-hover-lift">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 rounded-xl bg-accent-50 dark:bg-accent-600/20">
+                    <PiggyBank class="h-5 w-5 text-accent-600" />
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-theme-primary">{goal.name}</h3>
+                    {goal.deadline && (
+                      <p class="text-xs text-theme-muted">
+                        Due {new Date(goal.deadline).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-theme-secondary">
+                    ${Number(goal.currentAmount).toLocaleString()}
+                  </span>
+                  <span class="font-medium text-theme-primary">
+                    ${Number(goal.targetAmount).toLocaleString()}
+                  </span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style={`width: ${Math.min(progress, 100)}%`}></div>
+                </div>
+                <p class="text-xs text-theme-muted text-right">
+                  {progress.toFixed(0)}% complete
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</DashboardLayout>

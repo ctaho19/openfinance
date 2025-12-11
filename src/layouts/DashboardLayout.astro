@@ -1,0 +1,53 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { ChaseHeader } from '../components/ui/chase-header';
+import { Sidebar } from '../components/ui/sidebar';
+import { BottomNav } from '../components/ui/bottom-nav';
+import { ExploreSidebar } from '../components/ui/explore-sidebar';
+
+interface Props {
+  title?: string;
+  currentPath?: string;
+  user?: { name?: string | null };
+  showExploreSidebar?: boolean;
+}
+
+const { 
+  title = 'Dashboard', 
+  currentPath = Astro.url.pathname,
+  user,
+  showExploreSidebar = true 
+} = Astro.props;
+---
+<BaseLayout title={title}>
+  <div class="min-h-screen bg-theme-secondary">
+    <!-- Mobile: Chase header -->
+    <div class="lg:hidden">
+      <ChaseHeader client:load currentPath={currentPath} user={user} />
+    </div>
+    
+    <div class="flex">
+      <!-- Desktop: Sidebar -->
+      <Sidebar client:load currentPath={currentPath} />
+      
+      <!-- Main content -->
+      <div class="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8">
+        <main class="flex-1 min-w-0">
+          <div class="max-w-3xl mx-auto px-4 pt-4 pb-24 lg:px-8 lg:pt-8 lg:pb-8">
+            <slot />
+          </div>
+        </main>
+        
+        <!-- Desktop: Explore sidebar -->
+        {showExploreSidebar && (
+          <div class="hidden lg:block pr-8 pt-8">
+            <ExploreSidebar />
+          </div>
+        )}
+      </div>
+    </div>
+    
+    <!-- Mobile: Bottom nav -->
+    <BottomNav client:load currentPath={currentPath} />
+  </div>
+</BaseLayout>

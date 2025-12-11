@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { Link } from "./link";
 
 interface TransactionListProps {
   children: ReactNode;
