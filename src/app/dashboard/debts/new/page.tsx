@@ -197,6 +197,7 @@ export default function NewDebtPage() {
                 id="name"
                 name="name"
                 required
+                autoFocus
                 placeholder="e.g., Chase Sapphire or Affirm - Laptop"
                 className={inputClasses}
               />
@@ -235,6 +236,7 @@ export default function NewDebtPage() {
                   required
                   min="0"
                   step="0.01"
+                  inputMode="decimal"
                   placeholder={isBNPL ? "1200.00" : "5000.00"}
                   className={inputClasses}
                   value={currentBalance}
@@ -253,6 +255,7 @@ export default function NewDebtPage() {
                   required
                   min="0"
                   step="0.01"
+                  inputMode="decimal"
                   placeholder={isBNPL ? currentBalance || "1200.00" : "10000.00"}
                   defaultValue={isBNPL ? currentBalance : ""}
                   className={inputClasses}
@@ -426,6 +429,7 @@ export default function NewDebtPage() {
                     min="0"
                     max="100"
                     step="0.01"
+                    inputMode="decimal"
                     placeholder="19.99"
                     className={inputClasses}
                   />
@@ -442,6 +446,7 @@ export default function NewDebtPage() {
                     required
                     min="0"
                     step="0.01"
+                    inputMode="decimal"
                     placeholder="150.00"
                     className={inputClasses}
                   />

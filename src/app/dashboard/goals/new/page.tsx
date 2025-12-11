@@ -103,6 +103,7 @@ export default function NewGoalPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Emergency Fund"
                 required
+                autoFocus
                 className={inputClasses}
               />
             </div>
@@ -120,6 +121,7 @@ export default function NewGoalPage() {
                   required
                   min="0"
                   step="0.01"
+                  inputMode="decimal"
                   className={inputClasses}
                 />
               </div>
@@ -135,6 +137,7 @@ export default function NewGoalPage() {
                   placeholder="0"
                   min="0"
                   step="0.01"
+                  inputMode="decimal"
                   className={inputClasses}
                 />
               </div>

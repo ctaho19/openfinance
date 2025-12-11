@@ -30,7 +30,7 @@ export function TransactionListHeader({ title, action }: TransactionListHeaderPr
       {action && (
         <Link 
           href={action.href}
-          className="text-sm font-medium text-accent-600 dark:text-accent-400 hover:text-accent-700 flex items-center gap-1"
+          className="text-sm font-medium text-accent-600 dark:text-accent-400 hover:text-accent-700 flex items-center gap-1 min-h-[44px] px-2 -mr-2"
         >
           {action.label}
           <ChevronRight className="h-4 w-4" />
@@ -84,7 +84,7 @@ export function TransactionItem({
   };
 
   const content = (
-    <div className="flex items-center gap-3 px-4 py-3 hover:bg-theme-secondary/50 transition-colors cursor-pointer active:bg-theme-tertiary">
+    <div className="flex items-center gap-3 px-4 py-3 min-h-[52px] hover:bg-theme-secondary/50 transition-colors cursor-pointer active:bg-theme-tertiary">
       {/* Icon or Status Dot */}
       <div className={`flex-shrink-0 w-10 h-10 rounded-full ${iconBgColor} flex items-center justify-center`}>
         {icon || (status && <div className={`w-2.5 h-2.5 rounded-full ${statusDots[status]}`} />)}

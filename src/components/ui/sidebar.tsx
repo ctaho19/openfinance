@@ -40,18 +40,20 @@ export function Sidebar() {
     return (
       <Link
         href={item.href}
+        aria-current={isActive ? "page" : undefined}
         className={`
           group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
           transition-all duration-200
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-elevated
           ${isActive
             ? "bg-accent-600 text-white shadow-sm"
             : "text-theme-secondary hover:bg-theme-tertiary hover:text-theme-primary"
           }
         `}
       >
-        <item.icon className={`h-5 w-5 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}`} />
+        <item.icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}`} />
         <span className="flex-1">{item.name}</span>
-        {isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
+        {isActive && <ChevronRight aria-hidden="true" className="h-4 w-4 opacity-70" />}
       </Link>
     );
   };

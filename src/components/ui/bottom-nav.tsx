@@ -12,13 +12,13 @@ import {
 
 const navItems = [
   { 
-    name: "Accounts", 
+    name: "Dashboard", 
     href: "/dashboard", 
     icon: LayoutDashboard,
     activeMatch: (path: string) => path === "/dashboard"
   },
   { 
-    name: "Pay", 
+    name: "Payments", 
     href: "/dashboard/pay-periods", 
     icon: Receipt,
     activeMatch: (path: string) => path.startsWith("/dashboard/pay-periods") || path.startsWith("/dashboard/bills")
@@ -30,13 +30,13 @@ const navItems = [
     activeMatch: (path: string) => path.startsWith("/dashboard/goals")
   },
   { 
-    name: "Plan", 
+    name: "FOO", 
     href: "/dashboard/foo", 
     icon: Target,
     activeMatch: (path: string) => path.startsWith("/dashboard/foo") || path.startsWith("/dashboard/debts")
   },
   { 
-    name: "More", 
+    name: "Settings", 
     href: "/dashboard/settings", 
     icon: Menu,
     activeMatch: (path: string) => path.startsWith("/dashboard/settings")
@@ -56,9 +56,12 @@ export function BottomNav() {
             <Link
               key={item.name}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={item.name}
               className={`
-                flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[4rem]
+                flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[4rem] min-h-[44px]
                 transition-all duration-200
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-elevated
                 ${isActive 
                   ? "text-accent-600" 
                   : "text-theme-muted hover:text-theme-secondary"
@@ -69,7 +72,7 @@ export function BottomNav() {
                 relative p-1.5 rounded-xl transition-all duration-200
                 ${isActive ? "bg-accent-50 dark:bg-accent-600/20" : ""}
               `}>
-                <item.icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                <item.icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
               </div>
               <span className={`text-[10px] font-medium tracking-wide ${isActive ? "font-semibold" : ""}`}>
                 {item.name}

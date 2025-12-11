@@ -157,6 +157,7 @@ export default function NewBillPage() {
                   id="name"
                   name="name"
                   required
+                  autoFocus
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g., Netflix, Electric Bill"
@@ -196,6 +197,7 @@ export default function NewBillPage() {
                     required
                     min="0"
                     step="0.01"
+                    inputMode="decimal"
                     value={formData.amount}
                     onChange={handleChange}
                     placeholder="0.00"

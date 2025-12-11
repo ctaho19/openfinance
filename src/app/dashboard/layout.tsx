@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/ui/sidebar";
 import { BottomNav } from "@/components/ui/bottom-nav";
+import { QuickAddFAB } from "@/components/ui/quick-add-fab";
 import { SessionProvider } from "next-auth/react";
 import { SessionMonitor } from "@/components/session-monitor";
 
@@ -33,6 +34,9 @@ export default async function DashboardLayout({
           
           {/* Mobile bottom navigation */}
           <BottomNav />
+          
+          {/* Mobile quick add FAB */}
+          <QuickAddFAB />
         </div>
       </div>
     </SessionProvider>

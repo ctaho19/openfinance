@@ -291,8 +291,13 @@ export default async function DashboardPage() {
                 )}
               </div>
             </div>
-            <Link href="/dashboard/pay-periods">
-              <ChevronRight className="h-5 w-5 text-warning-400" />
+            <Link 
+              href="/dashboard/pay-periods"
+              aria-label="Review your upcoming and overdue payments"
+              className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1 text-xs sm:text-sm font-medium text-warning-700 dark:text-warning-400 hover:bg-warning-100 dark:hover:bg-warning-600/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning-500 focus-visible:ring-offset-2 focus-visible:ring-offset-warning-50 dark:focus-visible:ring-offset-warning-900/10 transition-colors"
+            >
+              <span className="hidden sm:inline">Review</span>
+              <ChevronRight aria-hidden="true" className="h-5 w-5" />
             </Link>
           </div>
         </div>
@@ -302,6 +307,12 @@ export default async function DashboardPage() {
       <div className="bg-theme-elevated rounded-2xl shadow-theme border border-theme p-2">
         <QuickActionsGrid actions={quickActions} />
       </div>
+
+      {data.billCount === 0 && (
+        <p className="text-xs text-theme-secondary px-1">
+          Tip: Add your recurring bills so we can forecast this pay period for you.
+        </p>
+      )}
 
       {/* Stats Grid - Desktop */}
       <div className="hidden lg:grid lg:grid-cols-4 gap-4">
@@ -329,6 +340,10 @@ export default async function DashboardPage() {
             ) : data.completedSteps === 9 ? (
               <p className="text-2xl font-semibold text-success-600 dark:text-success-400 mt-1 flex items-center gap-2">
                 Complete <CheckCircle2 className="h-5 w-5" />
+              </p>
+            ) : data.completedSteps === 0 ? (
+              <p className="text-2xl font-semibold text-accent-600 dark:text-accent-400 mt-1">
+                Start your FOO plan
               </p>
             ) : (
               <p className="text-2xl font-semibold text-theme-primary mt-1">
@@ -397,6 +412,10 @@ export default async function DashboardPage() {
                 <p className="text-xl font-semibold text-success-600 dark:text-success-400 flex items-center gap-2">
                   Complete! <CheckCircle2 className="h-5 w-5" />
                 </p>
+              ) : data.completedSteps === 0 ? (
+                <p className="text-xl font-semibold text-accent-600 dark:text-accent-400">
+                  Start your FOO plan →
+                </p>
               ) : (
                 <p className="text-xl font-semibold text-theme-primary">
                   {data.completedSteps}/9 Steps Complete
@@ -419,7 +438,7 @@ export default async function DashboardPage() {
               <div>
                 <p className="text-label">Total Debt</p>
                 <p className="text-xl font-semibold text-theme-primary">
-                  ${data.totalDebt.toLocaleString()}
+                  {data.totalDebt === 0 ? "No debt tracked" : `$${data.totalDebt.toLocaleString()}`}
                 </p>
               </div>
             </div>

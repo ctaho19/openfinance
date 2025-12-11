@@ -26,7 +26,7 @@ export function QuickActionsGrid({ actions, columns = 4 }: QuickActionsGridProps
         <Link
           key={action.label}
           href={action.href}
-          className="flex flex-col items-center justify-center py-4 px-2 group"
+          className="flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group"
         >
           <div className="relative">
             <div className="
@@ -79,7 +79,7 @@ export function QuickActionButton({
   };
 
   const content = (
-    <div className="flex flex-col items-center justify-center py-4 px-2 group cursor-pointer">
+    <div className="flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group cursor-pointer">
       <div className={`
         w-12 h-12 lg:w-14 lg:h-14 
         rounded-full 

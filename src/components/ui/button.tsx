@@ -82,11 +82,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      xs: "px-2.5 py-1 text-xs",
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-5 py-2.5 text-base",
-      xl: "px-6 py-3 text-lg",
+      xs: "px-2.5 py-1.5 text-xs min-h-[32px]",
+      sm: "px-3 py-2 text-sm min-h-[36px]",
+      md: "px-4 py-2.5 text-sm min-h-[44px]",
+      lg: "px-5 py-3 text-base min-h-[48px]",
+      xl: "px-6 py-3.5 text-lg min-h-[52px]",
     };
 
     const widthStyle = fullWidth ? "w-full" : "";
@@ -150,9 +150,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     };
 
     const sizes = {
-      sm: "h-8 w-8",
-      md: "h-10 w-10",
-      lg: "h-12 w-12",
+      sm: "h-9 w-9 min-h-[36px] min-w-[36px]",
+      md: "h-11 w-11 min-h-[44px] min-w-[44px]",
+      lg: "h-12 w-12 min-h-[48px] min-w-[48px]",
     };
 
     return (
@@ -205,7 +205,7 @@ export function ToggleGroup<T extends string>({
           key={option.value}
           onClick={() => onChange(option.value)}
           className={`
-            flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+            flex items-center gap-2 px-3 py-2 min-h-[36px] rounded-md text-sm font-medium
             transition-all duration-200
             ${value === option.value 
               ? "bg-theme-elevated text-theme-primary shadow-sm" 

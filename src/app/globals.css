@@ -625,3 +625,16 @@ select option {
 .card-hover-lift:active {
   transform: scale(0.98);
 }
+
+/* ============================================
+   TOUCH TARGET UTILITIES
+   ============================================ */
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-row {
+  min-height: 48px;
+}
