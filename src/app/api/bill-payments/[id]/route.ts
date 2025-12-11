@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -112,6 +113,9 @@ export async function PATCH(
 
     return updatedPayment;
   });
+
+  revalidatePath("/dashboard/pay-periods");
+  revalidatePath("/dashboard");
 
   return NextResponse.json(result);
 }
