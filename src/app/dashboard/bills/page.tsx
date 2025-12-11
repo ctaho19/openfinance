@@ -7,17 +7,45 @@ import { Plus, Receipt, CreditCard, TrendingDown } from "lucide-react";
 import { BillsList } from "./bills-list";
 
 type BillCategory = "SUBSCRIPTION" | "UTILITY" | "LOAN" | "BNPL" | "INSURANCE" | "CREDIT_CARD" | "OTHER";
-type BillFrequency = "ONCE" | "WEEKLY" | "BIWEEKLY" | "MONTHLY" | "YEARLY";
 
-interface Bill {
+interface BillDTO {
   id: string;
-  userId: string;
   name: string;
   category: BillCategory;
-  amount: number | { toString(): string };
+  amount: number;
   dueDay: number;
   isRecurring: boolean;
-  frequency: BillFrequency;
+  frequency: string;
+  debtId: string | null;
+  notes: string | null;
+  isActive: boolean;
+  debt: { id: string; name: string } | null;
+  payments: { dueDate: string; status: string }[];
+}
+
+interface BNPLDebtGroupDTO {
+  debtId: string;
+  debtName: string;
+  bills: BillDTO[];
+  totalAmount: number;
+  paidCount: number;
+  totalCount: number;
+  nextPayment: { amount: number; dueDate: string } | null;
+}
+
+interface BillsData {
+  regularBills: Record<BillCategory, BillDTO[]>;
+  bnplGroups: BNPLDebtGroupDTO[];
+}
+
+interface PrismaBill {
+  id: string;
+  name: string;
+  category: BillCategory;
+  amount: { toString(): string } | number;
+  dueDay: number;
+  isRecurring: boolean;
+  frequency: string;
   debtId: string | null;
   notes: string | null;
   isActive: boolean;
@@ -25,26 +53,31 @@ interface Bill {
   payments: { dueDate: Date; status: string }[];
 }
 
-interface BNPLDebtGroup {
-  debtId: string;
-  debtName: string;
-  bills: Bill[];
-  totalAmount: number;
-  paidCount: number;
-  totalCount: number;
-  nextPayment: { amount: number; dueDate: Date } | null;
-}
-
-interface BillsData {
-  regularBills: Record<BillCategory, Bill[]>;
-  bnplGroups: BNPLDebtGroup[];
+function toBillDTO(bill: PrismaBill): BillDTO {
+  return {
+    id: bill.id,
+    name: bill.name,
+    category: bill.category,
+    amount: Number(bill.amount),
+    dueDay: bill.dueDay,
+    isRecurring: bill.isRecurring,
+    frequency: bill.frequency,
+    debtId: bill.debtId,
+    notes: bill.notes,
+    isActive: bill.isActive,
+    debt: bill.debt ? { id: bill.debt.id, name: bill.debt.name } : null,
+    payments: bill.payments.map(p => ({
+      dueDate: p.dueDate.toISOString(),
+      status: p.status,
+    })),
+  };
 }
 
 async function getBills(userId: string): Promise<BillsData> {
   const bills = await prisma.bill.findMany({
     where: { userId },
     include: { 
-      debt: true,
+      debt: { select: { id: true, name: true } },
       payments: {
         select: { dueDate: true, status: true },
         orderBy: { dueDate: "asc" },
@@ -53,10 +86,10 @@ async function getBills(userId: string): Promise<BillsData> {
     orderBy: [{ category: "asc" }, { dueDay: "asc" }],
   });
 
-  const regularBills: Record<BillCategory, Bill[]> = {} as Record<BillCategory, Bill[]>;
-  const bnplByDebt: Record<string, Bill[]> = {};
+  const regularBills: Record<BillCategory, BillDTO[]> = {} as Record<BillCategory, BillDTO[]>;
+  const bnplByDebt: Record<string, PrismaBill[]> = {};
 
-  for (const bill of bills as unknown as Bill[]) {
+  for (const bill of bills as unknown as PrismaBill[]) {
     if (bill.category === "BNPL") {
       const key = bill.debtId || "ungrouped";
       if (!bnplByDebt[key]) {
@@ -68,11 +101,11 @@ async function getBills(userId: string): Promise<BillsData> {
       if (!regularBills[category]) {
         regularBills[category] = [];
       }
-      regularBills[category].push(bill);
+      regularBills[category].push(toBillDTO(bill));
     }
   }
 
-  const bnplGroups: BNPLDebtGroup[] = Object.entries(bnplByDebt).map(([debtId, debtBills]) => {
+  const bnplGroups: BNPLDebtGroupDTO[] = Object.entries(bnplByDebt).map(([debtId, debtBills]) => {
     const sortedBills = debtBills.sort((a, b) => {
       const aDate = a.payments[0]?.dueDate ? new Date(a.payments[0].dueDate).getTime() : 0;
       const bDate = b.payments[0]?.dueDate ? new Date(b.payments[0].dueDate).getTime() : 0;
@@ -90,13 +123,13 @@ async function getBills(userId: string): Promise<BillsData> {
     return {
       debtId,
       debtName: debtBills[0].debt?.name || "Unknown BNPL",
-      bills: sortedBills,
+      bills: sortedBills.map(toBillDTO),
       totalAmount: sortedBills.reduce((sum, b) => sum + Number(b.amount), 0),
       paidCount,
       totalCount: sortedBills.length,
       nextPayment: unpaidBill ? {
         amount: Number(unpaidBill.amount),
-        dueDate: new Date(unpaidBill.payments[0].dueDate),
+        dueDate: unpaidBill.payments[0].dueDate.toISOString(),
       } : null,
     };
   });
@@ -104,7 +137,7 @@ async function getBills(userId: string): Promise<BillsData> {
   bnplGroups.sort((a, b) => {
     if (!a.nextPayment) return 1;
     if (!b.nextPayment) return -1;
-    return a.nextPayment.dueDate.getTime() - b.nextPayment.dueDate.getTime();
+    return new Date(a.nextPayment.dueDate).getTime() - new Date(b.nextPayment.dueDate).getTime();
   });
 
   return { regularBills, bnplGroups };
@@ -171,8 +204,8 @@ export default async function BillsPage() {
 
       {/* Bills List */}
       <BillsList 
-        regularBills={JSON.parse(JSON.stringify(regularBills))} 
-        bnplGroups={JSON.parse(JSON.stringify(bnplGroups))} 
+        regularBills={regularBills} 
+        bnplGroups={bnplGroups} 
       />
     </div>
   );

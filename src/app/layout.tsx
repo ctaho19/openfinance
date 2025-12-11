@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-context";
 
-const inter = Inter({ subsets: ["latin"] });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-primary" });
 
 export const metadata: Metadata = {
   title: "OpenFinance - Personal Finance Tracker",
@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark accent-chase" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+    <html lang="en" className={`${dmSans.variable} dark accent-chase`} suppressHydrationWarning>
+      <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

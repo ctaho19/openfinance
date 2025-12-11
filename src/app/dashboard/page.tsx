@@ -93,7 +93,9 @@ async function getDashboardData(userId: string) {
           lte: periodEnd,
         },
       },
-      include: { bill: true },
+      include: { 
+        bill: { select: { id: true, name: true, category: true } } 
+      },
       orderBy: { dueDate: "asc" },
     }),
     prisma.quickPayment.findMany({

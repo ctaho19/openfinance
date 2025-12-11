@@ -18,8 +18,10 @@ export default async function DashboardLayout({
   }
 
   return (
-    <SessionProvider session={session}>
-      <SessionMonitor />
+    <>
+      <SessionProvider session={session}>
+        <SessionMonitor />
+      </SessionProvider>
       <div className="flex h-screen bg-theme-secondary overflow-hidden">
         {/* Desktop sidebar */}
         <Sidebar />
@@ -39,6 +41,6 @@ export default async function DashboardLayout({
           <QuickAddFAB />
         </div>
       </div>
-    </SessionProvider>
+    </>
   );
 }

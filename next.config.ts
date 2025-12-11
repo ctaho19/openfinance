@@ -31,6 +31,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  experimental: {
+    optimizePackageImports: ["lucide-react", "date-fns", "recharts"],
+  },
   async headers() {
     return [
       {

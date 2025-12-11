@@ -1,11 +1,8 @@
-/* Import Chase-like professional font */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
-
 @import "tailwindcss";
 
 :root {
   /* Typography */
-  --font-primary: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-primary: var(--font-primary), system-ui, -apple-system, sans-serif;
   
   /* ============================================
      CHASE BRAND COLOR PALETTE
