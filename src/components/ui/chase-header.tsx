@@ -15,6 +15,7 @@ export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {
     { label: "Bills", href: "/dashboard/bills" },
     { label: "Debts", href: "/dashboard/debts" },
     { label: "Pay Periods", href: "/dashboard/pay-periods" },
+    { label: "Goals", href: "/dashboard/goals" },
     { label: "FOO Plan", href: "/dashboard/foo" },
     { label: "Settings", href: "/dashboard/settings" },
   ];

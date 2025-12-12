@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import { Link } from "./link";
 import {
   LayoutDashboard,
@@ -29,7 +30,7 @@ const bottomNav = [
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
 }
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {

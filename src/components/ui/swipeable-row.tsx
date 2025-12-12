@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, type ReactNode, type TouchEvent, type MouseEvent } from "react";
 import { Check, Trash2 } from "lucide-react";
 

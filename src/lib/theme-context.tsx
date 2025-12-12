@@ -1,6 +1,4 @@
-"use client";
-
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type Mode = "light" | "dark" | "system";
 type AccentColor = "chase" | "blue" | "purple" | "orange" | "pink";
@@ -22,7 +20,7 @@ function getSystemTheme(): "light" | "dark" {
     : "light";
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<Mode>("system");
   const [accentColor, setAccentColorState] = useState<AccentColor>("chase");
   const [resolvedMode, setResolvedMode] = useState<"light" | "dark">("dark");

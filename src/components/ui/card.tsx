@@ -1,5 +1,3 @@
-"use client";
-
 import { ReactNode } from "react";
 import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 

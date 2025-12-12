@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, l as renderScript, r as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from '../chunks/BaseLayout_Bte9BUna.mjs';
+import { $ as $$BaseLayout } from '../chunks/BaseLayout_BX7Pf0fF.mjs';
 import { g as getSession } from '../chunks/get-session-astro_CVC6HSBT.mjs';
 export { renderers } from '../renderers.mjs';
 

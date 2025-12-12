@@ -1,5 +1,3 @@
-"use client";
-
 import { Link } from "./link";
 import {
   LayoutDashboard,
