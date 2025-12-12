@@ -30,9 +30,9 @@ export default $config({
         },
         server: {
           nodejs: {
-            install: ["@prisma/client", "prisma"],
+            install: ["@prisma/client", "prisma", ".prisma"],
             esbuild: {
-              external: ["@prisma/client"],
+              external: ["@prisma/client", ".prisma/client"],
             },
           },
         },
