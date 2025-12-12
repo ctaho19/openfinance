@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_Ydptwcmz.mjs';
+import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_CkU3w5MQ.mjs';
 import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { Calculator, ArrowLeft } from 'lucide-react';
 export { renderers } from '../../../renderers.mjs';

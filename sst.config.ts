@@ -28,6 +28,18 @@ export default $config({
           AUTH_SECRET: authSecret.value,
           AUTH_TRUST_HOST: "true",
         },
+        server: {
+          copyFiles: [
+            {
+              from: "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
+              to: "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
+            },
+            {
+              from: "node_modules/.prisma/client/schema.prisma",
+              to: "node_modules/.prisma/client/schema.prisma",
+            },
+          ],
+        },
       });
 
       return {

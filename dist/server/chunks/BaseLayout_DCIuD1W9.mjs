@@ -12,4 +12,4 @@ const $$BaseLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/BaseLayout.astro", void 0);
 
 export { $$BaseLayout as $ };
-//# sourceMappingURL=BaseLayout_BX7Pf0fF.mjs.map
+//# sourceMappingURL=BaseLayout_DCIuD1W9.mjs.map
