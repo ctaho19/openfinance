@@ -1,0 +1,13 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import NewDebtForm from '../../../components/forms/new-debt-form';
+import { getSession } from '../../../lib/get-session-astro';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+---
+<DashboardLayout title="Add Debt" currentPath="/dashboard/debts" user={session.user} showExploreSidebar={false}>
+  <NewDebtForm client:load />
+</DashboardLayout>

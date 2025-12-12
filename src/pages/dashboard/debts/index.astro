@@ -1,0 +1,13 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import DebtsPageContent from '../../../components/pages/debts-page-content';
+import { getSession } from '../../../lib/get-session-astro';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+---
+<DashboardLayout title="Debts" currentPath="/dashboard/debts" user={session.user} showExploreSidebar={false}>
+  <DebtsPageContent client:load />
+</DashboardLayout>

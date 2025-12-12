@@ -1,0 +1,17 @@
+import{j as e}from"./jsx-runtime.D_zvdyIk.js";import{c}from"./createLucideIcon.DV6VgPWa.js";/**
+ * @license lucide-react v0.555.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const m=[["path",{d:"m7 7 10 10",key:"1fmybs"}],["path",{d:"M17 7v10H7",key:"6fjiku"}]],h=c("arrow-down-right",m);/**
+ * @license lucide-react v0.555.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const x=[["path",{d:"M7 7h10v10",key:"1tivn9"}],["path",{d:"M7 17 17 7",key:"1vkiza"}]],u=c("arrow-up-right",x);/**
+ * @license lucide-react v0.555.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const g=[["path",{d:"M5 12h14",key:"1ays0h"}]],f=c("minus",g);function b({children:r,className:s="",variant:a="default",hover:t=!1,animate:n=!1}){const d="rounded-2xl overflow-hidden transition-all duration-200",i={default:"bg-theme-elevated border border-theme shadow-theme",elevated:"bg-theme-elevated border border-theme shadow-theme-md",outlined:"bg-transparent border-2 border-theme",glass:"glass border border-theme/50 shadow-theme-lg",gradient:"bg-chase-gradient border-0 text-white shadow-theme-md"},o=t?"card-hover-lift cursor-pointer":"",l=n?"animate-fade-in-up":"";return e.jsx("div",{className:`${d} ${i[a]} ${o} ${l} ${s}`,children:r})}function v({children:r,className:s="",onClick:a,action:t}){return e.jsxs("div",{className:`px-6 py-4 border-b border-theme flex items-center justify-between ${s}`,onClick:a,children:[e.jsx("div",{className:"flex-1",children:r}),t&&e.jsx("div",{className:"ml-4",children:t})]})}function k({children:r,className:s="",as:a="h3"}){return e.jsx(a,{className:`text-lg font-semibold text-theme-primary tracking-tight ${s}`,children:r})}function p({children:r,className:s="",noPadding:a=!1}){return e.jsx("div",{className:a?s:`px-6 py-4 ${s}`,children:r})}function y({label:r,value:s,icon:a,trend:t,variant:n="default",className:d=""}){const i={up:"text-success-600 dark:text-success-500",down:"text-danger-600 dark:text-danger-500",neutral:"text-theme-muted"},o={default:"bg-theme-tertiary text-theme-secondary",success:"bg-success-100 text-success-600 dark:bg-success-600/20 dark:text-success-400",warning:"bg-warning-100 text-warning-600 dark:bg-warning-600/20 dark:text-warning-400",danger:"bg-danger-100 text-danger-600 dark:bg-danger-600/20 dark:text-danger-400",info:"bg-info-100 text-info-600 dark:bg-info-600/20 dark:text-info-400"};return e.jsx(b,{className:d,children:e.jsx(p,{className:"py-5",children:e.jsxs("div",{className:"flex items-center gap-4",children:[a&&e.jsx("div",{className:`p-3 rounded-xl ${o[n]}`,children:a}),e.jsxs("div",{className:"flex-1 min-w-0",children:[e.jsx("p",{className:"text-sm font-medium text-theme-secondary truncate",children:r}),e.jsx("p",{className:"text-2xl font-bold text-theme-primary tracking-tight mt-0.5",children:s}),t&&e.jsxs("p",{className:`text-xs font-medium mt-1 flex items-center gap-1 ${i[t.direction]}`,children:[t.direction==="up"&&e.jsx(u,{className:"h-3 w-3"}),t.direction==="down"&&e.jsx(h,{className:"h-3 w-3"}),t.direction==="neutral"&&e.jsx(f,{className:"h-3 w-3"}),t.value>0?"+":"",t.value,"% from last period"]})]})]})})})}export{b as C,y as S,v as a,k as b,p as c};
+//# sourceMappingURL=card.qLBZpUmG.js.map

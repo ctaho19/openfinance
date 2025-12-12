@@ -1,0 +1,207 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import { StatCard } from '../../../components/ui/card';
+import { BillsList } from '@/components/bills/bills-list';
+import { getSession } from '../../../lib/get-session-astro';
+import { prisma } from '../../../lib/db';
+import { Receipt, CreditCard, TrendingDown } from 'lucide-react';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+
+type BillCategory = "SUBSCRIPTION" | "UTILITY" | "LOAN" | "BNPL" | "INSURANCE" | "CREDIT_CARD" | "OTHER";
+
+interface BillDTO {
+  id: string;
+  name: string;
+  category: BillCategory;
+  amount: number;
+  dueDay: number;
+  isRecurring: boolean;
+  frequency: string;
+  debtId: string | null;
+  notes: string | null;
+  isActive: boolean;
+  debt: { id: string; name: string } | null;
+  payments: { dueDate: string; status: string }[];
+}
+
+interface BNPLDebtGroupDTO {
+  debtId: string;
+  debtName: string;
+  bills: BillDTO[];
+  totalAmount: number;
+  paidCount: number;
+  totalCount: number;
+  nextPayment: { amount: number; dueDate: string } | null;
+}
+
+interface PrismaBill {
+  id: string;
+  name: string;
+  category: BillCategory;
+  amount: { toString(): string } | number;
+  dueDay: number;
+  isRecurring: boolean;
+  frequency: string;
+  debtId: string | null;
+  notes: string | null;
+  isActive: boolean;
+  debt: { id: string; name: string } | null;
+  payments: { dueDate: Date; status: string }[];
+}
+
+function toBillDTO(bill: PrismaBill): BillDTO {
+  return {
+    id: bill.id,
+    name: bill.name,
+    category: bill.category,
+    amount: Number(bill.amount),
+    dueDay: bill.dueDay,
+    isRecurring: bill.isRecurring,
+    frequency: bill.frequency,
+    debtId: bill.debtId,
+    notes: bill.notes,
+    isActive: bill.isActive,
+    debt: bill.debt ? { id: bill.debt.id, name: bill.debt.name } : null,
+    payments: bill.payments.map(p => ({
+      dueDate: p.dueDate.toISOString(),
+      status: p.status,
+    })),
+  };
+}
+
+const bills = await prisma.bill.findMany({
+  where: { userId: session.user.id },
+  include: { 
+    debt: { select: { id: true, name: true } },
+    payments: {
+      select: { dueDate: true, status: true },
+      orderBy: { dueDate: "asc" },
+    },
+  },
+  orderBy: [{ category: "asc" }, { dueDay: "asc" }],
+});
+
+const regularBills: Record<BillCategory, BillDTO[]> = {} as Record<BillCategory, BillDTO[]>;
+const bnplByDebt: Record<string, PrismaBill[]> = {};
+
+for (const bill of bills as unknown as PrismaBill[]) {
+  if (bill.category === "BNPL") {
+    const key = bill.debtId || "ungrouped";
+    if (!bnplByDebt[key]) {
+      bnplByDebt[key] = [];
+    }
+    bnplByDebt[key].push(bill);
+  } else {
+    const category = bill.category;
+    if (!regularBills[category]) {
+      regularBills[category] = [];
+    }
+    regularBills[category].push(toBillDTO(bill));
+  }
+}
+
+const bnplGroups: BNPLDebtGroupDTO[] = Object.entries(bnplByDebt).map(([debtId, debtBills]) => {
+  const sortedBills = debtBills.sort((a, b) => {
+    const aDate = a.payments[0]?.dueDate ? new Date(a.payments[0].dueDate).getTime() : 0;
+    const bDate = b.payments[0]?.dueDate ? new Date(b.payments[0].dueDate).getTime() : 0;
+    return aDate - bDate;
+  });
+
+  const paidCount = sortedBills.filter(b => 
+    b.payments.length > 0 && b.payments[0].status === "PAID"
+  ).length;
+
+  const unpaidBill = sortedBills.find(b => 
+    b.payments.length > 0 && b.payments[0].status !== "PAID"
+  );
+
+  return {
+    debtId,
+    debtName: debtBills[0].debt?.name || "Unknown BNPL",
+    bills: sortedBills.map(toBillDTO),
+    totalAmount: sortedBills.reduce((sum, b) => sum + Number(b.amount), 0),
+    paidCount,
+    totalCount: sortedBills.length,
+    nextPayment: unpaidBill ? {
+      amount: Number(unpaidBill.amount),
+      dueDate: unpaidBill.payments[0].dueDate.toISOString(),
+    } : null,
+  };
+});
+
+bnplGroups.sort((a, b) => {
+  if (!a.nextPayment) return 1;
+  if (!b.nextPayment) return -1;
+  return new Date(a.nextPayment.dueDate).getTime() - new Date(b.nextPayment.dueDate).getTime();
+});
+
+const totalMonthly = Object.values(regularBills)
+  .flat()
+  .filter((b) => b.isActive && b.frequency === "MONTHLY")
+  .reduce((sum, b) => sum + Number(b.amount), 0);
+
+const totalBNPLRemaining = bnplGroups.reduce((sum, g) => {
+  const remaining = g.bills
+    .filter(b => b.payments.length > 0 && b.payments[0].status !== "PAID")
+    .reduce((s, b) => s + Number(b.amount), 0);
+  return sum + remaining;
+}, 0);
+
+const totalBillCount = Object.values(regularBills).flat().length + bnplGroups.reduce((sum, g) => sum + g.bills.length, 0);
+---
+<DashboardLayout title="Bills" currentPath="/dashboard/bills" user={session.user} showExploreSidebar={false}>
+  <div class="space-y-6 lg:space-y-8 animate-fade-in">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl lg:text-3xl font-bold text-theme-primary tracking-tight">Bills</h1>
+        <p class="text-theme-secondary mt-1">
+          Manage your recurring bills and payments
+        </p>
+      </div>
+      <a 
+        href="/dashboard/bills/new"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-xl font-medium transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="M12 5v14"/>
+        </svg>
+        Add Bill
+      </a>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <StatCard
+        client:visible
+        label="Monthly Recurring"
+        value={`$${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+        icon={Receipt}
+        variant="info"
+      />
+      <StatCard
+        client:visible
+        label="BNPL Remaining"
+        value={`$${totalBNPLRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+        icon={CreditCard}
+        variant="warning"
+      />
+      <StatCard
+        client:visible
+        label="Active Bills"
+        value={totalBillCount.toString()}
+        icon={TrendingDown}
+        variant="success"
+      />
+    </div>
+
+    <BillsList 
+      client:load
+      regularBills={regularBills} 
+      bnplGroups={bnplGroups} 
+    />
+  </div>
+</DashboardLayout>

@@ -1,0 +1,143 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import { SectionCard } from '../../../components/ui/section-card';
+import { getSession } from '../../../lib/get-session-astro';
+import { getCurrentPayPeriod, formatPayPeriod, getPaymentsForPeriod } from '../../../lib/services/pay-periods';
+import { startOfDay, endOfDay, differenceInDays, isToday, isTomorrow, format } from 'date-fns';
+import { Calendar, CheckCircle2, Circle, DollarSign } from 'lucide-react';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+
+const currentPeriod = getCurrentPayPeriod();
+const periodStart = startOfDay(currentPeriod.startDate);
+const periodEnd = endOfDay(currentPeriod.endDate);
+
+const payments = await getPaymentsForPeriod(session.user.id, periodStart, periodEnd);
+
+const paidPayments = payments.filter(p => p.status === 'PAID');
+const unpaidPayments = payments.filter(p => p.status === 'UNPAID');
+
+const totalDue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+const totalPaid = paidPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+function formatDueDate(date: Date): string {
+  if (isToday(date)) return "Today";
+  if (isTomorrow(date)) return "Tomorrow";
+  const days = differenceInDays(date, new Date());
+  if (days < 0) return `${Math.abs(days)}d overdue`;
+  return format(date, "MMM d");
+}
+---
+<DashboardLayout title="Pay Periods" currentPath="/dashboard/pay-periods" user={session.user} showExploreSidebar={false}>
+  <div class="space-y-6">
+    <header>
+      <h1 class="text-2xl font-bold text-theme-primary">Pay Period</h1>
+      <p class="text-theme-secondary mt-1">{formatPayPeriod(currentPeriod)}</p>
+    </header>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
+        <p class="text-label">Total Due</p>
+        <p class="text-2xl font-semibold text-theme-primary mt-1">
+          ${totalDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </p>
+      </div>
+      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
+        <p class="text-label">Paid</p>
+        <p class="text-2xl font-semibold text-success-600 mt-1">
+          ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </p>
+      </div>
+      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
+        <p class="text-label">Remaining</p>
+        <p class="text-2xl font-semibold text-theme-primary mt-1">
+          ${(totalDue - totalPaid).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </p>
+      </div>
+      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
+        <p class="text-label">Bills</p>
+        <p class="text-2xl font-semibold text-theme-primary mt-1">
+          {paidPayments.length}/{payments.length}
+        </p>
+      </div>
+    </div>
+
+    <!-- Unpaid Bills -->
+    {unpaidPayments.length > 0 && (
+      <SectionCard client:visible title="Unpaid" subtitle={`${unpaidPayments.length} remaining`}>
+        <div class="divide-y divide-theme">
+          {unpaidPayments.map((payment) => (
+            <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 group">
+              <div class="flex items-center gap-3">
+                <button
+                  data-payment-id={payment.id}
+                  class="payment-toggle p-1 rounded-full hover:bg-theme-secondary/50 transition-colors"
+                >
+                  <Circle className="h-5 w-5 text-theme-muted" />
+                </button>
+                <div>
+                  <p class="font-medium text-theme-primary">{payment.bill.name}</p>
+                  <p class="text-sm text-theme-muted">{formatDueDate(payment.dueDate)}</p>
+                </div>
+              </div>
+              <span class="font-semibold text-theme-primary">
+                ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+    )}
+
+    <!-- Paid Bills -->
+    {paidPayments.length > 0 && (
+      <SectionCard client:visible title="Paid" subtitle={`${paidPayments.length} completed`} defaultOpen={false}>
+        <div class="divide-y divide-theme">
+          {paidPayments.map((payment) => (
+            <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 opacity-60">
+              <div class="flex items-center gap-3">
+                <button
+                  data-payment-id={payment.id}
+                  class="payment-toggle p-1 rounded-full hover:bg-theme-secondary/50 transition-colors"
+                >
+                  <CheckCircle2 className="h-5 w-5 text-success-600" />
+                </button>
+                <div>
+                  <p class="font-medium text-theme-primary line-through">{payment.bill.name}</p>
+                  <p class="text-sm text-theme-muted">{formatDueDate(payment.dueDate)}</p>
+                </div>
+              </div>
+              <span class="font-semibold text-theme-primary">
+                ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+    )}
+  </div>
+
+  <script>
+    document.querySelectorAll('.payment-toggle').forEach(button => {
+      button.addEventListener('click', async () => {
+        const paymentId = (button as HTMLElement).dataset.paymentId;
+        try {
+          const response = await fetch(`/api/bill-payments/${paymentId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ togglePaid: true }),
+          });
+          if (response.ok) {
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error('Failed to toggle payment:', error);
+        }
+      });
+    });
+  </script>
+</DashboardLayout>

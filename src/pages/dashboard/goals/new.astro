@@ -1,0 +1,13 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import NewGoalForm from '../../../components/forms/new-goal-form';
+import { getSession } from '../../../lib/get-session-astro';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+---
+<DashboardLayout title="Add Goal" currentPath="/dashboard/goals" user={session.user} showExploreSidebar={false}>
+  <NewGoalForm client:load />
+</DashboardLayout>
