@@ -27,16 +27,23 @@ export default $config({
           DATABASE_URL: databaseUrl.value,
           AUTH_SECRET: authSecret.value,
           AUTH_TRUST_HOST: "true",
-          PRISMA_QUERY_ENGINE_LIBRARY: "/var/task/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
         },
-        server: {
-          copyFiles: [
-            { from: "node_modules/.prisma/client/", to: ".prisma/client/" },
-          ],
-          nodejs: {
-            esbuild: {
-              external: ["@prisma/client", ".prisma/client"],
-            },
+        transform: {
+          server(args) {
+            // Copy Prisma engine binaries into Lambda bundle
+            args.copyFiles ??= [];
+            args.copyFiles.push({
+              from: "node_modules/.prisma/client/",
+            });
+
+            // Ensure esbuild doesn't bundle Prisma (it needs runtime resolution)
+            args.nodejs ??= {};
+            args.nodejs.esbuild ??= {};
+            args.nodejs.esbuild.external = [
+              ...(args.nodejs.esbuild.external ?? []),
+              "@prisma/client",
+              ".prisma/client",
+            ];
           },
         },
       });
