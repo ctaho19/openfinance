@@ -29,16 +29,12 @@ export default $config({
           AUTH_TRUST_HOST: "true",
         },
         server: {
-          copyFiles: [
-            {
-              from: "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
-              to: "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
+          nodejs: {
+            install: ["@prisma/client", "prisma"],
+            esbuild: {
+              external: ["@prisma/client"],
             },
-            {
-              from: "node_modules/.prisma/client/schema.prisma",
-              to: "node_modules/.prisma/client/schema.prisma",
-            },
-          ],
+          },
         },
       });
 
