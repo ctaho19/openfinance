@@ -1,7 +1,7 @@
 import { Link } from "./link";
 import {
   LayoutDashboard,
-  Receipt,
+  ArrowLeftRight,
   PiggyBank,
   Target,
   Menu,
@@ -9,15 +9,15 @@ import {
 
 const navItems = [
   { 
-    name: "Dashboard", 
+    name: "Accounts", 
     href: "/dashboard", 
     icon: LayoutDashboard,
     activeMatch: (path: string) => path === "/dashboard"
   },
   { 
-    name: "Payments", 
+    name: "Pay", 
     href: "/dashboard/pay-periods", 
-    icon: Receipt,
+    icon: ArrowLeftRight,
     activeMatch: (path: string) => path.startsWith("/dashboard/pay-periods") || path.startsWith("/dashboard/bills")
   },
   { 
@@ -33,7 +33,7 @@ const navItems = [
     activeMatch: (path: string) => path.startsWith("/dashboard/foo") || path.startsWith("/dashboard/debts")
   },
   { 
-    name: "Settings", 
+    name: "More", 
     href: "/dashboard/settings", 
     icon: Menu,
     activeMatch: (path: string) => path.startsWith("/dashboard/settings")
@@ -46,8 +46,8 @@ interface BottomNavProps {
 
 export function BottomNav({ currentPath = "" }: BottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-theme bg-theme-elevated/95 backdrop-blur-md lg:hidden">
-      <div className="mx-auto flex justify-around items-center h-16 max-w-lg px-2 pb-safe-area">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 dark:bg-[#1c2128] dark:border-[#30363d] lg:hidden">
+      <div className="mx-auto flex justify-around items-center h-14 max-w-lg">
         {navItems.map((item) => {
           const isActive = item.activeMatch(currentPath);
           const Icon = item.icon;
@@ -59,22 +59,16 @@ export function BottomNav({ currentPath = "" }: BottomNavProps) {
               aria-current={isActive ? "page" : undefined}
               aria-label={item.name}
               className={`
-                flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[4rem] min-h-[44px]
-                transition-all duration-200
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-elevated
+                flex flex-col items-center justify-center gap-0.5 py-1.5 px-4 min-w-[56px] min-h-[44px]
+                transition-colors duration-150
                 ${isActive 
-                  ? "text-accent-600" 
-                  : "text-theme-muted hover:text-theme-secondary"
+                  ? "text-[#0060f0] dark:text-[#60a5fa]" 
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }
               `}
             >
-              <div className={`
-                relative p-1.5 rounded-xl transition-all duration-200
-                ${isActive ? "bg-accent-50 dark:bg-accent-600/20" : ""}
-              `}>
-                <Icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
-              </div>
-              <span className={`text-[10px] font-medium tracking-wide ${isActive ? "font-semibold" : ""}`}>
+              <Icon aria-hidden="true" className="h-5 w-5" />
+              <span className={`text-[10px] font-medium ${isActive ? "font-semibold" : ""}`}>
                 {item.name}
               </span>
             </Link>

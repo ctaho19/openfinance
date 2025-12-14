@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 interface AccountSummaryCardProps {
   title: string;
@@ -10,53 +11,94 @@ interface AccountSummaryCardProps {
     value: string;
   }>;
   children?: ReactNode;
+  showActions?: boolean;
 }
 
 export function AccountSummaryCard({
   title,
   subtitle,
   primaryAmount,
-  primaryLabel = "Available",
+  primaryLabel = "Total accounts",
   secondaryItems,
   children,
+  showActions = true,
 }: AccountSummaryCardProps) {
   const formattedAmount = primaryAmount.toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
   return (
-    <div className="bg-chase-gradient rounded-2xl shadow-theme-md overflow-hidden">
-      <div className="px-5 py-6 lg:px-8 lg:py-8">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-label-light">{primaryLabel}</p>
-            <h2 className="text-white font-semibold text-lg mt-0.5">{title}</h2>
-          </div>
+    <div className="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] shadow-sm overflow-hidden">
+      {/* Collapsible Header - Chase style */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#30363d]">
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+            {title}
+          </h2>
           {subtitle && (
-            <span className="text-xs text-white/70 bg-white/10 px-2.5 py-1 rounded-full">
+            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
               {subtitle}
             </span>
           )}
         </div>
+        <ChevronDown className="h-5 w-5 text-gray-400" />
+      </div>
 
-        {/* Primary Amount */}
-        <div className="mb-6">
-          <p className="text-balance-xl text-white">
-            ${formattedAmount}
-          </p>
+      <div className="px-5 py-5">
+        {/* Top row: link and actions */}
+        <div className="flex items-center justify-between mb-4">
+          <a
+            href="/dashboard"
+            className="text-[#0060f0] hover:text-[#004dc0] text-sm font-medium inline-flex items-center gap-0.5"
+          >
+            {primaryLabel}
+            <ChevronRight className="h-4 w-4" />
+          </a>
+          {showActions && (
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1.5 text-sm font-medium text-[#0060f0] border border-[#0060f0] rounded-md hover:bg-[#e6f2fc] transition-colors">
+                Link account
+              </button>
+              <button className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-1">
+                More
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Balance Display - Chase style with large numbers */}
+        <div className="flex flex-wrap items-baseline gap-x-12 gap-y-4">
+          <div>
+            <p className="text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight">
+              ${formattedAmount}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Total assets
+            </p>
+          </div>
+          
+          {/* Secondary amount - liabilities style */}
+          <div>
+            <p className="text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight">
+              $0.00
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Total liabilities
+            </p>
+          </div>
         </div>
 
         {/* Secondary Items */}
         {secondaryItems && secondaryItems.length > 0 && (
-          <div className="flex flex-wrap gap-x-6 gap-y-3 pt-4 border-t border-white/20">
+          <div className="flex flex-wrap gap-x-8 gap-y-3 mt-6 pt-4 border-t border-gray-100 dark:border-[#30363d]">
             {secondaryItems.map((item, index) => (
               <div key={index}>
-                <p className="text-[11px] text-white/60 uppercase tracking-wider font-medium">
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                   {item.label}
                 </p>
-                <p className="text-white font-semibold mt-0.5">
+                <p className="text-gray-900 dark:text-gray-100 font-medium mt-0.5">
                   {item.value}
                 </p>
               </div>
@@ -64,7 +106,6 @@ export function AccountSummaryCard({
           </div>
         )}
 
-        {/* Optional children for additional content */}
         {children}
       </div>
     </div>
@@ -85,24 +126,26 @@ export function SimpleBalanceCard({
   subtitle,
 }: SimpleBalanceCardProps) {
   const formattedAmount = amount.toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
   const trendColors = {
-    up: "text-success-600 dark:text-success-400",
-    down: "text-danger-600 dark:text-danger-400",
-    neutral: "text-theme-primary",
+    up: "text-emerald-600 dark:text-emerald-400",
+    down: "text-red-600 dark:text-red-400",
+    neutral: "text-gray-900 dark:text-gray-100",
   };
 
   return (
-    <div className="bg-theme-elevated rounded-2xl shadow-theme p-4 lg:p-5 border border-theme">
-      <p className="text-label">{label}</p>
-      <p className={`text-2xl font-semibold mt-1 ${trendColors[trend]}`}>
+    <div className="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4 lg:p-5">
+      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        {label}
+      </p>
+      <p className={`text-2xl font-medium mt-1.5 tracking-tight ${trendColors[trend]}`}>
         ${formattedAmount}
       </p>
       {subtitle && (
-        <p className="text-xs text-theme-muted mt-1">{subtitle}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
       )}
     </div>
   );

@@ -16,18 +16,18 @@ export function Card({
   hover = false,
   animate = false,
 }: CardProps) {
-  const baseStyles = "rounded-2xl overflow-hidden transition-all duration-200";
+  const baseStyles = "rounded-xl overflow-hidden transition-all duration-150";
   
   const variants = {
-    default: "bg-theme-elevated border border-theme shadow-theme",
-    elevated: "bg-theme-elevated border border-theme shadow-theme-md",
-    outlined: "bg-transparent border-2 border-theme",
-    glass: "glass border border-theme/50 shadow-theme-lg",
-    gradient: "bg-chase-gradient border-0 text-white shadow-theme-md",
+    default: "bg-white dark:bg-[#1c2128] border border-gray-200 dark:border-[#30363d] shadow-sm",
+    elevated: "bg-white dark:bg-[#1c2128] border border-gray-200 dark:border-[#30363d] shadow-md",
+    outlined: "bg-transparent border border-gray-200 dark:border-[#30363d]",
+    glass: "bg-white/90 dark:bg-[#1c2128]/90 backdrop-blur-lg border border-gray-200/50 dark:border-[#30363d]/50 shadow-lg",
+    gradient: "bg-gradient-to-br from-[#0060f0] to-[#0a3254] border-0 text-white shadow-md",
   };
   
   const hoverStyles = hover 
-    ? "card-hover-lift cursor-pointer" 
+    ? "hover:shadow-md hover:border-gray-300 dark:hover:border-[#484f58] cursor-pointer" 
     : "";
   
   const animateStyles = animate ? "animate-fade-in-up" : "";
@@ -54,7 +54,7 @@ export function CardHeader({
 }: CardHeaderProps) {
   return (
     <div
-      className={`px-6 py-4 border-b border-theme flex items-center justify-between ${className}`}
+      className={`px-5 py-4 border-b border-gray-100 dark:border-[#30363d] flex items-center justify-between ${className}`}
       onClick={onClick}
     >
       <div className="flex-1">{children}</div>
@@ -73,7 +73,7 @@ export function CardTitle({
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }) {
   return (
-    <Component className={`text-lg font-semibold text-theme-primary tracking-tight ${className}`}>
+    <Component className={`text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight ${className}`}>
       {children}
     </Component>
   );
@@ -87,7 +87,7 @@ export function CardDescription({
   className?: string;
 }) {
   return (
-    <p className={`text-sm text-theme-secondary mt-1 ${className}`}>
+    <p className={`text-sm text-gray-500 dark:text-gray-400 mt-1 ${className}`}>
       {children}
     </p>
   );
@@ -103,7 +103,7 @@ export function CardContent({
   noPadding?: boolean;
 }) {
   return (
-    <div className={noPadding ? className : `px-6 py-4 ${className}`}>
+    <div className={noPadding ? className : `px-5 py-5 ${className}`}>
       {children}
     </div>
   );
@@ -117,7 +117,7 @@ export function CardFooter({
   className?: string;
 }) {
   return (
-    <div className={`px-6 py-4 border-t border-theme bg-theme-secondary/50 ${className}`}>
+    <div className={`px-5 py-4 border-t border-gray-100 dark:border-[#30363d] bg-gray-50 dark:bg-[#161b22] ${className}`}>
       {children}
     </div>
   );
@@ -145,17 +145,17 @@ export function StatCard({
   className = "",
 }: StatCardProps) {
   const trendColors = {
-    up: "text-success-600 dark:text-success-500",
-    down: "text-danger-600 dark:text-danger-500",
-    neutral: "text-theme-muted",
+    up: "text-emerald-600 dark:text-emerald-400",
+    down: "text-red-600 dark:text-red-400",
+    neutral: "text-gray-500 dark:text-gray-400",
   };
 
   const iconClasses: Record<string, string> = {
-    default: "bg-theme-tertiary text-theme-secondary",
-    success: "bg-success-100 text-success-600 dark:bg-success-600/20 dark:text-success-400",
-    warning: "bg-warning-100 text-warning-600 dark:bg-warning-600/20 dark:text-warning-400",
-    danger: "bg-danger-100 text-danger-600 dark:bg-danger-600/20 dark:text-danger-400",
-    info: "bg-info-100 text-info-600 dark:bg-info-600/20 dark:text-info-400",
+    default: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+    success: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400",
+    warning: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400",
+    danger: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400",
+    info: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
   };
 
   return (
@@ -168,8 +168,8 @@ export function StatCard({
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-theme-secondary truncate">{label}</p>
-            <p className="text-2xl font-bold text-theme-primary tracking-tight mt-0.5">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{label}</p>
+            <p className="text-2xl font-medium text-gray-900 dark:text-gray-100 tracking-tight mt-0.5">
               {value}
             </p>
             {trend && (

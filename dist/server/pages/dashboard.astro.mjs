@@ -1,9 +1,9 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_CUxWaT_w.mjs';
-import { jsx, jsxs } from 'react/jsx-runtime';
-import { g as getCurrentPayPeriod, a as getNextPayPeriod, f as formatPayPeriod, S as SectionCard } from '../chunks/section-card_CqSZrPoy.mjs';
-import { XCircle, AlertTriangle, CheckCircle, Info, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
+import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_D680jGCc.mjs';
+import { jsxs, jsx } from 'react/jsx-runtime';
+import { ChevronDown, ChevronRight, XCircle, AlertTriangle, CheckCircle, Info, X, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp } from 'lucide-react';
+import { g as getCurrentPayPeriod, a as getNextPayPeriod, f as formatPayPeriod, S as SectionCard } from '../chunks/section-card_DlFhH3PJ.mjs';
 import { g as getSession } from '../chunks/get-session-astro_CVC6HSBT.mjs';
 import { p as prisma } from '../chunks/auth-config_mz_UKjvQ.mjs';
 import { startOfDay, endOfDay, differenceInDays, isToday, isTomorrow, format } from 'date-fns';
@@ -13,32 +13,64 @@ function AccountSummaryCard({
   title,
   subtitle,
   primaryAmount,
-  primaryLabel = "Available",
+  primaryLabel = "Total accounts",
   secondaryItems,
-  children
+  children,
+  showActions = true
 }) {
   const formattedAmount = primaryAmount.toLocaleString(void 0, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
-  return /* @__PURE__ */ jsx("div", { className: "bg-chase-gradient rounded-2xl shadow-theme-md overflow-hidden", children: /* @__PURE__ */ jsxs("div", { className: "px-5 py-6 lg:px-8 lg:py-8", children: [
-    /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between mb-4", children: [
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("p", { className: "text-label-light", children: primaryLabel }),
-        /* @__PURE__ */ jsx("h2", { className: "text-white font-semibold text-lg mt-0.5", children: title })
+  return /* @__PURE__ */ jsxs("div", { className: "bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] shadow-sm overflow-hidden", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#30363d]", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsx("h2", { className: "font-semibold text-gray-900 dark:text-gray-100", children: title }),
+        subtitle && /* @__PURE__ */ jsx("span", { className: "text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full", children: subtitle })
       ] }),
-      subtitle && /* @__PURE__ */ jsx("span", { className: "text-xs text-white/70 bg-white/10 px-2.5 py-1 rounded-full", children: subtitle })
+      /* @__PURE__ */ jsx(ChevronDown, { className: "h-5 w-5 text-gray-400" })
     ] }),
-    /* @__PURE__ */ jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxs("p", { className: "text-balance-xl text-white", children: [
-      "$",
-      formattedAmount
-    ] }) }),
-    secondaryItems && secondaryItems.length > 0 && /* @__PURE__ */ jsx("div", { className: "flex flex-wrap gap-x-6 gap-y-3 pt-4 border-t border-white/20", children: secondaryItems.map((item, index) => /* @__PURE__ */ jsxs("div", { children: [
-      /* @__PURE__ */ jsx("p", { className: "text-[11px] text-white/60 uppercase tracking-wider font-medium", children: item.label }),
-      /* @__PURE__ */ jsx("p", { className: "text-white font-semibold mt-0.5", children: item.value })
-    ] }, index)) }),
-    children
-  ] }) });
+    /* @__PURE__ */ jsxs("div", { className: "px-5 py-5", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+        /* @__PURE__ */ jsxs(
+          "a",
+          {
+            href: "/dashboard",
+            className: "text-[#0060f0] hover:text-[#004dc0] text-sm font-medium inline-flex items-center gap-0.5",
+            children: [
+              primaryLabel,
+              /* @__PURE__ */ jsx(ChevronRight, { className: "h-4 w-4" })
+            ]
+          }
+        ),
+        showActions && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx("button", { className: "px-3 py-1.5 text-sm font-medium text-[#0060f0] border border-[#0060f0] rounded-md hover:bg-[#e6f2fc] transition-colors", children: "Link account" }),
+          /* @__PURE__ */ jsxs("button", { className: "px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-1", children: [
+            "More",
+            /* @__PURE__ */ jsx(ChevronDown, { className: "h-3.5 w-3.5" })
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-baseline gap-x-12 gap-y-4", children: [
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsxs("p", { className: "text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight", children: [
+            "$",
+            formattedAmount
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 mt-1", children: "Total assets" })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsx("p", { className: "text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight", children: "$0.00" }),
+          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 mt-1", children: "Total liabilities" })
+        ] })
+      ] }),
+      secondaryItems && secondaryItems.length > 0 && /* @__PURE__ */ jsx("div", { className: "flex flex-wrap gap-x-8 gap-y-3 mt-6 pt-4 border-t border-gray-100 dark:border-[#30363d]", children: secondaryItems.map((item, index) => /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400 font-medium", children: item.label }),
+        /* @__PURE__ */ jsx("p", { className: "text-gray-900 dark:text-gray-100 font-medium mt-0.5", children: item.value })
+      ] }, index)) }),
+      children
+    ] })
+  ] });
 }
 function SimpleBalanceCard({
   label,
@@ -47,21 +79,21 @@ function SimpleBalanceCard({
   subtitle
 }) {
   const formattedAmount = amount.toLocaleString(void 0, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
   const trendColors = {
-    up: "text-success-600 dark:text-success-400",
-    down: "text-danger-600 dark:text-danger-400",
-    neutral: "text-theme-primary"
+    up: "text-emerald-600 dark:text-emerald-400",
+    down: "text-red-600 dark:text-red-400",
+    neutral: "text-gray-900 dark:text-gray-100"
   };
-  return /* @__PURE__ */ jsxs("div", { className: "bg-theme-elevated rounded-2xl shadow-theme p-4 lg:p-5 border border-theme", children: [
-    /* @__PURE__ */ jsx("p", { className: "text-label", children: label }),
-    /* @__PURE__ */ jsxs("p", { className: `text-2xl font-semibold mt-1 ${trendColors[trend]}`, children: [
+  return /* @__PURE__ */ jsxs("div", { className: "bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4 lg:p-5", children: [
+    /* @__PURE__ */ jsx("p", { className: "text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide", children: label }),
+    /* @__PURE__ */ jsxs("p", { className: `text-2xl font-medium mt-1.5 tracking-tight ${trendColors[trend]}`, children: [
       "$",
       formattedAmount
     ] }),
-    subtitle && /* @__PURE__ */ jsx("p", { className: "text-xs text-theme-muted mt-1", children: subtitle })
+    subtitle && /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400 mt-1", children: subtitle })
   ] });
 }
 
@@ -71,19 +103,19 @@ function QuickActionsGrid({ actions, columns = 4 }) {
     4: "grid-cols-4",
     5: "grid-cols-5"
   };
-  return /* @__PURE__ */ jsx("div", { className: `grid ${gridCols[columns]} gap-3 lg:gap-4`, children: actions.map((action) => {
+  return /* @__PURE__ */ jsx("div", { className: `grid ${gridCols[columns]} gap-2`, children: actions.map((action) => {
     const Icon = action.icon;
     return /* @__PURE__ */ jsxs(
       Link,
       {
         href: action.href,
-        className: "flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group",
+        className: "flex flex-col items-center justify-center py-4 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#21262d] transition-colors group",
         children: [
           /* @__PURE__ */ jsxs("div", { className: "relative", children: [
-            /* @__PURE__ */ jsx("div", { className: "\n              w-12 h-12 lg:w-14 lg:h-14 \n              rounded-full \n              bg-accent-50 dark:bg-accent-600/20\n              flex items-center justify-center\n              transition-all duration-200\n              group-hover:bg-accent-100 dark:group-hover:bg-accent-600/30\n              group-hover:scale-105\n              group-active:scale-95\n            ", children: /* @__PURE__ */ jsx(Icon, { className: "h-5 w-5 lg:h-6 lg:w-6 text-accent-600 dark:text-accent-400" }) }),
-            action.badge && /* @__PURE__ */ jsx("span", { className: "absolute -top-1 -right-1 bg-danger-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center", children: action.badge })
+            /* @__PURE__ */ jsx("div", { className: "\n                w-11 h-11 lg:w-12 lg:h-12 \n                rounded-full \n                bg-[#e6f2fc] dark:bg-[#0060f0]/15\n                flex items-center justify-center\n                transition-all duration-150\n                group-hover:scale-105\n                group-active:scale-95\n              ", children: /* @__PURE__ */ jsx(Icon, { className: "h-5 w-5 lg:h-5 lg:w-5 text-[#0060f0] dark:text-[#60a5fa]" }) }),
+            action.badge && /* @__PURE__ */ jsx("span", { className: "absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center", children: action.badge })
           ] }),
-          /* @__PURE__ */ jsx("span", { className: "text-[11px] lg:text-xs font-medium text-theme-primary mt-2 text-center leading-tight", children: action.label })
+          /* @__PURE__ */ jsx("span", { className: "text-[11px] lg:text-xs font-medium text-gray-700 dark:text-gray-300 mt-2 text-center leading-tight", children: action.label })
         ]
       },
       action.label
@@ -93,28 +125,28 @@ function QuickActionsGrid({ actions, columns = 4 }) {
 
 const severityConfig = {
   info: {
-    bg: "bg-info-100 dark:bg-info-600/20",
-    border: "border-info-500/30",
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    border: "border-blue-200 dark:border-blue-800/50",
     icon: Info,
-    iconColor: "text-info-600 dark:text-info-400"
+    iconColor: "text-blue-600 dark:text-blue-400"
   },
   success: {
-    bg: "bg-success-100 dark:bg-success-600/20",
-    border: "border-success-500/30",
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    border: "border-emerald-200 dark:border-emerald-800/50",
     icon: CheckCircle,
-    iconColor: "text-success-600 dark:text-success-400"
+    iconColor: "text-emerald-600 dark:text-emerald-400"
   },
   warning: {
-    bg: "bg-warning-100 dark:bg-warning-600/20",
-    border: "border-warning-500/30",
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+    border: "border-amber-200 dark:border-amber-800/50",
     icon: AlertTriangle,
-    iconColor: "text-warning-600 dark:text-warning-400"
+    iconColor: "text-amber-600 dark:text-amber-400"
   },
   error: {
-    bg: "bg-danger-100 dark:bg-danger-600/20",
-    border: "border-danger-500/30",
+    bg: "bg-red-50 dark:bg-red-900/20",
+    border: "border-red-200 dark:border-red-800/50",
     icon: XCircle,
-    iconColor: "text-danger-600 dark:text-danger-400"
+    iconColor: "text-red-600 dark:text-red-400"
   }
 };
 function AlertBanner({
@@ -136,14 +168,14 @@ function AlertBanner({
       role: "alert",
       children: [
         /* @__PURE__ */ jsx("div", { className: `flex-shrink-0 mt-0.5 ${config.iconColor}`, children: icon || /* @__PURE__ */ jsx(IconComponent, { className: "h-5 w-5" }) }),
-        /* @__PURE__ */ jsx("div", { className: "flex-1 text-sm text-theme-primary", children }),
+        /* @__PURE__ */ jsx("div", { className: "flex-1 text-sm text-gray-800 dark:text-gray-200", children }),
         dismissible && onDismiss && /* @__PURE__ */ jsx(
           "button",
           {
             onClick: onDismiss,
             className: "flex-shrink-0 p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
             "aria-label": "Dismiss",
-            children: /* @__PURE__ */ jsx(XCircle, { className: "h-4 w-4 text-theme-muted" })
+            children: /* @__PURE__ */ jsx(X, { className: "h-4 w-4 text-gray-500 dark:text-gray-400" })
           }
         )
       ]

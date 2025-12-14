@@ -9,191 +9,340 @@ if (session?.user?.id) {
 }
 ---
 <BaseLayout title="OpenFinance - Personal Finance Manager">
-  <div class="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117]">
-    <!-- Header -->
-    <header class="border-b border-white/10">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <span class="text-xl font-bold text-white tracking-tight">openfinance</span>
-        <div class="flex items-center gap-4">
-          <a 
-            href="/login"
-            class="text-sm text-gray-300 hover:text-white transition-colors"
-          >
-            Log in
-          </a>
-          <a 
-            href="/login"
-            class="px-4 py-2 bg-[#f6821f] hover:bg-[#e5740e] text-white rounded-lg text-sm font-semibold transition-colors"
-          >
-            Sign up
-          </a>
+  <div class="min-h-screen bg-white">
+    <!-- Top navigation - Chase style -->
+    <header class="border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-6">
+        <!-- Top bar -->
+        <div class="flex items-center justify-between py-3 border-b border-gray-100 text-sm">
+          <div class="flex items-center gap-6">
+            <span class="text-[#0060f0] font-medium border-b-2 border-[#0060f0] pb-2 -mb-[13px]">Personal</span>
+            <span class="text-gray-600 hover:text-gray-900 cursor-pointer">Business</span>
+            <span class="text-gray-600 hover:text-gray-900 cursor-pointer">Commercial</span>
+          </div>
+          <div class="flex items-center gap-6 text-gray-600">
+            <span class="hover:text-gray-900 cursor-pointer hidden sm:block">Schedule a meeting</span>
+            <span class="hover:text-gray-900 cursor-pointer hidden sm:block">Customer service</span>
+            <span class="hover:text-gray-900 cursor-pointer">Español</span>
+            <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Search">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Logo and main nav -->
+        <div class="flex items-center justify-between py-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-[#0060f0] flex items-center justify-center">
+              <span class="text-white font-bold">OF</span>
+            </div>
+            <span class="text-2xl font-bold text-gray-900 tracking-tight">OpenFinance</span>
+          </div>
+          
+          <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-700">
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Checking</a>
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Savings & CDs</a>
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Credit cards</a>
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Home loans</a>
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Auto</a>
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Investing</a>
+            <a href="#features" class="hover:text-[#0060f0] transition-colors">Education & goals</a>
+          </nav>
         </div>
       </div>
     </header>
     
-    <!-- Hero Section -->
-    <main class="max-w-7xl mx-auto px-6">
-      <section class="py-24 md:py-32 text-center">
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-          Take control of your
-          <span class="bg-gradient-to-r from-[#f6821f] to-[#fbad41] bg-clip-text text-transparent"> finances</span>
-        </h1>
-        <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Track bills, manage debt, and follow the Financial Order of Operations to build wealth. Your complete personal finance command center.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
-            href="/login"
-            class="px-8 py-4 bg-[#f6821f] hover:bg-[#e5740e] text-white rounded-lg text-lg font-semibold transition-all hover:shadow-lg hover:shadow-[#f6821f]/20"
-          >
-            Start for free
+    <!-- Hero Section - Chase inspired with starry background -->
+    <section class="relative overflow-hidden">
+      <!-- Background with gradient overlay -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#0a2440] via-[#0d3157] to-[#051525]">
+        <!-- Stars effect using CSS -->
+        <div class="absolute inset-0 opacity-60" style="background-image: radial-gradient(2px 2px at 20px 30px, white, transparent), radial-gradient(2px 2px at 40px 70px, white, transparent), radial-gradient(1px 1px at 90px 40px, white, transparent), radial-gradient(2px 2px at 130px 80px, white, transparent), radial-gradient(1px 1px at 160px 30px, white, transparent), radial-gradient(2px 2px at 200px 60px, white, transparent), radial-gradient(1px 1px at 20px 120px, white, transparent), radial-gradient(2px 2px at 100px 140px, white, transparent), radial-gradient(1px 1px at 60px 180px, white, transparent); background-size: 200px 200px;"></div>
+      </div>
+      
+      <div class="relative max-w-7xl mx-auto px-6 py-16 lg:py-24">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+          <!-- Left side: Credit card mockups -->
+          <div class="hidden lg:block flex-shrink-0">
+            <div class="relative w-72">
+              <div class="absolute -top-4 left-0 w-56 h-36 bg-gradient-to-br from-[#1a3a5c] to-[#0d2540] rounded-xl shadow-2xl border border-white/10 p-4">
+                <div class="text-white/60 text-xs font-medium tracking-wider">SAPPHIRE</div>
+                <div class="absolute bottom-4 left-4 text-white/40 text-xs">PREFERRED</div>
+                <div class="absolute bottom-4 right-4 text-white/80 font-bold text-sm">VISA</div>
+              </div>
+              <div class="relative top-8 left-12 w-56 h-36 bg-gradient-to-br from-[#2a4a6c] to-[#1a3a5c] rounded-xl shadow-2xl border border-white/10 p-4">
+                <div class="text-white/60 text-xs font-medium tracking-wider">FREEDOM</div>
+                <div class="absolute bottom-4 left-4 text-white/40 text-xs">UNLIMITED</div>
+                <div class="absolute bottom-4 right-4 text-white/80 font-bold text-sm">VISA</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Center: Main content -->
+          <div class="flex-1 text-center lg:text-left">
+            <h1 class="text-3xl lg:text-4xl xl:text-5xl font-semibold text-white leading-tight mb-4">
+              See if you're preapproved
+            </h1>
+            <p class="text-lg text-white/80 max-w-lg mx-auto lg:mx-0 mb-8">
+              Learn which OpenFinance products you're preapproved for in just a few moments. Plus, there's no impact to your credit score.
+            </p>
+            <a 
+              href="/login"
+              class="inline-flex px-6 py-3 bg-[#0060f0] hover:bg-[#004dc0] text-white rounded-lg font-semibold transition-colors"
+            >
+              Get started
+            </a>
+          </div>
+          
+          <!-- Right side: Login form - Chase style -->
+          <div class="w-full max-w-sm flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-xl p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-5">Welcome back</h2>
+              
+              <form action="/login" method="GET" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-600 mb-1.5">Username</label>
+                  <input 
+                    type="text" 
+                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0060f0]/20 focus:border-[#0060f0] transition-all"
+                    placeholder="Enter username"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-600 mb-1.5">Password</label>
+                  <div class="relative">
+                    <input 
+                      type="password" 
+                      class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0060f0]/20 focus:border-[#0060f0] transition-all pr-14"
+                      placeholder="••••••••"
+                    />
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#0060f0] text-sm font-medium">
+                      Show
+                    </button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-[#0060f0]" />
+                    <span class="text-gray-600">Remember me</span>
+                  </label>
+                  <a href="#" class="text-[#0060f0] font-medium">Use token ›</a>
+                </div>
+                <a 
+                  href="/login"
+                  class="block w-full py-3 bg-[#0060f0] hover:bg-[#004dc0] text-white rounded-lg font-semibold text-center transition-colors"
+                >
+                  Sign in
+                </a>
+              </form>
+              
+              <div class="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
+                <a href="#" class="block text-[#0060f0] hover:underline">Forgot username/password? ›</a>
+                <a href="/login" class="block text-[#0060f0] hover:underline">Not Enrolled? Sign Up Now. ›</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Choose what's right for you - Chase style icons -->
+    <section class="py-16 border-b border-gray-200">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-2xl lg:text-3xl font-semibold text-gray-900 text-center mb-12">
+          Choose what's right for you
+        </h2>
+        
+        <div class="flex flex-wrap justify-center gap-8 lg:gap-16">
+          <a href="#" class="flex flex-col items-center gap-3 text-[#0060f0] hover:text-[#004dc0] transition-colors group">
+            <div class="w-14 h-14 border-2 border-current rounded-lg flex items-center justify-center group-hover:bg-[#0060f0] group-hover:text-white transition-colors">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <span class="font-medium text-sm">Checking</span>
           </a>
-          <a 
-            href="#features"
-            class="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg text-lg font-semibold transition-colors"
-          >
-            Learn more
+          
+          <a href="#" class="flex flex-col items-center gap-3 text-[#0060f0] hover:text-[#004dc0] transition-colors group">
+            <div class="w-14 h-14 border-2 border-current rounded-lg flex items-center justify-center group-hover:bg-[#0060f0] group-hover:text-white transition-colors">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <span class="font-medium text-sm">Investments</span>
+          </a>
+          
+          <a href="#" class="flex flex-col items-center gap-3 text-[#0060f0] hover:text-[#004dc0] transition-colors group">
+            <div class="w-14 h-14 border-2 border-current rounded-lg flex items-center justify-center group-hover:bg-[#0060f0] group-hover:text-white transition-colors">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <span class="font-medium text-sm">Credit cards</span>
+          </a>
+          
+          <a href="#" class="flex flex-col items-center gap-3 text-[#0060f0] hover:text-[#004dc0] transition-colors group">
+            <div class="w-14 h-14 border-2 border-current rounded-lg flex items-center justify-center group-hover:bg-[#0060f0] group-hover:text-white transition-colors">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </div>
+            <span class="font-medium text-sm">Travel</span>
+          </a>
+          
+          <a href="#" class="flex flex-col items-center gap-3 text-[#0060f0] hover:text-[#004dc0] transition-colors group">
+            <div class="w-14 h-14 border-2 border-current rounded-lg flex items-center justify-center group-hover:bg-[#0060f0] group-hover:text-white transition-colors">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <span class="font-medium text-sm">Home loans</span>
+          </a>
+          
+          <a href="#" class="flex flex-col items-center gap-3 text-[#0060f0] hover:text-[#004dc0] transition-colors group">
+            <div class="w-14 h-14 border-2 border-current rounded-lg flex items-center justify-center group-hover:bg-[#0060f0] group-hover:text-white transition-colors">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+            </div>
+            <span class="font-medium text-sm">Auto</span>
           </a>
         </div>
-      </section>
-
-      <!-- Stats Section -->
-      <section class="py-16 border-t border-white/10">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <div class="text-3xl md:text-4xl font-bold text-white mb-2">100%</div>
-            <div class="text-sm text-gray-500 uppercase tracking-wider">Free to use</div>
+        
+        <!-- Pagination dots -->
+        <div class="flex items-center justify-center gap-4 mt-10">
+          <button class="p-2 text-gray-400 hover:text-gray-600" aria-label="Previous">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div class="flex gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#0060f0]"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
           </div>
-          <div>
-            <div class="text-3xl md:text-4xl font-bold text-white mb-2">Bank-level</div>
-            <div class="text-sm text-gray-500 uppercase tracking-wider">Security</div>
-          </div>
-          <div>
-            <div class="text-3xl md:text-4xl font-bold text-white mb-2">Real-time</div>
-            <div class="text-sm text-gray-500 uppercase tracking-wider">Sync</div>
-          </div>
-          <div>
-            <div class="text-3xl md:text-4xl font-bold text-white mb-2">Unlimited</div>
-            <div class="text-sm text-gray-500 uppercase tracking-wider">Accounts</div>
-          </div>
+          <button class="p-2 text-gray-400 hover:text-gray-600" aria-label="Next">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Features Section -->
-      <section id="features" class="py-20 border-t border-white/10">
-        <h2 class="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-[#f5f6f7]">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-2xl lg:text-3xl font-semibold text-gray-900 text-center mb-4">
           Everything you need to manage your money
         </h2>
-        <p class="text-gray-400 text-center max-w-2xl mx-auto mb-16">
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">
           OpenFinance brings all your financial data together in one place, giving you the tools to make smarter decisions.
         </p>
         
         <div class="grid md:grid-cols-3 gap-6">
-          <!-- Feature Card 1 -->
-          <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#f6821f]/50 transition-colors group">
-            <div class="w-12 h-12 rounded-lg bg-[#f6821f]/10 flex items-center justify-center mb-4 group-hover:bg-[#f6821f]/20 transition-colors">
-              <svg class="w-6 h-6 text-[#f6821f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-lg bg-[#e6f2fc] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#0060f0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Financial Dashboard</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Financial Dashboard</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
               See all your accounts, balances, and net worth at a glance with real-time updates.
             </p>
           </div>
 
-          <!-- Feature Card 2 -->
-          <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#f6821f]/50 transition-colors group">
-            <div class="w-12 h-12 rounded-lg bg-[#f6821f]/10 flex items-center justify-center mb-4 group-hover:bg-[#f6821f]/20 transition-colors">
-              <svg class="w-6 h-6 text-[#f6821f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-lg bg-[#e6f2fc] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#0060f0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Bill Tracking</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Bill Tracking</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
               Never miss a payment. Track all your bills, due dates, and recurring expenses.
             </p>
           </div>
 
-          <!-- Feature Card 3 -->
-          <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#f6821f]/50 transition-colors group">
-            <div class="w-12 h-12 rounded-lg bg-[#f6821f]/10 flex items-center justify-center mb-4 group-hover:bg-[#f6821f]/20 transition-colors">
-              <svg class="w-6 h-6 text-[#f6821f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-lg bg-[#e6f2fc] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#0060f0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Debt Payoff</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Debt Payoff</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
               Create a personalized debt payoff plan using avalanche or snowball strategies.
             </p>
           </div>
 
-          <!-- Feature Card 4 -->
-          <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#f6821f]/50 transition-colors group">
-            <div class="w-12 h-12 rounded-lg bg-[#f6821f]/10 flex items-center justify-center mb-4 group-hover:bg-[#f6821f]/20 transition-colors">
-              <svg class="w-6 h-6 text-[#f6821f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-lg bg-[#e6f2fc] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#0060f0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">FOO Guide</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">FOO Guide</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
               Follow the Financial Order of Operations to prioritize where your money should go.
             </p>
           </div>
 
-          <!-- Feature Card 5 -->
-          <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#f6821f]/50 transition-colors group">
-            <div class="w-12 h-12 rounded-lg bg-[#f6821f]/10 flex items-center justify-center mb-4 group-hover:bg-[#f6821f]/20 transition-colors">
-              <svg class="w-6 h-6 text-[#f6821f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-lg bg-[#e6f2fc] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#0060f0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Secure & Private</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Secure & Private</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
               Bank-level encryption keeps your data safe. We never sell your information.
             </p>
           </div>
 
-          <!-- Feature Card 6 -->
-          <div class="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#f6821f]/50 transition-colors group">
-            <div class="w-12 h-12 rounded-lg bg-[#f6821f]/10 flex items-center justify-center mb-4 group-hover:bg-[#f6821f]/20 transition-colors">
-              <svg class="w-6 h-6 text-[#f6821f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-lg bg-[#e6f2fc] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#0060f0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Connect All Accounts</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Connect All Accounts</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">
               Link checking, savings, investments, and credit cards in one unified view.
             </p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- CTA Section -->
-      <section class="py-20 border-t border-white/10 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+    <!-- CTA Section -->
+    <section class="py-20 bg-white text-center">
+      <div class="max-w-3xl mx-auto px-6">
+        <h2 class="text-2xl lg:text-3xl font-semibold text-gray-900 mb-4">
           Ready to take control?
         </h2>
-        <p class="text-gray-400 max-w-xl mx-auto mb-8">
+        <p class="text-gray-600 max-w-xl mx-auto mb-8">
           Join thousands of users who are building wealth with OpenFinance. It's free to start.
         </p>
         <a 
           href="/login"
-          class="inline-flex px-8 py-4 bg-[#f6821f] hover:bg-[#e5740e] text-white rounded-lg text-lg font-semibold transition-all hover:shadow-lg hover:shadow-[#f6821f]/20"
+          class="inline-flex px-8 py-4 bg-[#0060f0] hover:bg-[#004dc0] text-white rounded-lg text-lg font-semibold transition-colors"
         >
           Get started for free
         </a>
-      </section>
-    </main>
+      </div>
+    </section>
 
     <!-- Footer -->
-    <footer class="border-t border-white/10 py-8">
+    <footer class="border-t border-gray-200 py-8 bg-[#f5f6f7]">
       <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <span class="text-sm text-gray-500">© 2024 OpenFinance. All rights reserved.</span>
         <div class="flex items-center gap-6">
-          <a href="#" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
-          <a href="#" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
-          <a href="https://github.com/ctaho19/openfinance" class="text-sm text-gray-500 hover:text-gray-300 transition-colors">GitHub</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Privacy</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Terms</a>
+          <a href="https://github.com/ctaho19/openfinance" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">GitHub</a>
         </div>
       </div>
     </footer>

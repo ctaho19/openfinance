@@ -21,39 +21,38 @@ export function QuickActionsGrid({ actions, columns = 4 }: QuickActionsGridProps
   };
 
   return (
-    <div className={`grid ${gridCols[columns]} gap-3 lg:gap-4`}>
+    <div className={`grid ${gridCols[columns]} gap-2`}>
       {actions.map((action) => {
         const Icon = action.icon;
         return (
-        <Link
-          key={action.label}
-          href={action.href}
-          className="flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group"
-        >
-          <div className="relative">
-            <div className="
-              w-12 h-12 lg:w-14 lg:h-14 
-              rounded-full 
-              bg-accent-50 dark:bg-accent-600/20
-              flex items-center justify-center
-              transition-all duration-200
-              group-hover:bg-accent-100 dark:group-hover:bg-accent-600/30
-              group-hover:scale-105
-              group-active:scale-95
-            ">
-              <Icon className="h-5 w-5 lg:h-6 lg:w-6 text-accent-600 dark:text-accent-400" />
+          <Link
+            key={action.label}
+            href={action.href}
+            className="flex flex-col items-center justify-center py-4 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#21262d] transition-colors group"
+          >
+            <div className="relative">
+              <div className="
+                w-11 h-11 lg:w-12 lg:h-12 
+                rounded-full 
+                bg-[#e6f2fc] dark:bg-[#0060f0]/15
+                flex items-center justify-center
+                transition-all duration-150
+                group-hover:scale-105
+                group-active:scale-95
+              ">
+                <Icon className="h-5 w-5 lg:h-5 lg:w-5 text-[#0060f0] dark:text-[#60a5fa]" />
+              </div>
+              {action.badge && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {action.badge}
+                </span>
+              )}
             </div>
-            {action.badge && (
-              <span className="absolute -top-1 -right-1 bg-danger-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                {action.badge}
-              </span>
-            )}
-          </div>
-          <span className="text-[11px] lg:text-xs font-medium text-theme-primary mt-2 text-center leading-tight">
-            {action.label}
-          </span>
-        </Link>
-      );
+            <span className="text-[11px] lg:text-xs font-medium text-gray-700 dark:text-gray-300 mt-2 text-center leading-tight">
+              {action.label}
+            </span>
+          </Link>
+        );
       })}
     </div>
   );
@@ -75,26 +74,26 @@ export function QuickActionButton({
   variant = "primary",
 }: QuickActionButtonProps) {
   const variantStyles = {
-    primary: "bg-accent-50 dark:bg-accent-600/20 text-accent-600 dark:text-accent-400",
-    secondary: "bg-theme-tertiary text-theme-secondary",
-    danger: "bg-danger-50 dark:bg-danger-600/20 text-danger-600 dark:text-danger-400",
-    warning: "bg-warning-50 dark:bg-warning-600/20 text-warning-600 dark:text-warning-400",
+    primary: "bg-[#e6f2fc] dark:bg-[#0060f0]/15 text-[#0060f0] dark:text-[#60a5fa]",
+    secondary: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+    danger: "bg-red-50 dark:bg-red-600/15 text-red-600 dark:text-red-400",
+    warning: "bg-amber-50 dark:bg-amber-600/15 text-amber-600 dark:text-amber-400",
   };
 
   const content = (
-    <div className="flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group cursor-pointer">
+    <div className="flex flex-col items-center justify-center py-4 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#21262d] transition-colors group cursor-pointer">
       <div className={`
-        w-12 h-12 lg:w-14 lg:h-14 
+        w-11 h-11 lg:w-12 lg:h-12 
         rounded-full 
         ${variantStyles[variant]}
         flex items-center justify-center
-        transition-all duration-200
+        transition-all duration-150
         group-hover:scale-105
         group-active:scale-95
       `}>
-        <Icon className="h-5 w-5 lg:h-6 lg:w-6" />
+        <Icon className="h-5 w-5 lg:h-5 lg:w-5" />
       </div>
-      <span className="text-[11px] lg:text-xs font-medium text-theme-primary mt-2 text-center leading-tight">
+      <span className="text-[11px] lg:text-xs font-medium text-gray-700 dark:text-gray-300 mt-2 text-center leading-tight">
         {label}
       </span>
     </div>

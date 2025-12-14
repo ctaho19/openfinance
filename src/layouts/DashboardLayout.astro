@@ -20,7 +20,7 @@ const {
 } = Astro.props;
 ---
 <BaseLayout title={title}>
-  <div class="min-h-screen bg-theme-secondary">
+  <div class="min-h-screen bg-[#f5f6f7] dark:bg-[#0d1117]">
     <!-- Mobile: Chase header -->
     <div class="lg:hidden">
       <ChaseHeader client:load currentPath={currentPath} user={user} />
@@ -30,17 +30,17 @@ const {
       <!-- Desktop: Sidebar -->
       <Sidebar client:load currentPath={currentPath} />
       
-      <!-- Main content -->
-      <div class="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8">
+      <!-- Main content area -->
+      <div class="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-6">
         <main class="flex-1 min-w-0">
-          <div class="max-w-3xl mx-auto px-4 pt-4 pb-24 lg:px-8 lg:pt-8 lg:pb-8">
+          <div class="max-w-3xl mx-auto px-4 pt-5 pb-20 lg:px-8 lg:pt-6 lg:pb-8">
             <slot />
           </div>
         </main>
         
-        <!-- Desktop: Explore sidebar -->
+        <!-- Desktop: Explore sidebar - Chase style -->
         {showExploreSidebar && (
-          <div class="hidden lg:block pr-8 pt-8">
+          <div class="hidden lg:block pr-6 pt-6 pb-6">
             <ExploreSidebar />
           </div>
         )}

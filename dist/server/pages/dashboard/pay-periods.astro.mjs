@@ -1,7 +1,7 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, l as renderScript, h as addAttribute } from '../../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CUxWaT_w.mjs';
-import { g as getCurrentPayPeriod, f as formatPayPeriod, S as SectionCard } from '../../chunks/section-card_CqSZrPoy.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_D680jGCc.mjs';
+import { g as getCurrentPayPeriod, f as formatPayPeriod, S as SectionCard } from '../../chunks/section-card_DlFhH3PJ.mjs';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { g as getPaymentsForPeriod } from '../../chunks/pay-periods_DhVbftd9.mjs';
 import { startOfDay, endOfDay, isToday, isTomorrow, differenceInDays, format } from 'date-fns';

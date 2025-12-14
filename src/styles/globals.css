@@ -1,45 +1,51 @@
 @import "tailwindcss";
 
+/* ============================================
+   GOOGLE FONTS - CHASE-STYLE TYPOGRAPHY
+   Using Mona Sans (modern, refined sans-serif)
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
 :root {
-  /* Typography */
-  --font-primary: var(--font-primary), system-ui, -apple-system, sans-serif;
+  /* Typography - DM Sans for that refined banking feel */
+  --font-primary: "DM Sans", system-ui, -apple-system, sans-serif;
   
   /* ============================================
      CHASE BRAND COLOR PALETTE
      ============================================ */
   
-  /* Primary Chase Blue */
-  --chase-blue-50: #e8f4fc;
-  --chase-blue-100: #c5e3f7;
-  --chase-blue-200: #9ed0f2;
-  --chase-blue-300: #6bb9eb;
-  --chase-blue-400: #3da3e4;
-  --chase-blue-500: #117ACA; /* Primary brand color */
-  --chase-blue-600: #0e68ad;
-  --chase-blue-700: #0a5490;
-  --chase-blue-800: #074073;
-  --chase-blue-900: #042c56;
+  /* Primary Chase Blue - exact from their site */
+  --chase-blue-50: #e6f2fc;
+  --chase-blue-100: #cce5f9;
+  --chase-blue-200: #99cbf3;
+  --chase-blue-300: #66b1ed;
+  --chase-blue-400: #3397e7;
+  --chase-blue-500: #0060f0; /* Chase's primary brand blue */
+  --chase-blue-600: #004dc0;
+  --chase-blue-700: #003a90;
+  --chase-blue-800: #002660;
+  --chase-blue-900: #001330;
   
-  /* Chase Navy (secondary) */
-  --chase-navy-500: #004b87;
-  --chase-navy-600: #003d6e;
-  --chase-navy-700: #002f55;
-  --chase-navy-800: #00213c;
-  --chase-navy-900: #001323;
+  /* Chase Navy (header/nav background) */
+  --chase-navy-500: #0a3254;
+  --chase-navy-600: #082944;
+  --chase-navy-700: #061f34;
+  --chase-navy-800: #041524;
+  --chase-navy-900: #020a14;
   
-  /* Neutral grays - refined for banking feel */
+  /* Neutral grays - refined, slightly cool-toned */
   --gray-25: #fcfcfd;
-  --gray-50: #f7f9fc;
-  --gray-100: #f0f3f7;
-  --gray-200: #e4e9f0;
-  --gray-300: #cdd5e0;
-  --gray-400: #9ba5b7;
-  --gray-500: #6b7789;
-  --gray-600: #4a5568;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
-  --gray-950: #030712;
+  --gray-50: #f8f9fa;
+  --gray-100: #f1f3f5;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #adb5bd;
+  --gray-500: #6c757d;
+  --gray-600: #495057;
+  --gray-700: #343a40;
+  --gray-800: #212529;
+  --gray-900: #121416;
+  --gray-950: #0a0b0c;
   
   /* Semantic colors */
   --success-50: #ecfdf5;
@@ -67,28 +73,28 @@
   --info-700: #1d4ed8;
 
   /* ============================================
-     LIGHT MODE THEME VALUES
+     LIGHT MODE THEME VALUES - CHASE STYLE
      ============================================ */
   --bg-primary: #ffffff;
-  --bg-secondary: #f7f9fc;
-  --bg-tertiary: #f0f3f7;
+  --bg-secondary: #f5f6f7;
+  --bg-tertiary: #ebedef;
   --bg-elevated: #ffffff;
   
-  --text-primary: #111827;
-  --text-secondary: #4a5568;
-  --text-muted: #6b7789;
+  --text-primary: #1a1a1a;
+  --text-secondary: #5a5a5a;
+  --text-muted: #8a8a8a;
   --text-inverse: #ffffff;
   
-  --border: #e4e9f0;
-  --border-hover: #cdd5e0;
+  --border: #e5e7ea;
+  --border-hover: #d0d4d9;
   --border-focus: var(--chase-blue-500);
   
-  /* Chase-style shadows - subtle and refined */
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
-  --shadow: 0 2px 6px -1px rgb(15 23 42 / 0.06), 0 1px 3px -1px rgb(15 23 42 / 0.04);
-  --shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.08), 0 2px 6px -2px rgb(15 23 42 / 0.04);
-  --shadow-lg: 0 10px 24px -4px rgb(15 23 42 / 0.10), 0 4px 8px -4px rgb(15 23 42 / 0.04);
-  --shadow-xl: 0 20px 40px -8px rgb(15 23 42 / 0.12), 0 8px 16px -8px rgb(15 23 42 / 0.04);
+  /* Chase-style shadows - very subtle, refined */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.03);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.03);
   
   /* Accent defaults to Chase blue */
   --accent-50: var(--chase-blue-50);
@@ -102,16 +108,16 @@
   --accent-800: var(--chase-blue-800);
   --accent-900: var(--chase-blue-900);
   
-  /* Card styling - Chase-like with more rounded corners */
+  /* Card styling - Chase-like with subtle rounding */
   --card-bg: var(--bg-elevated);
   --card-border: var(--border);
   --card-shadow: var(--shadow);
-  --card-radius: 16px;
+  --card-radius: 12px;
   
   /* Transition timing */
-  --transition-fast: 150ms;
-  --transition-base: 200ms;
-  --transition-slow: 300ms;
+  --transition-fast: 120ms;
+  --transition-base: 180ms;
+  --transition-slow: 250ms;
   
   /* Animation easing */
   --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
@@ -122,25 +128,25 @@
    DARK MODE - CHASE-INSPIRED
    ============================================ */
 .dark {
-  --bg-primary: #0a0f1a;
-  --bg-secondary: #111827;
-  --bg-tertiary: #1a2332;
-  --bg-elevated: #1f2937;
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-elevated: #1c2128;
   
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --text-inverse: #111827;
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --text-inverse: #1a1a1a;
   
-  --border: #2d3a4d;
-  --border-hover: #3d4f66;
+  --border: #30363d;
+  --border-hover: #484f58;
   --border-focus: var(--chase-blue-400);
   
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-  --shadow: 0 2px 6px -1px rgb(0 0 0 / 0.3), 0 1px 3px -1px rgb(0 0 0 / 0.2);
-  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.35), 0 2px 6px -2px rgb(0 0 0 / 0.2);
-  --shadow-lg: 0 10px 24px -4px rgb(0 0 0 / 0.4), 0 4px 8px -4px rgb(0 0 0 / 0.2);
-  --shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.5), 0 8px 16px -8px rgb(0 0 0 / 0.2);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.3);
   
   --card-bg: var(--bg-elevated);
   --card-border: var(--border);
@@ -148,7 +154,7 @@
 }
 
 /* ============================================
-   ACCENT COLOR VARIATIONS (keeping for flexibility)
+   ACCENT COLOR VARIATIONS
    ============================================ */
 
 .accent-chase,
@@ -235,51 +241,72 @@ body {
   font-family: var(--font-primary);
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.6;
-  letter-spacing: -0.005em;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  font-size: 15px;
 }
 
-/* Refined heading styles */
+/* Refined heading styles - Chase uses a tighter weight */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
 }
 
 /* ============================================
    CHASE-STYLE TYPOGRAPHY UTILITIES
    ============================================ */
 
-/* Main balance display - large prominent numbers */
+/* Main balance display - large prominent numbers like Chase */
 .text-balance-main {
-  font-size: 2.25rem;
-  line-height: 1.1;
-  font-weight: 600;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 500;
   letter-spacing: -0.03em;
+  color: var(--text-primary);
 }
 
 .text-balance-xl {
-  font-size: 2.75rem;
-  line-height: 1.1;
-  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1;
+  font-weight: 500;
   letter-spacing: -0.03em;
+  color: var(--text-primary);
 }
 
-/* Label utility - uppercase small labels */
+/* Label utility - subtle secondary labels like Chase */
 .text-label {
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 500;
   color: var(--text-secondary);
+  letter-spacing: 0;
 }
 
-.text-label-light {
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+.text-label-muted {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Chase-style link with chevron */
+.chase-link {
+  color: var(--accent-500);
+  font-weight: 500;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color var(--transition-fast) ease;
+}
+
+.chase-link:hover {
+  color: var(--accent-600);
+}
+
+.chase-link::after {
+  content: "›";
+  font-size: 1.1em;
+  font-weight: 400;
 }
 
 /* ============================================
@@ -333,11 +360,15 @@ h1, h2, h3, h4, h5, h6 {
 .border-accent-600\/50 { border-color: color-mix(in srgb, var(--accent-600) 50%, transparent); }
 
 /* ============================================
-   CHASE-STYLE GRADIENTS
+   CHASE-STYLE HEADER GRADIENT
    ============================================ */
 
+.bg-chase-header {
+  background: linear-gradient(to bottom, #0a3254 0%, #0a3254 100%);
+}
+
 .bg-chase-gradient {
-  background: linear-gradient(135deg, var(--chase-blue-500) 0%, var(--chase-navy-500) 100%);
+  background: linear-gradient(135deg, #0060f0 0%, #0a3254 100%);
 }
 
 .bg-chase-gradient-light {
@@ -355,7 +386,7 @@ h1, h2, h3, h4, h5, h6 {
 .shadow-theme-xl { box-shadow: var(--shadow-xl); }
 
 /* ============================================
-   FORM ELEMENTS
+   FORM ELEMENTS - CHASE STYLE
    ============================================ */
 
 input:focus,
@@ -363,7 +394,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-500) 15%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-500) 12%, transparent);
 }
 
 .placeholder-theme-muted::placeholder {
@@ -373,6 +404,60 @@ textarea:focus {
 select option {
   background-color: var(--bg-elevated);
   color: var(--text-primary);
+}
+
+/* Chase-style input */
+.chase-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+}
+
+.chase-input:focus {
+  border-color: var(--accent-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-500) 12%, transparent);
+}
+
+.chase-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Chase-style button */
+.chase-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all var(--transition-fast) ease;
+  cursor: pointer;
+  border: none;
+}
+
+.chase-button-primary {
+  background: var(--accent-500);
+  color: white;
+}
+
+.chase-button-primary:hover {
+  background: var(--accent-600);
+}
+
+.chase-button-secondary {
+  background: transparent;
+  color: var(--accent-500);
+  border: 1px solid var(--accent-500);
+}
+
+.chase-button-secondary:hover {
+  background: var(--accent-50);
 }
 
 /* ============================================
@@ -387,7 +472,7 @@ select option {
 @keyframes fadeInUp {
   from { 
     opacity: 0; 
-    transform: translateY(10px); 
+    transform: translateY(8px); 
   }
   to { 
     opacity: 1; 
@@ -398,7 +483,7 @@ select option {
 @keyframes slideInRight {
   from { 
     opacity: 0; 
-    transform: translateX(-10px); 
+    transform: translateX(-12px); 
   }
   to { 
     opacity: 1; 
@@ -409,7 +494,7 @@ select option {
 @keyframes slideInUp {
   from { 
     opacity: 0; 
-    transform: translateY(20px); 
+    transform: translateY(16px); 
   }
   to { 
     opacity: 1; 
@@ -419,12 +504,7 @@ select option {
 
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  50% { opacity: 0.85; }
 }
 
 .animate-fade-in {
@@ -447,12 +527,12 @@ select option {
   animation: pulse-subtle 2s var(--ease-in-out) infinite;
 }
 
-/* Staggered animation delays for lists */
-.stagger-1 { animation-delay: 50ms; }
-.stagger-2 { animation-delay: 100ms; }
-.stagger-3 { animation-delay: 150ms; }
-.stagger-4 { animation-delay: 200ms; }
-.stagger-5 { animation-delay: 250ms; }
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 200ms; }
 
 /* ============================================
    SCROLLBAR STYLING
@@ -468,18 +548,30 @@ select option {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-hover);
+  background: var(--gray-300);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--gray-400);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--gray-600);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-hover) var(--bg-secondary);
+  scrollbar-color: var(--gray-300) var(--bg-secondary);
+}
+
+.dark * {
+  scrollbar-color: var(--gray-600) var(--bg-secondary);
 }
 
 /* ============================================
@@ -487,17 +579,72 @@ select option {
    ============================================ */
 
 .progress-bar {
-  height: 8px;
+  height: 6px;
   background: var(--bg-tertiary);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-500), var(--accent-600));
-  border-radius: 4px;
+  background: var(--accent-500);
+  border-radius: 3px;
   transition: width var(--transition-slow) var(--ease-out);
+}
+
+/* ============================================
+   CHASE-STYLE CARDS
+   ============================================ */
+
+.chase-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.chase-card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chase-card-body {
+  padding: 1.25rem;
+}
+
+.chase-card-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+/* Collapsible section - Chase style */
+.chase-section {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+}
+
+.chase-section-header {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast) ease;
+}
+
+.chase-section-header:hover {
+  background: var(--bg-secondary);
+}
+
+.chase-section-content {
+  padding: 0 1.25rem 1.25rem;
 }
 
 /* ============================================
@@ -505,13 +652,13 @@ select option {
    ============================================ */
 
 .glass {
-  background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .dark .glass {
-  background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+  background: color-mix(in srgb, var(--bg-elevated) 75%, transparent);
 }
 
 /* ============================================
@@ -528,12 +675,12 @@ select option {
    ============================================ */
 
 ::selection {
-  background-color: var(--accent-200);
+  background-color: var(--accent-100);
   color: var(--accent-900);
 }
 
 .dark ::selection {
-  background-color: var(--accent-700);
+  background-color: var(--accent-800);
   color: var(--accent-100);
 }
 
@@ -553,7 +700,7 @@ select option {
 }
 
 /* ============================================
-   ADDITIONAL HOVER UTILITIES
+   HOVER UTILITIES
    ============================================ */
 
 .hover\:bg-accent-50:hover { background-color: var(--accent-50); }
@@ -561,37 +708,45 @@ select option {
 .dark .dark\:hover\:bg-accent-600\/10:hover { background-color: color-mix(in srgb, var(--accent-600) 10%, transparent); }
 
 /* ============================================
-   SEMANTIC COLOR UTILITIES (Light + Dark)
+   SEMANTIC COLOR UTILITIES
    ============================================ */
 
 /* Success */
+.bg-success-50 { background-color: var(--success-50); }
 .bg-success-100 { background-color: var(--success-100); }
 .bg-success-600\/20 { background-color: rgb(5 150 105 / 0.2); }
 .text-success-400 { color: #4ade80; }
+.text-success-500 { color: var(--success-500); }
 .text-success-600 { color: var(--success-600); }
 .dark .dark\:bg-success-600\/20 { background-color: rgb(5 150 105 / 0.2); }
 .dark .dark\:text-success-400 { color: #4ade80; }
 
 /* Warning */
+.bg-warning-50 { background-color: var(--warning-50); }
 .bg-warning-100 { background-color: var(--warning-100); }
 .bg-warning-600\/20 { background-color: rgb(217 119 6 / 0.2); }
 .text-warning-400 { color: #fbbf24; }
+.text-warning-500 { color: var(--warning-500); }
 .text-warning-600 { color: var(--warning-600); }
 .dark .dark\:bg-warning-600\/20 { background-color: rgb(217 119 6 / 0.2); }
 .dark .dark\:text-warning-400 { color: #fbbf24; }
 
 /* Danger */
+.bg-danger-50 { background-color: var(--danger-50); }
 .bg-danger-100 { background-color: var(--danger-100); }
 .bg-danger-600\/20 { background-color: rgb(220 38 38 / 0.2); }
 .text-danger-400 { color: #f87171; }
+.text-danger-500 { color: var(--danger-500); }
 .text-danger-600 { color: var(--danger-600); }
 .dark .dark\:bg-danger-600\/20 { background-color: rgb(220 38 38 / 0.2); }
 .dark .dark\:text-danger-400 { color: #f87171; }
 
 /* Info */
+.bg-info-50 { background-color: var(--info-50); }
 .bg-info-100 { background-color: var(--info-100); }
 .bg-info-600\/20 { background-color: rgb(37 99 235 / 0.2); }
 .text-info-400 { color: #60a5fa; }
+.text-info-500 { color: var(--info-500); }
 .text-info-600 { color: var(--info-600); }
 .dark .dark\:bg-info-600\/20 { background-color: rgb(37 99 235 / 0.2); }
 .dark .dark\:text-info-400 { color: #60a5fa; }
@@ -609,18 +764,20 @@ select option {
    ============================================ */
 
 .card-hover-lift {
-  transition: transform var(--transition-base) var(--ease-out), 
-              box-shadow var(--transition-base) var(--ease-out);
+  transition: transform var(--transition-fast) var(--ease-out), 
+              box-shadow var(--transition-fast) var(--ease-out),
+              border-color var(--transition-fast) ease;
 }
 
 .card-hover-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
 }
 
-/* Active/tap state for mobile */
+/* Active/tap state */
 .card-hover-lift:active {
-  transform: scale(0.98);
+  transform: scale(0.995);
 }
 
 /* ============================================
@@ -634,4 +791,119 @@ select option {
 
 .touch-target-row {
   min-height: 48px;
+}
+
+/* ============================================
+   CHASE NAV STYLES
+   ============================================ */
+
+.chase-nav-item {
+  position: relative;
+  color: white;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  padding: 0.75rem 0;
+  transition: color var(--transition-fast) ease;
+}
+
+.chase-nav-item:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.chase-nav-item.active {
+  color: white;
+}
+
+.chase-nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: white;
+  border-radius: 2px 2px 0 0;
+}
+
+/* ============================================
+   CHASE LIST ITEM STYLES
+   ============================================ */
+
+.chase-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition-fast) ease;
+}
+
+.chase-list-item:last-child {
+  border-bottom: none;
+}
+
+.chase-list-item:hover {
+  background: var(--bg-secondary);
+  margin: 0 -1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+}
+
+/* ============================================
+   BALANCE DISPLAY - CHASE STYLE
+   ============================================ */
+
+.balance-display {
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.balance-display-lg {
+  font-size: 2.5rem;
+}
+
+.balance-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   ICON CONTAINERS
+   ============================================ */
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.icon-container-accent {
+  background: var(--accent-50);
+  color: var(--accent-600);
+}
+
+.dark .icon-container-accent {
+  background: color-mix(in srgb, var(--accent-600) 15%, transparent);
+  color: var(--accent-400);
+}
+
+.icon-container-sm {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+}
+
+.icon-container-lg {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
 }

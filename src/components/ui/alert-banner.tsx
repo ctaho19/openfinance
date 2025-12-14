@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { AlertTriangle, Info, CheckCircle, XCircle } from "lucide-react";
+import { AlertTriangle, Info, CheckCircle, XCircle, X } from "lucide-react";
 
 type Severity = "info" | "success" | "warning" | "error";
 
@@ -21,28 +21,28 @@ const severityConfig: Record<
   }
 > = {
   info: {
-    bg: "bg-info-100 dark:bg-info-600/20",
-    border: "border-info-500/30",
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    border: "border-blue-200 dark:border-blue-800/50",
     icon: Info,
-    iconColor: "text-info-600 dark:text-info-400",
+    iconColor: "text-blue-600 dark:text-blue-400",
   },
   success: {
-    bg: "bg-success-100 dark:bg-success-600/20",
-    border: "border-success-500/30",
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    border: "border-emerald-200 dark:border-emerald-800/50",
     icon: CheckCircle,
-    iconColor: "text-success-600 dark:text-success-400",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
   },
   warning: {
-    bg: "bg-warning-100 dark:bg-warning-600/20",
-    border: "border-warning-500/30",
+    bg: "bg-amber-50 dark:bg-amber-900/20",
+    border: "border-amber-200 dark:border-amber-800/50",
     icon: AlertTriangle,
-    iconColor: "text-warning-600 dark:text-warning-400",
+    iconColor: "text-amber-600 dark:text-amber-400",
   },
   error: {
-    bg: "bg-danger-100 dark:bg-danger-600/20",
-    border: "border-danger-500/30",
+    bg: "bg-red-50 dark:bg-red-900/20",
+    border: "border-red-200 dark:border-red-800/50",
     icon: XCircle,
-    iconColor: "text-danger-600 dark:text-danger-400",
+    iconColor: "text-red-600 dark:text-red-400",
   },
 };
 
@@ -67,14 +67,14 @@ export function AlertBanner({
       <div className={`flex-shrink-0 mt-0.5 ${config.iconColor}`}>
         {icon || <IconComponent className="h-5 w-5" />}
       </div>
-      <div className="flex-1 text-sm text-theme-primary">{children}</div>
+      <div className="flex-1 text-sm text-gray-800 dark:text-gray-200">{children}</div>
       {dismissible && onDismiss && (
         <button
           onClick={onDismiss}
           className="flex-shrink-0 p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           aria-label="Dismiss"
         >
-          <XCircle className="h-4 w-4 text-theme-muted" />
+          <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </button>
       )}
     </div>

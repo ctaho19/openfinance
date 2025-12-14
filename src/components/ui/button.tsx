@@ -29,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = `
       inline-flex items-center justify-center gap-2
       font-semibold rounded-lg
-      transition-all duration-200
+      transition-all duration-150
       focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
       disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
       active:scale-[0.98]
@@ -37,45 +37,48 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary: `
-        bg-accent-600 text-white
-        hover:bg-accent-700
-        focus-visible:ring-accent-500
-        shadow-sm hover:shadow-md
+        bg-[#0060f0] text-white
+        hover:bg-[#004dc0]
+        focus-visible:ring-[#0060f0]
+        shadow-sm
       `,
       secondary: `
-        bg-theme-tertiary text-theme-primary
-        hover:bg-theme-secondary
-        border border-theme
-        focus-visible:ring-accent-500
+        bg-gray-100 text-gray-700
+        hover:bg-gray-200
+        border border-gray-300
+        focus-visible:ring-[#0060f0]
+        dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700
       `,
       outline: `
-        bg-transparent text-accent-600
-        border-2 border-accent-600
-        hover:bg-accent-50 dark:hover:bg-accent-600/10
-        focus-visible:ring-accent-500
+        bg-transparent text-[#0060f0]
+        border border-[#0060f0]
+        hover:bg-[#e6f2fc]
+        focus-visible:ring-[#0060f0]
+        dark:hover:bg-[#0060f0]/10
       `,
       ghost: `
-        bg-transparent text-theme-secondary
-        hover:text-theme-primary hover:bg-theme-tertiary
-        focus-visible:ring-accent-500
+        bg-transparent text-gray-600
+        hover:text-gray-900 hover:bg-gray-100
+        focus-visible:ring-[#0060f0]
+        dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800
       `,
       danger: `
         text-white
         focus-visible:ring-red-500
-        shadow-sm hover:shadow-md
+        shadow-sm
         [background-color:#dc2626] hover:[background-color:#b91c1c]
       `,
       success: `
-        bg-success-600 text-white
-        hover:bg-success-700
-        focus-visible:ring-success-500
-        shadow-sm hover:shadow-md
+        bg-emerald-600 text-white
+        hover:bg-emerald-700
+        focus-visible:ring-emerald-500
+        shadow-sm
       `,
       link: `
-        bg-transparent text-accent-600
-        hover:text-accent-700 hover:underline
+        bg-transparent text-[#0060f0]
+        hover:text-[#004dc0] hover:underline
         p-0 h-auto
-        focus-visible:ring-accent-500
+        focus-visible:ring-[#0060f0]
       `,
     };
 
@@ -134,17 +137,17 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     const baseStyles = `
       inline-flex items-center justify-center
       rounded-lg
-      transition-all duration-200
+      transition-all duration-150
       focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
       disabled:opacity-50 disabled:cursor-not-allowed
       active:scale-95
     `;
 
     const variants = {
-      primary: "bg-accent-600 text-white hover:bg-accent-700 focus-visible:ring-accent-500",
-      secondary: "bg-theme-tertiary text-theme-primary hover:bg-theme-secondary border border-theme focus-visible:ring-accent-500",
-      ghost: "bg-transparent text-theme-secondary hover:text-theme-primary hover:bg-theme-tertiary focus-visible:ring-accent-500",
-      danger: "bg-transparent text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-600/10 focus-visible:ring-danger-500",
+      primary: "bg-[#0060f0] text-white hover:bg-[#004dc0] focus-visible:ring-[#0060f0]",
+      secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 focus-visible:ring-[#0060f0] dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700",
+      ghost: "bg-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus-visible:ring-[#0060f0] dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800",
+      danger: "bg-transparent text-red-600 hover:bg-red-50 dark:hover:bg-red-600/10 focus-visible:ring-red-500",
     };
 
     const sizes = {
@@ -176,7 +179,7 @@ interface ButtonGroupProps {
 
 export function ButtonGroup({ children, className = "" }: ButtonGroupProps) {
   return (
-    <div className={`inline-flex rounded-lg overflow-hidden border border-theme ${className}`}>
+    <div className={`inline-flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700 ${className}`}>
       {children}
     </div>
   );
@@ -197,17 +200,17 @@ export function ToggleGroup<T extends string>({
   className = "" 
 }: ToggleGroupProps<T>) {
   return (
-    <div className={`inline-flex rounded-lg bg-theme-tertiary p-1 ${className}`}>
+    <div className={`inline-flex rounded-lg bg-gray-100 dark:bg-gray-800 p-1 ${className}`}>
       {options.map((option) => (
         <button
           key={option.value}
           onClick={() => onChange(option.value)}
           className={`
             flex items-center gap-2 px-3 py-2 min-h-[36px] rounded-md text-sm font-medium
-            transition-all duration-200
+            transition-all duration-150
             ${value === option.value 
-              ? "bg-theme-elevated text-theme-primary shadow-sm" 
-              : "text-theme-secondary hover:text-theme-primary"
+              ? "bg-white dark:bg-[#1c2128] text-gray-900 dark:text-gray-100 shadow-sm" 
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
             }
           `}
         >
