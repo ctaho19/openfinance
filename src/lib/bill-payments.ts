@@ -1,6 +1,28 @@
 import { prisma } from "@/lib/db";
-import { addDays, addWeeks, addMonths, startOfDay, endOfDay } from "date-fns";
+import { addDays, addWeeks, addMonths } from "date-fns";
 import { Prisma } from "@prisma/client";
+
+/**
+ * Create a UTC date at noon to avoid timezone boundary issues.
+ * Using noon ensures the date won't shift when converted between timezones.
+ */
+function createUTCDate(year: number, month: number, day: number): Date {
+  return new Date(Date.UTC(year, month, day, 12, 0, 0, 0));
+}
+
+/**
+ * Get start of day in UTC (at noon to avoid timezone issues)
+ */
+function startOfDayUTC(date: Date): Date {
+  return createUTCDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
+/**
+ * Get end of day in UTC
+ */
+function endOfDayUTC(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
+}
 
 interface Bill {
   id: string;
@@ -29,9 +51,10 @@ function getDueDatesForBill(
 
   // For monthly bills, check each day in range for matching dueDay
   if (bill.frequency === "MONTHLY") {
-    let current = new Date(startDate);
-    while (current <= endDate) {
-      if (current.getDate() === bill.dueDay) {
+    let current = startOfDayUTC(startDate);
+    const end = endOfDayUTC(endDate);
+    while (current <= end) {
+      if (current.getUTCDate() === bill.dueDay) {
         dates.push(new Date(current));
       }
       current = addDays(current, 1);
@@ -43,24 +66,28 @@ function getDueDatesForBill(
     return dates;
   } else if (bill.frequency === "WEEKLY") {
     // For weekly, we need a reference point - use the dueDay of current month as anchor
-    let current = new Date(startDate.getFullYear(), startDate.getMonth(), bill.dueDay);
-    if (current < startDate) {
+    let current = createUTCDate(startDate.getUTCFullYear(), startDate.getUTCMonth(), bill.dueDay);
+    const start = startOfDayUTC(startDate);
+    const end = endOfDayUTC(endDate);
+    if (current < start) {
       current = addWeeks(current, 1);
     }
-    while (current <= endDate) {
-      if (current >= startDate) {
+    while (current <= end) {
+      if (current >= start) {
         dates.push(new Date(current));
       }
       current = addWeeks(current, 1);
     }
   } else if (bill.frequency === "BIWEEKLY") {
     // For biweekly, similar approach
-    let current = new Date(startDate.getFullYear(), startDate.getMonth(), bill.dueDay);
-    if (current < startDate) {
+    let current = createUTCDate(startDate.getUTCFullYear(), startDate.getUTCMonth(), bill.dueDay);
+    const start = startOfDayUTC(startDate);
+    const end = endOfDayUTC(endDate);
+    if (current < start) {
       current = addWeeks(current, 2);
     }
-    while (current <= endDate) {
-      if (current >= startDate) {
+    while (current <= end) {
+      if (current >= start) {
         dates.push(new Date(current));
       }
       current = addWeeks(current, 2);
@@ -109,14 +136,15 @@ export async function ensureBillPaymentsForPeriod(
     const dueDates = getDueDatesForBill(bill as Bill, startDate, endDate);
 
     for (const dueDate of dueDates) {
-      const dayStart = startOfDay(dueDate);
+      // Normalize to UTC noon to avoid timezone boundary issues
+      const normalizedDate = startOfDayUTC(dueDate);
 
       // Check for existing payment using the unique constraint key
       const existingPayment = await prisma.billPayment.findUnique({
         where: {
           billId_dueDate: {
             billId: bill.id,
-            dueDate: dayStart,
+            dueDate: normalizedDate,
           },
         },
       });
@@ -131,7 +159,7 @@ export async function ensureBillPaymentsForPeriod(
         await prisma.billPayment.create({
           data: {
             billId: bill.id,
-            dueDate: dayStart,
+            dueDate: normalizedDate,
             amount: bill.amount,
             status: "UNPAID",
           },
@@ -160,8 +188,8 @@ export async function ensureBillPaymentsForPayPeriod(
 ): Promise<{ created: number; existing: number }> {
   return ensureBillPaymentsForPeriod(
     userId,
-    startOfDay(payPeriodStart),
-    endOfDay(payPeriodEnd)
+    startOfDayUTC(payPeriodStart),
+    endOfDayUTC(payPeriodEnd)
   );
 }
 
@@ -172,7 +200,7 @@ export async function generateUpcomingBillPayments(
   userId: string,
   monthsAhead: number = 3
 ): Promise<{ created: number; existing: number }> {
-  const startDate = startOfDay(new Date());
+  const startDate = startOfDayUTC(new Date());
   const endDate = addMonths(startDate, monthsAhead);
 
   return ensureBillPaymentsForPeriod(userId, startDate, endDate);
