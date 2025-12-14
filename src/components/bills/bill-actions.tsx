@@ -14,7 +14,7 @@ export function BillActions({ bill }: { bill: Bill }) {
 
   const handleToggleActive = async () => {
     await fetch(`/api/bills/${bill.id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !bill.isActive }),
     });

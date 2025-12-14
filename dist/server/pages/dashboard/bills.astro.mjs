@@ -1,12 +1,12 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BuTua2F1.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CdcQ6Wnq.mjs';
 import { C as Card, c as CardContent, a as CardHeader, b as CardTitle, S as StatCard } from '../../chunks/card_XHmopkrD.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState } from 'react';
 import { B as Button } from '../../chunks/button_VWZV24pY.mjs';
 import { S as SearchInput } from '../../chunks/search-input_DAvPwjoS.mjs';
-import { MoreVertical, Pencil, Power, Trash2, ChevronDown, ChevronRight, Check, Clock, Receipt, Plus, ShoppingBag, FileText, CreditCard, ShieldCheck, Landmark, Zap, Tv, Calendar } from 'lucide-react';
+import { MoreVertical, Pencil, Power, Trash2, ChevronDown, ChevronRight, Loader2, Check, Receipt, Plus, ShoppingBag, FileText, CreditCard, ShieldCheck, Landmark, Zap, Tv, Calendar } from 'lucide-react';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { p as prisma } from '../../chunks/auth-config_mz_UKjvQ.mjs';
 export { renderers } from '../../renderers.mjs';
@@ -57,7 +57,7 @@ function BillActions({ bill }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const handleToggleActive = async () => {
     await fetch(`/api/bills/${bill.id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !bill.isActive })
     });
@@ -134,6 +134,28 @@ function BillActions({ bill }) {
 
 function BNPLGroup({ group }) {
   const [expanded, setExpanded] = useState(false);
+  const [loadingPayments, setLoadingPayments] = useState(/* @__PURE__ */ new Set());
+  const handleTogglePayment = async (paymentId) => {
+    setLoadingPayments((prev) => new Set(prev).add(paymentId));
+    try {
+      const response = await fetch(`/api/bill-payments/${paymentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ togglePaid: true })
+      });
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Failed to toggle payment:", error);
+    } finally {
+      setLoadingPayments((prev) => {
+        const next = new Set(prev);
+        next.delete(paymentId);
+        return next;
+      });
+    }
+  };
   const progressPercent = group.paidCount / group.totalCount * 100;
   const isComplete = group.paidCount === group.totalCount;
   return /* @__PURE__ */ jsxs("div", { className: "rounded-lg bg-theme-secondary overflow-hidden", children: [
@@ -187,15 +209,26 @@ function BNPLGroup({ group }) {
       }
     ),
     expanded && /* @__PURE__ */ jsx("div", { className: "border-t border-theme px-4 py-2 space-y-2", children: group.bills.map((bill, index) => {
-      const isPaid = bill.payments[0]?.status === "PAID";
-      const dueDate = bill.payments[0]?.dueDate ? new Date(bill.payments[0].dueDate) : null;
+      const payment = bill.payments[0];
+      const isPaid = payment?.status === "PAID";
+      const isLoading = payment && loadingPayments.has(payment.id);
+      const dueDate = payment?.dueDate ? new Date(payment.dueDate) : null;
       return /* @__PURE__ */ jsxs(
         "div",
         {
           className: `flex items-center justify-between py-2 px-3 rounded ${isPaid ? "opacity-60" : ""}`,
           children: [
             /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-              isPaid ? /* @__PURE__ */ jsx(Check, { className: "h-4 w-4 text-accent-500" }) : /* @__PURE__ */ jsx(Clock, { className: "h-4 w-4 text-theme-muted" }),
+              payment && /* @__PURE__ */ jsx(
+                "button",
+                {
+                  onClick: () => handleTogglePayment(payment.id),
+                  disabled: isLoading,
+                  className: `flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isPaid ? "bg-accent-500 border-accent-500 text-white" : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"} ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+                  title: isPaid ? "Mark as unpaid" : "Mark as paid",
+                  children: isLoading ? /* @__PURE__ */ jsx(Loader2, { className: "h-3 w-3 animate-spin text-theme-muted" }) : /* @__PURE__ */ jsx(Check, { className: "h-3 w-3" })
+                }
+              ),
               /* @__PURE__ */ jsxs("span", { className: "text-sm text-theme-secondary", children: [
                 "Payment ",
                 index + 1
@@ -259,6 +292,28 @@ function formatDueDate(bill) {
 }
 function BillsList({ regularBills, bnplGroups }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [loadingPayments, setLoadingPayments] = useState(/* @__PURE__ */ new Set());
+  const handleTogglePayment = async (paymentId) => {
+    setLoadingPayments((prev) => new Set(prev).add(paymentId));
+    try {
+      const response = await fetch(`/api/bill-payments/${paymentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ togglePaid: true })
+      });
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Failed to toggle payment:", error);
+    } finally {
+      setLoadingPayments((prev) => {
+        const next = new Set(prev);
+        next.delete(paymentId);
+        return next;
+      });
+    }
+  };
   const categories = Object.keys(regularBills);
   const filteredRegularBills = {};
   for (const category of categories) {
@@ -330,37 +385,55 @@ function BillsList({ regularBills, bnplGroups }) {
               ] })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsx(CardContent, { noPadding: true, children: /* @__PURE__ */ jsx("div", { className: "divide-y divide-theme", children: filteredRegularBills[category].map((bill) => /* @__PURE__ */ jsxs(
-            "div",
-            {
-              className: `flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${!bill.isActive ? "opacity-50" : ""}`,
-              children: [
-                /* @__PURE__ */ jsxs("div", { className: "flex-1 min-w-0", children: [
-                  /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-                    /* @__PURE__ */ jsx("p", { className: "font-medium text-theme-primary", children: bill.name }),
-                    !bill.isActive && /* @__PURE__ */ jsx(Badge, { variant: "default", size: "sm", children: "Inactive" }),
-                    bill.debt && /* @__PURE__ */ jsx(Badge, { variant: "warning", size: "sm", children: "Linked to debt" })
+          /* @__PURE__ */ jsx(CardContent, { noPadding: true, children: /* @__PURE__ */ jsx("div", { className: "divide-y divide-theme", children: filteredRegularBills[category].map((bill) => {
+            const nextPayment = bill.payments[0];
+            const isPaid = nextPayment?.status === "PAID";
+            const isLoading = nextPayment && loadingPayments.has(nextPayment.id);
+            return /* @__PURE__ */ jsxs(
+              "div",
+              {
+                className: `flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${!bill.isActive ? "opacity-50" : ""}`,
+                children: [
+                  /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+                    nextPayment && /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        onClick: () => handleTogglePayment(nextPayment.id),
+                        disabled: isLoading,
+                        className: `flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isPaid ? "bg-accent-500 border-accent-500 text-white" : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"} ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+                        title: isPaid ? "Mark as unpaid" : "Mark as paid",
+                        children: isLoading ? /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin text-theme-muted" }) : /* @__PURE__ */ jsx(Check, { className: "h-4 w-4" })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxs("div", { className: "flex-1 min-w-0", children: [
+                      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                        /* @__PURE__ */ jsx("p", { className: `font-medium ${isPaid ? "text-theme-muted line-through" : "text-theme-primary"}`, children: bill.name }),
+                        !bill.isActive && /* @__PURE__ */ jsx(Badge, { variant: "default", size: "sm", children: "Inactive" }),
+                        bill.debt && /* @__PURE__ */ jsx(Badge, { variant: "warning", size: "sm", children: "Linked to debt" }),
+                        isPaid && /* @__PURE__ */ jsx(Badge, { variant: "success", size: "sm", children: "Paid" })
+                      ] }),
+                      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 mt-1 text-sm text-theme-secondary", children: [
+                        /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1", children: [
+                          /* @__PURE__ */ jsx(Calendar, { className: "h-3 w-3" }),
+                          formatDueDate(bill)
+                        ] }),
+                        /* @__PURE__ */ jsx("span", { className: "text-theme-muted", children: "•" }),
+                        /* @__PURE__ */ jsx("span", { children: formatFrequency(bill.frequency, bill.isRecurring) })
+                      ] })
+                    ] })
                   ] }),
-                  /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 mt-1 text-sm text-theme-secondary", children: [
-                    /* @__PURE__ */ jsxs("span", { className: "flex items-center gap-1", children: [
-                      /* @__PURE__ */ jsx(Calendar, { className: "h-3 w-3" }),
-                      formatDueDate(bill)
+                  /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
+                    /* @__PURE__ */ jsxs("p", { className: `text-lg font-semibold ${isPaid ? "text-theme-muted" : "text-theme-primary"}`, children: [
+                      "$",
+                      Number(bill.amount).toFixed(2)
                     ] }),
-                    /* @__PURE__ */ jsx("span", { className: "text-theme-muted", children: "•" }),
-                    /* @__PURE__ */ jsx("span", { children: formatFrequency(bill.frequency, bill.isRecurring) })
+                    /* @__PURE__ */ jsx(BillActions, { bill: { id: bill.id, name: bill.name, isActive: bill.isActive } })
                   ] })
-                ] }),
-                /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
-                  /* @__PURE__ */ jsxs("p", { className: "text-lg font-semibold text-theme-primary", children: [
-                    "$",
-                    Number(bill.amount).toFixed(2)
-                  ] }),
-                  /* @__PURE__ */ jsx(BillActions, { bill: { id: bill.id, name: bill.name, isActive: bill.isActive } })
-                ] })
-              ]
-            },
-            bill.id
-          )) }) })
+                ]
+              },
+              bill.id
+            );
+          }) }) })
         ] }, category);
       })
     ] })
@@ -389,6 +462,7 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
       isActive: bill.isActive,
       debt: bill.debt ? { id: bill.debt.id, name: bill.debt.name } : null,
       payments: bill.payments.map((p) => ({
+        id: p.id,
         dueDate: p.dueDate.toISOString(),
         status: p.status
       }))
@@ -399,7 +473,7 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
     include: {
       debt: { select: { id: true, name: true } },
       payments: {
-        select: { dueDate: true, status: true },
+        select: { id: true, dueDate: true, status: true },
         orderBy: { dueDate: "asc" }
       }
     },

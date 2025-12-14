@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Check, Clock } from "lucide-react";
+import { ChevronDown, ChevronRight, Check, Clock, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Bill {
   id: string;
   name: string;
   amount: number | { toString(): string };
-  payments: { dueDate: Date | string; status: string }[];
+  payments: { id: string; dueDate: Date | string; status: string }[];
 }
 
 interface BNPLDebtGroup {
@@ -21,6 +21,29 @@ interface BNPLDebtGroup {
 
 export function BNPLGroup({ group }: { group: BNPLDebtGroup }) {
   const [expanded, setExpanded] = useState(false);
+  const [loadingPayments, setLoadingPayments] = useState<Set<string>>(new Set());
+
+  const handleTogglePayment = async (paymentId: string) => {
+    setLoadingPayments(prev => new Set(prev).add(paymentId));
+    try {
+      const response = await fetch(`/api/bill-payments/${paymentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ togglePaid: true }),
+      });
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Failed to toggle payment:", error);
+    } finally {
+      setLoadingPayments(prev => {
+        const next = new Set(prev);
+        next.delete(paymentId);
+        return next;
+      });
+    }
+  };
 
   const progressPercent = (group.paidCount / group.totalCount) * 100;
   const isComplete = group.paidCount === group.totalCount;
@@ -77,9 +100,11 @@ export function BNPLGroup({ group }: { group: BNPLDebtGroup }) {
       {expanded && (
         <div className="border-t border-theme px-4 py-2 space-y-2">
           {group.bills.map((bill, index) => {
-            const isPaid = bill.payments[0]?.status === "PAID";
-            const dueDate = bill.payments[0]?.dueDate
-              ? new Date(bill.payments[0].dueDate)
+            const payment = bill.payments[0];
+            const isPaid = payment?.status === "PAID";
+            const isLoading = payment && loadingPayments.has(payment.id);
+            const dueDate = payment?.dueDate
+              ? new Date(payment.dueDate)
               : null;
 
             return (
@@ -90,10 +115,23 @@ export function BNPLGroup({ group }: { group: BNPLDebtGroup }) {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {isPaid ? (
-                    <Check className="h-4 w-4 text-accent-500" />
-                  ) : (
-                    <Clock className="h-4 w-4 text-theme-muted" />
+                  {payment && (
+                    <button
+                      onClick={() => handleTogglePayment(payment.id)}
+                      disabled={isLoading}
+                      className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isPaid 
+                          ? "bg-accent-500 border-accent-500 text-white" 
+                          : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"
+                      } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                      title={isPaid ? "Mark as unpaid" : "Mark as paid"}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-3 w-3 animate-spin text-theme-muted" />
+                      ) : (
+                        <Check className="h-3 w-3" />
+                      )}
+                    </button>
                   )}
                   <span className="text-sm text-theme-secondary">
                     Payment {index + 1}

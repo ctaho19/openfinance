@@ -191,3 +191,25 @@ export async function markPaymentUnpaid(
     },
   });
 }
+
+export async function getPaymentStatus(
+  userId: string,
+  paymentId: string
+): Promise<string> {
+  const payment = await prisma.billPayment.findFirst({
+    where: { id: paymentId },
+    include: {
+      bill: { select: { userId: true } },
+    },
+  });
+
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+
+  if (payment.bill.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  return payment.status;
+}

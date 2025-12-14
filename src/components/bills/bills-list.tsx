@@ -16,6 +16,9 @@ import {
   ShieldCheck,
   CreditCard,
   FileText,
+  Check,
+  Clock,
+  Loader2,
 } from "lucide-react";
 import { BillActions } from "@/components/bills/bill-actions";
 import { BNPLGroup } from "@/components/bills/bnpl-group";
@@ -34,7 +37,7 @@ interface Bill {
   notes: string | null;
   isActive: boolean;
   debt: { id: string; name: string } | null;
-  payments: { dueDate: string; status: string }[];
+  payments: { id: string; dueDate: string; status: string }[];
 }
 
 interface BNPLDebtGroup {
@@ -94,6 +97,29 @@ function formatDueDate(bill: Bill): string {
 
 export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [loadingPayments, setLoadingPayments] = useState<Set<string>>(new Set());
+
+  const handleTogglePayment = async (paymentId: string) => {
+    setLoadingPayments(prev => new Set(prev).add(paymentId));
+    try {
+      const response = await fetch(`/api/bill-payments/${paymentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ togglePaid: true }),
+      });
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Failed to toggle payment:", error);
+    } finally {
+      setLoadingPayments(prev => {
+        const next = new Set(prev);
+        next.delete(paymentId);
+        return next;
+      });
+    }
+  };
 
   const categories = Object.keys(regularBills) as BillCategory[];
 
@@ -216,40 +242,69 @@ export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
               </CardHeader>
               <CardContent noPadding>
                 <div className="divide-y divide-theme">
-                  {filteredRegularBills[category].map((bill) => (
+                  {filteredRegularBills[category].map((bill) => {
+                    const nextPayment = bill.payments[0];
+                    const isPaid = nextPayment?.status === "PAID";
+                    const isLoading = nextPayment && loadingPayments.has(nextPayment.id);
+                    
+                    return (
                     <div
                       key={bill.id}
                       className={`flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${
                         !bill.isActive ? "opacity-50" : ""
                       }`}
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-theme-primary">{bill.name}</p>
-                          {!bill.isActive && (
-                            <Badge variant="default" size="sm">Inactive</Badge>
-                          )}
-                          {bill.debt && (
-                            <Badge variant="warning" size="sm">Linked to debt</Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 mt-1 text-sm text-theme-secondary">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatDueDate(bill)}
-                          </span>
-                          <span className="text-theme-muted">•</span>
-                          <span>{formatFrequency(bill.frequency, bill.isRecurring)}</span>
+                      <div className="flex items-center gap-3">
+                        {nextPayment && (
+                          <button
+                            onClick={() => handleTogglePayment(nextPayment.id)}
+                            disabled={isLoading}
+                            className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                              isPaid 
+                                ? "bg-accent-500 border-accent-500 text-white" 
+                                : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"
+                            } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                            title={isPaid ? "Mark as unpaid" : "Mark as paid"}
+                          >
+                            {isLoading ? (
+                              <Loader2 className="h-4 w-4 animate-spin text-theme-muted" />
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
+                          </button>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className={`font-medium ${isPaid ? "text-theme-muted line-through" : "text-theme-primary"}`}>{bill.name}</p>
+                            {!bill.isActive && (
+                              <Badge variant="default" size="sm">Inactive</Badge>
+                            )}
+                            {bill.debt && (
+                              <Badge variant="warning" size="sm">Linked to debt</Badge>
+                            )}
+                            {isPaid && (
+                              <Badge variant="success" size="sm">Paid</Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 text-sm text-theme-secondary">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {formatDueDate(bill)}
+                            </span>
+                            <span className="text-theme-muted">•</span>
+                            <span>{formatFrequency(bill.frequency, bill.isRecurring)}</span>
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="text-lg font-semibold text-theme-primary">
+                        <p className={`text-lg font-semibold ${isPaid ? "text-theme-muted" : "text-theme-primary"}`}>
                           ${Number(bill.amount).toFixed(2)}
                         </p>
                         <BillActions bill={{ id: bill.id, name: bill.name, isActive: bill.isActive }} />
                       </div>
                     </div>
-                  ))}
+                  );
+                  })}
                 </div>
               </CardContent>
             </Card>

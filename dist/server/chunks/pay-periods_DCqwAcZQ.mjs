@@ -137,6 +137,21 @@ async function markPaymentUnpaid(userId, paymentId) {
     }
   });
 }
+async function getPaymentStatus(userId, paymentId) {
+  const payment = await prisma.billPayment.findFirst({
+    where: { id: paymentId },
+    include: {
+      bill: { select: { userId: true } }
+    }
+  });
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+  if (payment.bill.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
+  return payment.status;
+}
 
-export { markPaymentUnpaid as a, getPaymentsForPeriod as g, markPaymentPaid as m };
-//# sourceMappingURL=pay-periods_DhVbftd9.mjs.map
+export { markPaymentPaid as a, getPaymentsForPeriod as b, getPaymentStatus as g, markPaymentUnpaid as m };
+//# sourceMappingURL=pay-periods_DCqwAcZQ.mjs.map

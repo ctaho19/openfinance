@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute, l as renderScript } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BuTua2F1.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CdcQ6Wnq.mjs';
 import { g as getCurrentPayPeriod, a as getPreviousPayPeriod, b as getNextPayPeriod, c as getPayPeriods, f as formatPayPeriod, S as SectionCard } from '../../chunks/section-card_v4AMPtzv.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, TrendingUp, ChevronDown, DollarSign, Calenda
 import { B as BankAccountAllocationCard } from '../../chunks/bank-account-card_SiXbaX8W.mjs';
 import { format, startOfDay, endOfDay, addDays, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
-import { g as getPaymentsForPeriod } from '../../chunks/pay-periods_DhVbftd9.mjs';
+import { b as getPaymentsForPeriod } from '../../chunks/pay-periods_DCqwAcZQ.mjs';
 import { p as prisma } from '../../chunks/auth-config_mz_UKjvQ.mjs';
 export { renderers } from '../../renderers.mjs';
 
