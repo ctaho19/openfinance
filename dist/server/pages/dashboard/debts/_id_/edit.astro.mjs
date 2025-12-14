@@ -20,9 +20,11 @@ const DEBT_TYPES = [
   { value: "OTHER", label: "Other" }
 ];
 const DEBT_STATUSES = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "PAID_OFF", label: "Paid Off" },
-  { value: "DEFERRED", label: "Deferred" }
+  { value: "CURRENT", label: "Current" },
+  { value: "DEFERRED", label: "Deferred" },
+  { value: "PAST_DUE", label: "Past Due" },
+  { value: "IN_COLLECTIONS", label: "In Collections" },
+  { value: "PAID_OFF", label: "Paid Off" }
 ];
 function EditDebtForm({ debtId }) {
   const [loading, setLoading] = useState(true);

@@ -110,16 +110,13 @@ export async function ensureBillPaymentsForPeriod(
 
     for (const dueDate of dueDates) {
       const dayStart = startOfDay(dueDate);
-      const dayEnd = addDays(dayStart, 1);
 
-      // Check if payment record already exists for this calendar day
-      // Use range check to handle timezone differences in existing data
-      const existingPayment = await prisma.billPayment.findFirst({
+      // Check for existing payment using the unique constraint key
+      const existingPayment = await prisma.billPayment.findUnique({
         where: {
-          billId: bill.id,
-          dueDate: {
-            gte: dayStart,
-            lt: dayEnd,
+          billId_dueDate: {
+            billId: bill.id,
+            dueDate: dayStart,
           },
         },
       });
@@ -141,7 +138,6 @@ export async function ensureBillPaymentsForPeriod(
         });
         created++;
       } catch (e) {
-        // Handle unique constraint violation (race condition with another request)
         if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
           existing++;
         } else {

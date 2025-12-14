@@ -15,9 +15,11 @@ const DEBT_TYPES = [
 ];
 
 const DEBT_STATUSES = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "PAID_OFF", label: "Paid Off" },
+  { value: "CURRENT", label: "Current" },
   { value: "DEFERRED", label: "Deferred" },
+  { value: "PAST_DUE", label: "Past Due" },
+  { value: "IN_COLLECTIONS", label: "In Collections" },
+  { value: "PAID_OFF", label: "Paid Off" },
 ];
 
 interface BankAccount {
@@ -32,14 +34,19 @@ interface Debt {
   id: string;
   name: string;
   type: string;
+  status: string;
   currentBalance: number;
   originalBalance: number;
   interestRate: number;
   minimumPayment: number;
   dueDay: number;
-  status: string;
   notes: string | null;
   bankAccountId: string | null;
+  effectiveRate?: number | null;
+  totalRepayable?: number | null;
+  pastDueAmount?: number | null;
+  deferredUntil?: string | null;
+  startDate?: string;
 }
 
 interface EditDebtFormProps {

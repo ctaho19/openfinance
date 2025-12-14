@@ -1,5 +1,5 @@
 import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
-import { g as getDebt, u as updateDebt } from '../../../chunks/debts_Zn0PcxJo.mjs';
+import { g as getDebt, u as updateDebt } from '../../../chunks/debts_CS0jnHWh.mjs';
 import { p as prisma } from '../../../chunks/auth-config_mz_UKjvQ.mjs';
 import { a as apiError, b as apiResponse } from '../../../chunks/api-utils_VuBcwo3s.mjs';
 export { renderers } from '../../../renderers.mjs';

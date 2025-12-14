@@ -43,6 +43,41 @@ async function listDebts(userId, sortBy = "effective") {
   }
   return debts;
 }
+function serializeDebt(debt) {
+  return {
+    id: debt.id,
+    userId: debt.userId,
+    name: debt.name,
+    type: debt.type,
+    status: debt.status,
+    currentBalance: Number(debt.currentBalance),
+    originalBalance: Number(debt.originalBalance),
+    interestRate: Number(debt.interestRate),
+    effectiveRate: debt.effectiveRate ? Number(debt.effectiveRate) : null,
+    totalRepayable: debt.totalRepayable ? Number(debt.totalRepayable) : null,
+    minimumPayment: Number(debt.minimumPayment),
+    pastDueAmount: debt.pastDueAmount ? Number(debt.pastDueAmount) : null,
+    dueDay: debt.dueDay,
+    startDate: debt.startDate.toISOString(),
+    deferredUntil: debt.deferredUntil ? debt.deferredUntil.toISOString() : null,
+    bankAccountId: debt.bankAccountId,
+    isActive: debt.isActive,
+    notes: debt.notes,
+    createdAt: debt.createdAt.toISOString(),
+    updatedAt: debt.updatedAt.toISOString(),
+    payments: debt.payments.map((p) => ({
+      id: p.id,
+      debtId: p.debtId,
+      date: p.date.toISOString(),
+      amount: Number(p.amount),
+      principal: Number(p.principal),
+      interest: Number(p.interest),
+      newBalance: Number(p.newBalance),
+      notes: p.notes,
+      createdAt: p.createdAt.toISOString()
+    }))
+  };
+}
 async function getDebt(userId, debtId) {
   const debt = await prisma.debt.findFirst({
     where: { id: debtId, userId },
@@ -52,7 +87,10 @@ async function getDebt(userId, debtId) {
       }
     }
   });
-  return debt;
+  if (!debt) {
+    return null;
+  }
+  return serializeDebt(debt);
 }
 async function createDebt(userId, data) {
   const existingDebt = await prisma.debt.findFirst({
@@ -311,4 +349,4 @@ async function recordPayment(userId, debtId, data) {
 }
 
 export { createDebt as c, getDebt as g, listDebts as l, recordPayment as r, updateDebt as u };
-//# sourceMappingURL=debts_Zn0PcxJo.mjs.map
+//# sourceMappingURL=debts_CS0jnHWh.mjs.map

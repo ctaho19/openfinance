@@ -96,7 +96,77 @@ export async function listDebts(userId: string, sortBy: string = "effective"): P
   return debts;
 }
 
-export async function getDebt(userId: string, debtId: string): Promise<DebtWithPayments | null> {
+export interface SerializedDebt {
+  id: string;
+  userId: string;
+  name: string;
+  type: string;
+  status: string;
+  currentBalance: number;
+  originalBalance: number;
+  interestRate: number;
+  effectiveRate: number | null;
+  totalRepayable: number | null;
+  minimumPayment: number;
+  pastDueAmount: number | null;
+  dueDay: number;
+  startDate: string;
+  deferredUntil: string | null;
+  bankAccountId: string | null;
+  isActive: boolean;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  payments: Array<{
+    id: string;
+    debtId: string;
+    date: string;
+    amount: number;
+    principal: number;
+    interest: number;
+    newBalance: number;
+    notes: string | null;
+    createdAt: string;
+  }>;
+}
+
+function serializeDebt(debt: DebtWithPayments): SerializedDebt {
+  return {
+    id: debt.id,
+    userId: debt.userId,
+    name: debt.name,
+    type: debt.type,
+    status: debt.status,
+    currentBalance: Number(debt.currentBalance),
+    originalBalance: Number(debt.originalBalance),
+    interestRate: Number(debt.interestRate),
+    effectiveRate: debt.effectiveRate ? Number(debt.effectiveRate) : null,
+    totalRepayable: debt.totalRepayable ? Number(debt.totalRepayable) : null,
+    minimumPayment: Number(debt.minimumPayment),
+    pastDueAmount: debt.pastDueAmount ? Number(debt.pastDueAmount) : null,
+    dueDay: debt.dueDay,
+    startDate: debt.startDate.toISOString(),
+    deferredUntil: debt.deferredUntil ? debt.deferredUntil.toISOString() : null,
+    bankAccountId: debt.bankAccountId,
+    isActive: debt.isActive,
+    notes: debt.notes,
+    createdAt: debt.createdAt.toISOString(),
+    updatedAt: debt.updatedAt.toISOString(),
+    payments: debt.payments.map((p) => ({
+      id: p.id,
+      debtId: p.debtId,
+      date: p.date.toISOString(),
+      amount: Number(p.amount),
+      principal: Number(p.principal),
+      interest: Number(p.interest),
+      newBalance: Number(p.newBalance),
+      notes: p.notes,
+      createdAt: p.createdAt.toISOString(),
+    })),
+  };
+}
+
+export async function getDebt(userId: string, debtId: string): Promise<SerializedDebt | null> {
   const debt = await prisma.debt.findFirst({
     where: { id: debtId, userId },
     include: {
@@ -106,7 +176,11 @@ export async function getDebt(userId: string, debtId: string): Promise<DebtWithP
     },
   });
 
-  return debt;
+  if (!debt) {
+    return null;
+  }
+
+  return serializeDebt(debt);
 }
 
 export async function createDebt(userId: string, data: CreateDebtInput): Promise<Debt> {
