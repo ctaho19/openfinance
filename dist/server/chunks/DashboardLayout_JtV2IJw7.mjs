@@ -1,20 +1,21 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, n as renderSlot } from './astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from './BaseLayout_BCIg2Hn6.mjs';
+import { $ as $$BaseLayout } from './BaseLayout_D-HQOmQM.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, createContext, useEffect, useContext } from 'react';
-import { Menu, Search, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, LayoutDashboard, Calendar, Receipt, CreditCard, Target, PiggyBank, ArrowLeftRight, Award, Plane, TrendingUp, Home, Lightbulb, ExternalLink } from 'lucide-react';
+import { Menu, Search, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, LayoutDashboard, Receipt, CreditCard, Calendar, PiggyBank, Target, ArrowLeftRight, ListOrdered, Calculator, Lightbulb, ExternalLink } from 'lucide-react';
 
 function Link({ href, children, ...props }) {
   return /* @__PURE__ */ jsx("a", { href, ...props, children });
 }
 
 const navItems$1 = [
-  { label: "Accounts", href: "/dashboard" },
-  { label: "Pay & transfer", href: "/dashboard/pay-periods" },
-  { label: "Plan & track", href: "/dashboard/bills" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Bills", href: "/dashboard/bills" },
+  { label: "Debts", href: "/dashboard/debts" },
+  { label: "Pay Periods", href: "/dashboard/pay-periods" },
   { label: "Goals", href: "/dashboard/goals" },
-  { label: "Security", href: "/dashboard/settings" }
+  { label: "FOO Plan", href: "/dashboard/foo" }
 ];
 function ChaseHeader({ currentPath, user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -307,12 +308,12 @@ function ThemeToggleCompact() {
 }
 
 const navigation = [
-  { name: "Accounts", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Pay & transfer", href: "/dashboard/pay-periods", icon: Calendar },
-  { name: "Plan & track", href: "/dashboard/bills", icon: Receipt },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Bills", href: "/dashboard/bills", icon: Receipt },
   { name: "Debts", href: "/dashboard/debts", icon: CreditCard },
-  { name: "FOO Progress", href: "/dashboard/foo", icon: Target },
-  { name: "Goals", href: "/dashboard/goals", icon: PiggyBank }
+  { name: "Pay Periods", href: "/dashboard/pay-periods", icon: Calendar },
+  { name: "Goals", href: "/dashboard/goals", icon: PiggyBank },
+  { name: "FOO Plan", href: "/dashboard/foo", icon: Target }
 ];
 const bottomNav = [
   { name: "Settings", href: "/dashboard/settings", icon: Settings }
@@ -387,16 +388,16 @@ function Sidebar({ currentPath = "" }) {
 
 const navItems = [
   {
-    name: "Accounts",
+    name: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
     activeMatch: (path) => path === "/dashboard"
   },
   {
-    name: "Pay",
-    href: "/dashboard/pay-periods",
+    name: "Bills",
+    href: "/dashboard/bills",
     icon: ArrowLeftRight,
-    activeMatch: (path) => path.startsWith("/dashboard/pay-periods") || path.startsWith("/dashboard/bills")
+    activeMatch: (path) => path.startsWith("/dashboard/bills") || path.startsWith("/dashboard/pay-periods")
   },
   {
     name: "Goals",
@@ -447,29 +448,22 @@ function BottomNav({ currentPath = "" }) {
 
 const quickCards = [
   {
-    title: "Rewards",
-    icon: Award,
-    href: "/dashboard/goals",
-    value: "0",
-    valueLabel: "OpenFinance points"
-  },
-  {
-    title: "Travel",
-    icon: Plane,
-    href: "/dashboard/goals",
-    description: "Explore adventures around the world"
-  },
-  {
-    title: "Credit Journey",
-    icon: TrendingUp,
+    title: "Financial Order of Operations",
+    icon: ListOrdered,
     href: "/dashboard/foo",
-    description: "Get your latest credit score"
+    description: "Follow the Money Guy's proven 9-step plan"
   },
   {
-    title: "My Finances",
-    icon: Home,
-    href: "/dashboard",
-    description: "See rates, properties, and insights"
+    title: "Debt Payoff Calculator",
+    icon: Calculator,
+    href: "/dashboard/debts",
+    description: "Plan your path to debt freedom"
+  },
+  {
+    title: "Emergency Fund Goal",
+    icon: PiggyBank,
+    href: "/dashboard/goals",
+    description: "Build your 3-6 month safety net"
   }
 ];
 const tips = [
@@ -491,13 +485,7 @@ function ExploreSidebar() {
           children: /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between", children: [
             /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
               /* @__PURE__ */ jsx("h3", { className: "font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1", children: card.title }),
-              card.value !== void 0 ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsx(Icon, { className: "h-5 w-5 text-[#0060f0]" }),
-                /* @__PURE__ */ jsxs("div", { children: [
-                  /* @__PURE__ */ jsx("span", { className: "text-xl font-medium text-gray-900 dark:text-gray-100", children: card.value }),
-                  /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: card.valueLabel })
-                ] })
-              ] }) : /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-2", children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-2", children: [
                 /* @__PURE__ */ jsx(Icon, { className: "h-5 w-5 text-[#0060f0] flex-shrink-0 mt-0.5" }),
                 /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-600 dark:text-gray-400 leading-relaxed", children: card.description })
               ] })
@@ -563,4 +551,4 @@ const $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/DashboardLayout.astro", void 0);
 
 export { $$DashboardLayout as $, Link as L, ThemeProvider as T, ThemeToggle as a, useTheme as u };
-//# sourceMappingURL=DashboardLayout_D680jGCc.mjs.map
+//# sourceMappingURL=DashboardLayout_JtV2IJw7.mjs.map

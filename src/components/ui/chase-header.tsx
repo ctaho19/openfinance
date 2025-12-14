@@ -8,11 +8,12 @@ interface ChaseHeaderProps {
 }
 
 const navItems = [
-  { label: "Accounts", href: "/dashboard" },
-  { label: "Pay & transfer", href: "/dashboard/pay-periods" },
-  { label: "Plan & track", href: "/dashboard/bills" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Bills", href: "/dashboard/bills" },
+  { label: "Debts", href: "/dashboard/debts" },
+  { label: "Pay Periods", href: "/dashboard/pay-periods" },
   { label: "Goals", href: "/dashboard/goals" },
-  { label: "Security", href: "/dashboard/settings" },
+  { label: "FOO Plan", href: "/dashboard/foo" },
 ];
 
 export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {

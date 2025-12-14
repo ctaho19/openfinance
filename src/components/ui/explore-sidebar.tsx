@@ -1,50 +1,38 @@
 import { Link } from "./link";
 import {
-  Award,
-  Plane,
-  TrendingUp,
-  Home,
-  ChevronRight,
   Lightbulb,
-  CreditCard,
+  Calculator,
   PiggyBank,
   ExternalLink,
+  ListOrdered,
+  ChevronRight,
 } from "lucide-react";
 
 interface SidebarCard {
   title: string;
-  icon: typeof Award;
+  icon: typeof Calculator;
   href: string;
-  description?: string;
-  value?: string;
-  valueLabel?: string;
+  description: string;
 }
 
 const quickCards: SidebarCard[] = [
   {
-    title: "Rewards",
-    icon: Award,
-    href: "/dashboard/goals",
-    value: "0",
-    valueLabel: "OpenFinance points",
-  },
-  {
-    title: "Travel",
-    icon: Plane,
-    href: "/dashboard/goals",
-    description: "Explore adventures around the world",
-  },
-  {
-    title: "Credit Journey",
-    icon: TrendingUp,
+    title: "Financial Order of Operations",
+    icon: ListOrdered,
     href: "/dashboard/foo",
-    description: "Get your latest credit score",
+    description: "Follow the Money Guy's proven 9-step plan",
   },
   {
-    title: "My Finances",
-    icon: Home,
-    href: "/dashboard",
-    description: "See rates, properties, and insights",
+    title: "Debt Payoff Calculator",
+    icon: Calculator,
+    href: "/dashboard/debts",
+    description: "Plan your path to debt freedom",
+  },
+  {
+    title: "Emergency Fund Goal",
+    icon: PiggyBank,
+    href: "/dashboard/goals",
+    description: "Build your 3-6 month safety net",
   },
 ];
 
@@ -60,7 +48,7 @@ export function ExploreSidebar() {
 
   return (
     <aside className="w-72 space-y-4">
-      {/* Quick Cards - Chase Style */}
+      {/* Quick Cards */}
       {quickCards.map((card) => {
         const Icon = card.icon;
         return (
@@ -74,26 +62,12 @@ export function ExploreSidebar() {
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
                   {card.title}
                 </h3>
-                {card.value !== undefined ? (
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-5 w-5 text-[#0060f0]" />
-                    <div>
-                      <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
-                        {card.value}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {card.valueLabel}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-start gap-2">
-                    <Icon className="h-5 w-5 text-[#0060f0] flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {card.description}
-                    </p>
-                  </div>
-                )}
+                <div className="flex items-start gap-2">
+                  <Icon className="h-5 w-5 text-[#0060f0] flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {card.description}
+                  </p>
+                </div>
               </div>
               <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors flex-shrink-0" />
             </div>

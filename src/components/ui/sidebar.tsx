@@ -18,12 +18,12 @@ import { ThemeToggleCompact } from "./theme-toggle";
 import { ThemeProvider } from "@/lib/theme-context";
 
 const navigation = [
-  { name: "Accounts", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Pay & transfer", href: "/dashboard/pay-periods", icon: Calendar },
-  { name: "Plan & track", href: "/dashboard/bills", icon: Receipt },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Bills", href: "/dashboard/bills", icon: Receipt },
   { name: "Debts", href: "/dashboard/debts", icon: CreditCard },
-  { name: "FOO Progress", href: "/dashboard/foo", icon: Target },
+  { name: "Pay Periods", href: "/dashboard/pay-periods", icon: Calendar },
   { name: "Goals", href: "/dashboard/goals", icon: PiggyBank },
+  { name: "FOO Plan", href: "/dashboard/foo", icon: Target },
 ];
 
 const bottomNav = [

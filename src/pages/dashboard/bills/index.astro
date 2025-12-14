@@ -4,7 +4,6 @@ import { StatCard } from '../../../components/ui/card';
 import { BillsList } from '@/components/bills/bills-list';
 import { getSession } from '../../../lib/get-session-astro';
 import { prisma } from '../../../lib/db';
-import { Receipt, CreditCard, TrendingDown } from 'lucide-react';
 
 const session = await getSession(Astro.request);
 if (!session?.user?.id) {
@@ -179,21 +178,21 @@ const totalBillCount = Object.values(regularBills).flat().length + bnplGroups.re
         client:visible
         label="Monthly Recurring"
         value={`$${totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-        icon={Receipt}
+        iconName="receipt"
         variant="info"
       />
       <StatCard
         client:visible
         label="BNPL Remaining"
         value={`$${totalBNPLRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-        icon={CreditCard}
+        iconName="credit-card"
         variant="warning"
       />
       <StatCard
         client:visible
         label="Active Bills"
         value={totalBillCount.toString()}
-        icon={TrendingDown}
+        iconName="trending-down"
         variant="success"
       />
     </div>

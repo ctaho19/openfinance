@@ -9,16 +9,16 @@ import {
 
 const navItems = [
   { 
-    name: "Accounts", 
+    name: "Dashboard", 
     href: "/dashboard", 
     icon: LayoutDashboard,
     activeMatch: (path: string) => path === "/dashboard"
   },
   { 
-    name: "Pay", 
-    href: "/dashboard/pay-periods", 
+    name: "Bills", 
+    href: "/dashboard/bills", 
     icon: ArrowLeftRight,
-    activeMatch: (path: string) => path.startsWith("/dashboard/pay-periods") || path.startsWith("/dashboard/bills")
+    activeMatch: (path: string) => path.startsWith("/dashboard/bills") || path.startsWith("/dashboard/pay-periods")
   },
   { 
     name: "Goals", 
