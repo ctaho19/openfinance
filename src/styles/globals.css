@@ -1,10 +1,8 @@
 @import "tailwindcss";
-
-/* ============================================
-   GOOGLE FONTS - CHASE-STYLE TYPOGRAPHY
-   Using Mona Sans (modern, refined sans-serif)
-   ============================================ */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   /* Typography - DM Sans for that refined banking feel */
