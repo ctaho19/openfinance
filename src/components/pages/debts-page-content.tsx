@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, StatCard } from "@/components
 import { Button } from "@/components/ui/button";
 import { Badge, StatusBadge } from "@/components/ui/badge";
 import { PaymentForm } from "@/components/debts/payment-form";
+import { DebtFreedomCard } from "@/components/debts/debt-freedom-card";
 import { SearchInput } from "@/components/ui/search-input";
 import { 
   Plus, 
@@ -382,6 +383,8 @@ export default function DebtsPageContent() {
           variant="warning"
         />
       </div>
+
+      {debts.length > 0 && <DebtFreedomCard debts={debts} />}
 
       <div className="flex flex-col sm:flex-row gap-4">
         <SearchInput

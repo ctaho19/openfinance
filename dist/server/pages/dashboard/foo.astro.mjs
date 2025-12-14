@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, l as renderScript, h as addAttribute } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CPcOq8Jq.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BuTua2F1.mjs';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { g as getFOOProgress } from '../../chunks/foo_ColQHPYl.mjs';
 import { Target, CheckCircle2, Clock, ChevronRight } from 'lucide-react';

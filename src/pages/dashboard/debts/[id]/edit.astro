@@ -1,0 +1,18 @@
+---
+import DashboardLayout from '../../../../layouts/DashboardLayout.astro';
+import EditDebtForm from '../../../../components/forms/edit-debt-form';
+import { getSession } from '../../../../lib/get-session-astro';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/dashboard/debts');
+}
+---
+<DashboardLayout title="Edit Debt" currentPath="/dashboard/debts" user={session.user} showExploreSidebar={false}>
+  <EditDebtForm client:load debtId={id} />
+</DashboardLayout>

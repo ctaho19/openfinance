@@ -1,6 +1,6 @@
 import { renderers } from './renderers.mjs';
 import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_DlroI_xT.mjs';
-import { manifest } from './manifest_BX6uj4Ae.mjs';
+import { manifest } from './manifest_CWL-Ly4_.mjs';
 
 const serverIslandMap = new Map();;
 
@@ -21,16 +21,17 @@ const _page13 = () => import('./pages/dashboard/bills/new.astro.mjs');
 const _page14 = () => import('./pages/dashboard/bills.astro.mjs');
 const _page15 = () => import('./pages/dashboard/debts/calculator.astro.mjs');
 const _page16 = () => import('./pages/dashboard/debts/new.astro.mjs');
-const _page17 = () => import('./pages/dashboard/debts.astro.mjs');
-const _page18 = () => import('./pages/dashboard/foo.astro.mjs');
-const _page19 = () => import('./pages/dashboard/goals/new.astro.mjs');
-const _page20 = () => import('./pages/dashboard/goals.astro.mjs');
-const _page21 = () => import('./pages/dashboard/pay-periods.astro.mjs');
-const _page22 = () => import('./pages/dashboard/settings/accounts.astro.mjs');
-const _page23 = () => import('./pages/dashboard/settings.astro.mjs');
-const _page24 = () => import('./pages/dashboard.astro.mjs');
-const _page25 = () => import('./pages/login.astro.mjs');
-const _page26 = () => import('./pages/index.astro.mjs');
+const _page17 = () => import('./pages/dashboard/debts/_id_/edit.astro.mjs');
+const _page18 = () => import('./pages/dashboard/debts.astro.mjs');
+const _page19 = () => import('./pages/dashboard/foo.astro.mjs');
+const _page20 = () => import('./pages/dashboard/goals/new.astro.mjs');
+const _page21 = () => import('./pages/dashboard/goals.astro.mjs');
+const _page22 = () => import('./pages/dashboard/pay-periods.astro.mjs');
+const _page23 = () => import('./pages/dashboard/settings/accounts.astro.mjs');
+const _page24 = () => import('./pages/dashboard/settings.astro.mjs');
+const _page25 = () => import('./pages/dashboard.astro.mjs');
+const _page26 = () => import('./pages/login.astro.mjs');
+const _page27 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
     ["src/pages/api/auth/[...auth].ts", _page1],
@@ -49,16 +50,17 @@ const pageMap = new Map([
     ["src/pages/dashboard/bills/index.astro", _page14],
     ["src/pages/dashboard/debts/calculator.astro", _page15],
     ["src/pages/dashboard/debts/new.astro", _page16],
-    ["src/pages/dashboard/debts/index.astro", _page17],
-    ["src/pages/dashboard/foo/index.astro", _page18],
-    ["src/pages/dashboard/goals/new.astro", _page19],
-    ["src/pages/dashboard/goals/index.astro", _page20],
-    ["src/pages/dashboard/pay-periods/index.astro", _page21],
-    ["src/pages/dashboard/settings/accounts.astro", _page22],
-    ["src/pages/dashboard/settings/index.astro", _page23],
-    ["src/pages/dashboard/index.astro", _page24],
-    ["src/pages/login.astro", _page25],
-    ["src/pages/index.astro", _page26]
+    ["src/pages/dashboard/debts/[id]/edit.astro", _page17],
+    ["src/pages/dashboard/debts/index.astro", _page18],
+    ["src/pages/dashboard/foo/index.astro", _page19],
+    ["src/pages/dashboard/goals/new.astro", _page20],
+    ["src/pages/dashboard/goals/index.astro", _page21],
+    ["src/pages/dashboard/pay-periods/index.astro", _page22],
+    ["src/pages/dashboard/settings/accounts.astro", _page23],
+    ["src/pages/dashboard/settings/index.astro", _page24],
+    ["src/pages/dashboard/index.astro", _page25],
+    ["src/pages/login.astro", _page26],
+    ["src/pages/index.astro", _page27]
 ]);
 
 const _manifest = Object.assign(manifest, {
