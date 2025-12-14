@@ -49,7 +49,7 @@ function getProgressPercent(step: FOOProgressWithInfo): number | null {
     </header>
 
     <!-- Progress Summary Card -->
-    <div class="bg-gradient-to-r from-accent-600 to-accent-700 rounded-2xl p-6 text-white">
+    <div class="bg-chase-gradient rounded-2xl p-6 text-white">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
           <div class="p-3 rounded-full bg-white/20">
@@ -57,12 +57,12 @@ function getProgressPercent(step: FOOProgressWithInfo): number | null {
           </div>
           <div>
             <p class="text-sm font-medium text-white/80">Your Progress</p>
-            <p class="text-2xl font-bold mt-1">{completedCount} of 9 Steps Complete</p>
+            <p class="text-2xl font-bold mt-1 text-white">{completedCount} of 9 Steps Complete</p>
           </div>
         </div>
         <div class="text-right hidden sm:block">
           <p class="text-sm font-medium text-white/80">Current Focus</p>
-          <p class="text-xl font-bold mt-1">
+          <p class="text-xl font-bold mt-1 text-white">
             {currentStep ? `Step ${currentStep.stepInfo.number}: ${currentStep.stepInfo.name}` : 'All Complete!'}
           </p>
         </div>
