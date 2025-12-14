@@ -22,7 +22,9 @@ export function QuickActionsGrid({ actions, columns = 4 }: QuickActionsGridProps
 
   return (
     <div className={`grid ${gridCols[columns]} gap-3 lg:gap-4`}>
-      {actions.map((action) => (
+      {actions.map((action) => {
+        const Icon = action.icon;
+        return (
         <Link
           key={action.label}
           href={action.href}
@@ -39,7 +41,7 @@ export function QuickActionsGrid({ actions, columns = 4 }: QuickActionsGridProps
               group-hover:scale-105
               group-active:scale-95
             ">
-              <action.icon className="h-5 w-5 lg:h-6 lg:w-6 text-accent-600 dark:text-accent-400" />
+              <Icon className="h-5 w-5 lg:h-6 lg:w-6 text-accent-600 dark:text-accent-400" />
             </div>
             {action.badge && (
               <span className="absolute -top-1 -right-1 bg-danger-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
@@ -51,7 +53,8 @@ export function QuickActionsGrid({ actions, columns = 4 }: QuickActionsGridProps
             {action.label}
           </span>
         </Link>
-      ))}
+      );
+      })}
     </div>
   );
 }

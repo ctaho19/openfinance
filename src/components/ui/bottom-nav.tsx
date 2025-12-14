@@ -50,6 +50,7 @@ export function BottomNav({ currentPath = "" }: BottomNavProps) {
       <div className="mx-auto flex justify-around items-center h-16 max-w-lg px-2 pb-safe-area">
         {navItems.map((item) => {
           const isActive = item.activeMatch(currentPath);
+          const Icon = item.icon;
           
           return (
             <Link
@@ -71,7 +72,7 @@ export function BottomNav({ currentPath = "" }: BottomNavProps) {
                 relative p-1.5 rounded-xl transition-all duration-200
                 ${isActive ? "bg-accent-50 dark:bg-accent-600/20" : ""}
               `}>
-                <item.icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                <Icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
               </div>
               <span className={`text-[10px] font-medium tracking-wide ${isActive ? "font-semibold" : ""}`}>
                 {item.name}

@@ -34,6 +34,7 @@ interface NavItem {
 }
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
+  const Icon = item.icon;
   return (
     <Link
       href={item.href}
@@ -48,7 +49,7 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
         }
       `}
     >
-      <item.icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}`} />
+      <Icon aria-hidden="true" className={`h-5 w-5 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}`} />
       <span className="flex-1">{item.name}</span>
       {isActive && <ChevronRight aria-hidden="true" className="h-4 w-4 opacity-70" />}
     </Link>

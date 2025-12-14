@@ -66,14 +66,16 @@ export function ExploreSidebar() {
           Explore
         </h3>
         <div className="space-y-3">
-          {quickLinks.map((link) => (
+          {quickLinks.map((link) => {
+            const Icon = link.icon;
+            return (
             <Link
               key={link.href}
               href={link.href}
               className="group flex items-start gap-3 p-2 -mx-2 rounded-xl hover:bg-theme-secondary transition-colors"
             >
               <div className="w-9 h-9 rounded-lg bg-accent-50 dark:bg-accent-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                <link.icon className="h-4 w-4 text-accent-600 dark:text-accent-400" />
+                <Icon className="h-4 w-4 text-accent-600 dark:text-accent-400" />
               </div>
               <div className="min-w-0">
                 <p className="font-medium text-sm text-theme-primary group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors">
@@ -86,7 +88,8 @@ export function ExploreSidebar() {
                 )}
               </div>
             </Link>
-          ))}
+          );
+          })}
         </div>
       </div>
 

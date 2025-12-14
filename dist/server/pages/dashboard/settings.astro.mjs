@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { u as useTheme, T as ThemeProvider, a as ThemeToggle, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CW2wPFM4.mjs';
+import { u as useTheme, T as ThemeProvider, a as ThemeToggle, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CUxWaT_w.mjs';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { Check } from 'lucide-react';

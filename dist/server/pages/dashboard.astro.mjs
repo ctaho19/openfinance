@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_CW2wPFM4.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_CUxWaT_w.mjs';
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { g as getCurrentPayPeriod, a as getNextPayPeriod, f as formatPayPeriod, S as SectionCard } from '../chunks/section-card_CqSZrPoy.mjs';
 import { XCircle, AlertTriangle, CheckCircle, Info, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
@@ -71,21 +71,24 @@ function QuickActionsGrid({ actions, columns = 4 }) {
     4: "grid-cols-4",
     5: "grid-cols-5"
   };
-  return /* @__PURE__ */ jsx("div", { className: `grid ${gridCols[columns]} gap-3 lg:gap-4`, children: actions.map((action) => /* @__PURE__ */ jsxs(
-    Link,
-    {
-      href: action.href,
-      className: "flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group",
-      children: [
-        /* @__PURE__ */ jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsx("div", { className: "\n              w-12 h-12 lg:w-14 lg:h-14 \n              rounded-full \n              bg-accent-50 dark:bg-accent-600/20\n              flex items-center justify-center\n              transition-all duration-200\n              group-hover:bg-accent-100 dark:group-hover:bg-accent-600/30\n              group-hover:scale-105\n              group-active:scale-95\n            ", children: /* @__PURE__ */ jsx(action.icon, { className: "h-5 w-5 lg:h-6 lg:w-6 text-accent-600 dark:text-accent-400" }) }),
-          action.badge && /* @__PURE__ */ jsx("span", { className: "absolute -top-1 -right-1 bg-danger-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center", children: action.badge })
-        ] }),
-        /* @__PURE__ */ jsx("span", { className: "text-[11px] lg:text-xs font-medium text-theme-primary mt-2 text-center leading-tight", children: action.label })
-      ]
-    },
-    action.label
-  )) });
+  return /* @__PURE__ */ jsx("div", { className: `grid ${gridCols[columns]} gap-3 lg:gap-4`, children: actions.map((action) => {
+    const Icon = action.icon;
+    return /* @__PURE__ */ jsxs(
+      Link,
+      {
+        href: action.href,
+        className: "flex flex-col items-center justify-center py-4 px-2 min-h-[80px] min-w-[64px] group",
+        children: [
+          /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+            /* @__PURE__ */ jsx("div", { className: "\n              w-12 h-12 lg:w-14 lg:h-14 \n              rounded-full \n              bg-accent-50 dark:bg-accent-600/20\n              flex items-center justify-center\n              transition-all duration-200\n              group-hover:bg-accent-100 dark:group-hover:bg-accent-600/30\n              group-hover:scale-105\n              group-active:scale-95\n            ", children: /* @__PURE__ */ jsx(Icon, { className: "h-5 w-5 lg:h-6 lg:w-6 text-accent-600 dark:text-accent-400" }) }),
+            action.badge && /* @__PURE__ */ jsx("span", { className: "absolute -top-1 -right-1 bg-danger-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center", children: action.badge })
+          ] }),
+          /* @__PURE__ */ jsx("span", { className: "text-[11px] lg:text-xs font-medium text-theme-primary mt-2 text-center leading-tight", children: action.label })
+        ]
+      },
+      action.label
+    );
+  }) });
 }
 
 const severityConfig = {

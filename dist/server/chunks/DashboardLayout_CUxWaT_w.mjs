@@ -264,6 +264,7 @@ const bottomNav = [
   { name: "Settings", href: "/dashboard/settings", icon: Settings }
 ];
 function NavLink({ item, isActive }) {
+  const Icon = item.icon;
   return /* @__PURE__ */ jsxs(
     Link,
     {
@@ -276,7 +277,7 @@ function NavLink({ item, isActive }) {
         ${isActive ? "bg-accent-600 text-white shadow-sm" : "text-theme-secondary hover:bg-theme-tertiary hover:text-theme-primary"}
       `,
       children: [
-        /* @__PURE__ */ jsx(item.icon, { "aria-hidden": "true", className: `h-5 w-5 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}` }),
+        /* @__PURE__ */ jsx(Icon, { "aria-hidden": "true", className: `h-5 w-5 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}` }),
         /* @__PURE__ */ jsx("span", { className: "flex-1", children: item.name }),
         isActive && /* @__PURE__ */ jsx(ChevronRight, { "aria-hidden": "true", className: "h-4 w-4 opacity-70" })
       ]
@@ -342,6 +343,7 @@ function BottomNav({ currentPath = "" }) {
   return /* @__PURE__ */ jsxs("nav", { className: "fixed bottom-0 left-0 right-0 z-40 border-t border-theme bg-theme-elevated/95 backdrop-blur-md lg:hidden", children: [
     /* @__PURE__ */ jsx("div", { className: "mx-auto flex justify-around items-center h-16 max-w-lg px-2 pb-safe-area", children: navItems.map((item) => {
       const isActive = item.activeMatch(currentPath);
+      const Icon = item.icon;
       return /* @__PURE__ */ jsxs(
         Link,
         {
@@ -358,7 +360,7 @@ function BottomNav({ currentPath = "" }) {
             /* @__PURE__ */ jsx("div", { className: `
                 relative p-1.5 rounded-xl transition-all duration-200
                 ${isActive ? "bg-accent-50 dark:bg-accent-600/20" : ""}
-              `, children: /* @__PURE__ */ jsx(item.icon, { "aria-hidden": "true", className: `h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}` }) }),
+              `, children: /* @__PURE__ */ jsx(Icon, { "aria-hidden": "true", className: `h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}` }) }),
             /* @__PURE__ */ jsx("span", { className: `text-[10px] font-medium tracking-wide ${isActive ? "font-semibold" : ""}`, children: item.name })
           ]
         },
@@ -407,21 +409,24 @@ function ExploreSidebar() {
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "bg-theme-elevated rounded-2xl shadow-theme border border-theme p-5", children: [
       /* @__PURE__ */ jsx("h3", { className: "font-semibold text-theme-primary text-sm mb-4", children: "Explore" }),
-      /* @__PURE__ */ jsx("div", { className: "space-y-3", children: quickLinks.map((link) => /* @__PURE__ */ jsxs(
-        Link,
-        {
-          href: link.href,
-          className: "group flex items-start gap-3 p-2 -mx-2 rounded-xl hover:bg-theme-secondary transition-colors",
-          children: [
-            /* @__PURE__ */ jsx("div", { className: "w-9 h-9 rounded-lg bg-accent-50 dark:bg-accent-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform", children: /* @__PURE__ */ jsx(link.icon, { className: "h-4 w-4 text-accent-600 dark:text-accent-400" }) }),
-            /* @__PURE__ */ jsxs("div", { className: "min-w-0", children: [
-              /* @__PURE__ */ jsx("p", { className: "font-medium text-sm text-theme-primary group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors", children: link.label }),
-              link.description && /* @__PURE__ */ jsx("p", { className: "text-xs text-theme-muted mt-0.5 line-clamp-2", children: link.description })
-            ] })
-          ]
-        },
-        link.href
-      )) })
+      /* @__PURE__ */ jsx("div", { className: "space-y-3", children: quickLinks.map((link) => {
+        const Icon = link.icon;
+        return /* @__PURE__ */ jsxs(
+          Link,
+          {
+            href: link.href,
+            className: "group flex items-start gap-3 p-2 -mx-2 rounded-xl hover:bg-theme-secondary transition-colors",
+            children: [
+              /* @__PURE__ */ jsx("div", { className: "w-9 h-9 rounded-lg bg-accent-50 dark:bg-accent-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform", children: /* @__PURE__ */ jsx(Icon, { className: "h-4 w-4 text-accent-600 dark:text-accent-400" }) }),
+              /* @__PURE__ */ jsxs("div", { className: "min-w-0", children: [
+                /* @__PURE__ */ jsx("p", { className: "font-medium text-sm text-theme-primary group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors", children: link.label }),
+                link.description && /* @__PURE__ */ jsx("p", { className: "text-xs text-theme-muted mt-0.5 line-clamp-2", children: link.description })
+              ] })
+            ]
+          },
+          link.href
+        );
+      }) })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "bg-theme-elevated rounded-2xl shadow-theme border border-theme p-5", children: [
       /* @__PURE__ */ jsx("h3", { className: "font-semibold text-theme-primary text-sm mb-3", children: "Resources" }),
@@ -471,4 +476,4 @@ const $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/DashboardLayout.astro", void 0);
 
 export { $$DashboardLayout as $, Link as L, ThemeProvider as T, ThemeToggle as a, useTheme as u };
-//# sourceMappingURL=DashboardLayout_CW2wPFM4.mjs.map
+//# sourceMappingURL=DashboardLayout_CUxWaT_w.mjs.map
