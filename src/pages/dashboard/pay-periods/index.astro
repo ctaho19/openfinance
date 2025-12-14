@@ -1,27 +1,140 @@
 ---
 import DashboardLayout from '../../../layouts/DashboardLayout.astro';
 import { SectionCard } from '../../../components/ui/section-card';
+import { PeriodSelector } from '../../../components/pay-periods/PeriodSelector';
+import { AllocationChart, DonutChart } from '../../../components/pay-periods/AllocationChart';
+import { BankAccountAllocationCard } from '../../../components/ui/bank-account-card';
 import { getSession } from '../../../lib/get-session-astro';
-import { getCurrentPayPeriod, formatPayPeriod, getPaymentsForPeriod } from '../../../lib/services/pay-periods';
-import { startOfDay, endOfDay, differenceInDays, isToday, isTomorrow, format } from 'date-fns';
-import { Calendar, CheckCircle2, Circle, DollarSign } from 'lucide-react';
+import { 
+  getCurrentPayPeriod, 
+  getNextPayPeriod, 
+  getPreviousPayPeriod,
+  getPayPeriods,
+  formatPayPeriod, 
+  getPaymentsForPeriod 
+} from '../../../lib/services/pay-periods';
+import { prisma } from '../../../lib/db';
+import { startOfDay, endOfDay, differenceInDays, isToday, isTomorrow, format, addDays } from 'date-fns';
+import { Calendar, CheckCircle2, Circle, TrendingUp, Wallet, PiggyBank, CreditCard, Building2 } from 'lucide-react';
 
 const session = await getSession(Astro.request);
 if (!session?.user?.id) {
   return Astro.redirect('/login');
 }
 
-const currentPeriod = getCurrentPayPeriod();
-const periodStart = startOfDay(currentPeriod.startDate);
-const periodEnd = endOfDay(currentPeriod.endDate);
+const periodParam = Astro.url.searchParams.get('period') as 'previous' | 'current' | 'next' | null;
 
-const payments = await getPaymentsForPeriod(session.user.id, periodStart, periodEnd);
+const currentPeriod = getCurrentPayPeriod();
+const previousPeriod = getPreviousPayPeriod();
+const nextPeriod = getNextPayPeriod();
+
+const selectedPeriod = periodParam === 'previous' ? previousPeriod 
+  : periodParam === 'next' ? nextPeriod 
+  : currentPeriod;
+
+const periodStart = startOfDay(selectedPeriod.startDate);
+const periodEnd = endOfDay(selectedPeriod.endDate);
+
+const [payments, user, bankAccounts] = await Promise.all([
+  getPaymentsForPeriod(session.user.id, periodStart, periodEnd),
+  prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { paycheckAmount: true },
+  }),
+  prisma.bankAccount.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: 'asc' },
+  }),
+]);
+
+const paycheckAmount = user?.paycheckAmount ? Number(user.paycheckAmount) : 0;
 
 const paidPayments = payments.filter(p => p.status === 'PAID');
 const unpaidPayments = payments.filter(p => p.status === 'UNPAID');
 
 const totalDue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
 const totalPaid = paidPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+const totalRemaining = totalDue - totalPaid;
+
+const safeToSpend = paycheckAmount - totalDue;
+const discretionary = Math.max(0, safeToSpend);
+
+const allocationItems = [
+  { 
+    label: 'Bills Due', 
+    amount: totalDue, 
+    color: 'bg-blue-500', 
+    percentage: paycheckAmount > 0 ? (totalDue / paycheckAmount) * 100 : 0 
+  },
+  { 
+    label: 'Safe to Spend', 
+    amount: discretionary, 
+    color: 'bg-emerald-500', 
+    percentage: paycheckAmount > 0 ? (discretionary / paycheckAmount) * 100 : 0 
+  },
+];
+
+const futurePeriods = getPayPeriods(addDays(currentPeriod.endDate, 1), 3, 'forward');
+
+const forecastData = await Promise.all(
+  futurePeriods.map(async (period) => {
+    const periodPayments = await getPaymentsForPeriod(
+      session.user.id, 
+      startOfDay(period.startDate), 
+      endOfDay(period.endDate)
+    );
+    const totalBills = periodPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+    const projectedBalance = paycheckAmount - totalBills;
+    return {
+      period,
+      totalBills,
+      projectedBalance,
+      paymentCount: periodPayments.length,
+    };
+  })
+);
+
+const isPastPeriod = periodParam === 'previous';
+const isFuturePeriod = periodParam === 'next';
+const isCurrentPeriod = !periodParam || periodParam === 'current';
+
+// Group payments by bank account for allocation view
+type BankAllocation = {
+  account: typeof bankAccounts[0] | null;
+  bills: Array<{ name: string; amount: number; dueDate: string }>;
+  total: number;
+};
+
+const bankAllocations: BankAllocation[] = [];
+
+// Group by bank account
+const accountMap = new Map<string | null, typeof unpaidPayments>();
+unpaidPayments.forEach((payment) => {
+  const bankId = payment.bill.bankAccountId;
+  if (!accountMap.has(bankId)) {
+    accountMap.set(bankId, []);
+  }
+  accountMap.get(bankId)!.push(payment);
+});
+
+// Build allocation objects
+accountMap.forEach((accountPayments, bankId) => {
+  const account = bankId ? bankAccounts.find(a => a.id === bankId) || null : null;
+  const bills = accountPayments.map(p => ({
+    name: p.bill.name,
+    amount: Number(p.amount),
+    dueDate: format(p.dueDate, 'MMM d'),
+  }));
+  const total = bills.reduce((sum, b) => sum + b.amount, 0);
+  bankAllocations.push({ account, bills, total });
+});
+
+// Sort: accounts with assigned banks first, then unassigned
+bankAllocations.sort((a, b) => {
+  if (a.account && !b.account) return -1;
+  if (!a.account && b.account) return 1;
+  return b.total - a.total;
+});
 
 function formatDueDate(date: Date): string {
   if (isToday(date)) return "Today";
@@ -30,61 +143,219 @@ function formatDueDate(date: Date): string {
   if (days < 0) return `${Math.abs(days)}d overdue`;
   return format(date, "MMM d");
 }
+
+function getPaymentStatus(date: Date): "overdue" | "due-soon" | "due-today" | "pending" {
+  if (isToday(date)) return "due-today";
+  const days = differenceInDays(date, new Date());
+  if (days < 0) return "overdue";
+  if (days <= 3) return "due-soon";
+  return "pending";
+}
 ---
 <DashboardLayout title="Pay Periods" currentPath="/dashboard/pay-periods" user={session.user} showExploreSidebar={false}>
   <div class="space-y-6">
-    <header>
-      <h1 class="text-2xl font-bold text-theme-primary">Pay Period</h1>
-      <p class="text-theme-secondary mt-1">{formatPayPeriod(currentPeriod)}</p>
+    <!-- Header with Period Selector -->
+    <header class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Pay Period</h1>
+          <p class="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            {formatPayPeriod(selectedPeriod)}
+          </p>
+        </div>
+        {isPastPeriod && (
+          <span class="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
+            Past Period
+          </span>
+        )}
+        {isFuturePeriod && (
+          <span class="px-3 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+            Upcoming
+          </span>
+        )}
+      </div>
+      
+      <!-- Period Navigation -->
+      <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4">
+        <PeriodSelector 
+          client:load
+          currentPeriodLabel={formatPayPeriod(currentPeriod)}
+          previousPeriodLabel={formatPayPeriod(previousPeriod)}
+          nextPeriodLabel={formatPayPeriod(nextPeriod)}
+          defaultPeriod={periodParam || 'current'}
+        />
+      </div>
     </header>
 
-    <!-- Summary Cards -->
+    <!-- Paycheck Allocation Card -->
+    <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+            <Wallet className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-100">Paycheck Allocation</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              ${paycheckAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} paycheck
+            </p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-gray-500 dark:text-gray-400">Safe to Spend</p>
+          <p class={`text-xl font-bold ${safeToSpend >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+            ${safeToSpend.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </p>
+        </div>
+      </div>
+
+      <AllocationChart client:visible items={allocationItems} total={paycheckAmount} />
+    </div>
+
+    <!-- Bank Account Allocation -->
+    {bankAllocations.length > 0 && bankAllocations.some(a => a.account !== null) && (
+      <SectionCard client:visible title="Transfer by Account" subtitle={`${bankAllocations.filter(a => a.account).length} accounts`} defaultOpen={true}>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {bankAllocations.map((allocation) => (
+            allocation.account ? (
+              <BankAccountAllocationCard
+                client:visible
+                name={allocation.account.name}
+                bank={allocation.account.bank}
+                lastFour={allocation.account.lastFour}
+                amount={allocation.total}
+                bills={allocation.bills}
+              />
+            ) : null
+          ))}
+        </div>
+        
+        {bankAllocations.some(a => a.account === null) && (
+          <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </div>
+              <div>
+                <p class="font-medium text-gray-700 dark:text-gray-300">Unassigned Bills</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  ${bankAllocations.find(a => a.account === null)?.total.toLocaleString(undefined, { minimumFractionDigits: 2 })} total
+                </p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              {bankAllocations.find(a => a.account === null)?.bills.map((bill) => (
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-600 dark:text-gray-400">{bill.name}</span>
+                  <span class="text-gray-700 dark:text-gray-300">${bill.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                </div>
+              ))}
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+              <a href="/dashboard/bills" class="text-blue-600 dark:text-blue-400 hover:underline">Assign bank accounts</a> to these bills for better tracking
+            </p>
+          </div>
+        )}
+      </SectionCard>
+    )}
+
+    <!-- Summary Stats -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
-        <p class="text-label">Total Due</p>
-        <p class="text-2xl font-semibold text-theme-primary mt-1">
+      <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4">
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Due</p>
+        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
           ${totalDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{payments.length} bills</p>
       </div>
-      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
-        <p class="text-label">Paid</p>
-        <p class="text-2xl font-semibold text-success-600 mt-1">
+      <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4">
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Paid</p>
+        <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
           ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{paidPayments.length} completed</p>
       </div>
-      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
-        <p class="text-label">Remaining</p>
-        <p class="text-2xl font-semibold text-theme-primary mt-1">
-          ${(totalDue - totalPaid).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4">
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Remaining</p>
+        <p class={`text-2xl font-semibold mt-1 ${totalRemaining > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+          ${totalRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{unpaidPayments.length} pending</p>
       </div>
-      <div class="bg-theme-elevated rounded-2xl border border-theme p-4">
-        <p class="text-label">Bills</p>
-        <p class="text-2xl font-semibold text-theme-primary mt-1">
-          {paidPayments.length}/{payments.length}
+      <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4">
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Progress</p>
+        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
+          {payments.length > 0 ? Math.round((paidPayments.length / payments.length) * 100) : 0}%
         </p>
+        <div class="mt-2 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div 
+            class="h-full bg-emerald-500 rounded-full transition-all duration-500"
+            style={`width: ${payments.length > 0 ? (paidPayments.length / payments.length) * 100 : 0}%`}
+          />
+        </div>
       </div>
     </div>
 
     <!-- Unpaid Bills -->
     {unpaidPayments.length > 0 && (
       <SectionCard client:visible title="Unpaid" subtitle={`${unpaidPayments.length} remaining`}>
-        <div class="divide-y divide-theme">
-          {unpaidPayments.map((payment) => (
-            <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 group">
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+          {unpaidPayments.map((payment) => {
+            const status = getPaymentStatus(payment.dueDate);
+            return (
+              <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 group">
+                <div class="flex items-center gap-3">
+                  <button
+                    data-payment-id={payment.id}
+                    class="payment-toggle p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  </button>
+                  <div>
+                    <p class="font-medium text-gray-900 dark:text-gray-100">{payment.bill.name}</p>
+                    <p class={`text-sm ${
+                      status === 'overdue' ? 'text-red-600 dark:text-red-400' :
+                      status === 'due-today' ? 'text-amber-600 dark:text-amber-400' :
+                      status === 'due-soon' ? 'text-amber-600 dark:text-amber-400' :
+                      'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {formatDueDate(payment.dueDate)}
+                    </p>
+                  </div>
+                </div>
+                <span class={`font-semibold ${
+                  status === 'overdue' ? 'text-red-600 dark:text-red-400' :
+                  'text-gray-900 dark:text-gray-100'
+                }`}>
+                  ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+    )}
+
+    <!-- Paid Bills -->
+    {paidPayments.length > 0 && (
+      <SectionCard client:visible title="Paid" subtitle={`${paidPayments.length} completed`} defaultOpen={false}>
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+          {paidPayments.map((payment) => (
+            <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 opacity-60">
               <div class="flex items-center gap-3">
                 <button
                   data-payment-id={payment.id}
-                  class="payment-toggle p-1 rounded-full hover:bg-theme-secondary/50 transition-colors"
+                  class="payment-toggle p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <Circle className="h-5 w-5 text-theme-muted" />
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </button>
                 <div>
-                  <p class="font-medium text-theme-primary">{payment.bill.name}</p>
-                  <p class="text-sm text-theme-muted">{formatDueDate(payment.dueDate)}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100 line-through">{payment.bill.name}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{formatDueDate(payment.dueDate)}</p>
                 </div>
               </div>
-              <span class="font-semibold text-theme-primary">
+              <span class="font-semibold text-gray-900 dark:text-gray-100">
                 ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -93,31 +364,78 @@ function formatDueDate(date: Date): string {
       </SectionCard>
     )}
 
-    <!-- Paid Bills -->
-    {paidPayments.length > 0 && (
-      <SectionCard client:visible title="Paid" subtitle={`${paidPayments.length} completed`} defaultOpen={false}>
-        <div class="divide-y divide-theme">
-          {paidPayments.map((payment) => (
-            <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 opacity-60">
+    <!-- No Bills Message -->
+    {payments.length === 0 && (
+      <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-8">
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
+            <TrendingUp className="h-6 w-6 text-gray-400" />
+          </div>
+          <p class="font-medium text-gray-600 dark:text-gray-400">No bills this period</p>
+          <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">
+            {isFuturePeriod ? "Nothing scheduled yet" : "All clear for this period"}
+          </p>
+        </div>
+      </div>
+    )}
+
+    <!-- Payday Forecast -->
+    {isCurrentPeriod && forecastData.length > 0 && (
+      <SectionCard client:visible title="Payday Forecast" subtitle="Next 3 periods" defaultOpen={true}>
+        <div class="space-y-3">
+          {forecastData.map((forecast, index) => (
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <div class="flex items-center gap-3">
-                <button
-                  data-payment-id={payment.id}
-                  class="payment-toggle p-1 rounded-full hover:bg-theme-secondary/50 transition-colors"
-                >
-                  <CheckCircle2 className="h-5 w-5 text-success-600" />
-                </button>
+                <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
                 <div>
-                  <p class="font-medium text-theme-primary line-through">{payment.bill.name}</p>
-                  <p class="text-sm text-theme-muted">{formatDueDate(payment.dueDate)}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100">
+                    {format(forecast.period.startDate, "MMM d")} - {format(forecast.period.endDate, "MMM d")}
+                  </p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {forecast.paymentCount} bills · ${forecast.totalBills.toLocaleString(undefined, { minimumFractionDigits: 2 })} due
+                  </p>
                 </div>
               </div>
-              <span class="font-semibold text-theme-primary">
-                ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </span>
+              <div class="text-right">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Projected Balance</p>
+                <p class={`font-semibold ${
+                  forecast.projectedBalance >= 0 
+                    ? 'text-emerald-600 dark:text-emerald-400' 
+                    : 'text-red-600 dark:text-red-400'
+                }`}>
+                  ${forecast.projectedBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       </SectionCard>
+    )}
+
+    <!-- Period Comparison (Previous Period) -->
+    {isPastPeriod && (
+      <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl border border-gray-200 dark:border-[#30363d] p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+          <h3 class="font-semibold text-gray-900 dark:text-gray-100">Period Summary</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Total Spent</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
+              ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Bills Paid</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
+              {paidPayments.length} of {payments.length}
+            </p>
+          </div>
+        </div>
+      </div>
     )}
   </div>
 
