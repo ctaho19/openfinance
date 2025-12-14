@@ -36,12 +36,11 @@ export default $config({
               from: "node_modules/.prisma/client/",
             });
 
-            // Ensure esbuild doesn't bundle Prisma (it needs runtime resolution)
+            // Let esbuild bundle @prisma/client, but keep .prisma/client as runtime asset
             args.nodejs ??= {};
             args.nodejs.esbuild ??= {};
             args.nodejs.esbuild.external = [
               ...(args.nodejs.esbuild.external ?? []),
-              "@prisma/client",
               ".prisma/client",
             ];
           },
