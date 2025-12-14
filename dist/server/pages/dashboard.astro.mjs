@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_Cel7--ii.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_CkU3w5MQ.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_CW2wPFM4.mjs';
 import { jsx, jsxs } from 'react/jsx-runtime';
 import { g as getCurrentPayPeriod, a as getNextPayPeriod, f as formatPayPeriod, S as SectionCard } from '../chunks/section-card_CqSZrPoy.mjs';
 import { XCircle, AlertTriangle, CheckCircle, Info, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
