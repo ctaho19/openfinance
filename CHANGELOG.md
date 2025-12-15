@@ -5,6 +5,19 @@ All notable changes to OpenFinance will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2024-12-14
+
+### Fixed
+
+- **BNPL Biweekly Payment Scheduling** - Fixed issue where biweekly BNPL debts (Afterpay, Zip, Sezzle) had incorrect payment dates
+- BillPayment records now correctly use 14-day intervals for biweekly BNPL debts
+- "BNPL due this month" now shows correct amounts based on properly scheduled payments
+
+### Added
+
+- Script to regenerate BNPL payment schedules: `scripts/regenerate-bnpl-schedules.mjs`
+- Utility can be run to fix existing BNPL debts with incorrect payment intervals
+
 ## [0.2.4] - 2024-12-14
 
 ### Fixed
