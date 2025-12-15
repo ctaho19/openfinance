@@ -1,12 +1,12 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_CdcQ6Wnq.mjs';
+import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_BDUB174U.mjs';
 import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { a as BankAccountCard } from '../../../chunks/bank-account-card_SiXbaX8W.mjs';
 import { B as Button } from '../../../chunks/button_VWZV24pY.mjs';
-import { a as BANK_OPTIONS } from '../../../chunks/bank-badge_CrB3W5ys.mjs';
+import { b as BANK_OPTIONS } from '../../../chunks/bank-badge_CGzskWB7.mjs';
 import { Building2, Plus, X, ArrowLeft } from 'lucide-react';
 export { renderers } from '../../../renderers.mjs';
 

@@ -5,6 +5,14 @@ All notable changes to OpenFinance will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2024-12-14
+
+### Added
+
+- **Future Pay Period Allocations** - View bank account allocations for all future pay periods in the Annual Forecast
+- Expandable forecast rows showing per-bank transfer amounts and individual bills
+- Nested drill-down: click a pay period to see bank allocations, click a bank to see its bills
+
 ## [0.2.2] - 2024-12-14
 
 ### Fixed

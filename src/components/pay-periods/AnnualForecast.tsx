@@ -1,6 +1,16 @@
 import { useState, useMemo } from "react";
-import { Calendar, ChevronDown, ChevronUp, TrendingUp, DollarSign, AlertTriangle } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp, TrendingUp, DollarSign, AlertTriangle, Building2, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
+import { BankBadge } from "@/components/banks/bank-badge";
+
+interface BankAllocation {
+  accountId: string | null;
+  accountName: string;
+  bank: string;
+  lastFour: string | null;
+  total: number;
+  bills: Array<{ name: string; amount: number; dueDate: string }>;
+}
 
 interface ForecastPeriod {
   period: {
@@ -11,6 +21,7 @@ interface ForecastPeriod {
   totalBills: number;
   projectedBalance: number;
   paymentCount: number;
+  allocations?: BankAllocation[];
 }
 
 interface AnnualForecastProps {
@@ -256,6 +267,7 @@ interface ForecastRowProps {
 }
 
 function ForecastRow({ forecast, paycheckAmount, index, compact }: ForecastRowProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const startDate = new Date(forecast.period.startDate);
   const endDate = new Date(forecast.period.endDate);
   const utilizationPercent = paycheckAmount > 0 
@@ -268,51 +280,123 @@ function ForecastRow({ forecast, paycheckAmount, index, compact }: ForecastRowPr
     return "bg-emerald-500";
   };
 
+  const hasAllocations = forecast.allocations && forecast.allocations.length > 0;
+
   return (
-    <div className={`flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg ${
-      compact ? "" : "hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-    }`}>
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-          <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-            {index + 1}
-          </span>
+    <div className="rounded-lg overflow-hidden">
+      <div 
+        className={`flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 ${
+          compact ? "" : "hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        } ${hasAllocations && !compact ? "cursor-pointer" : ""}`}
+        onClick={() => hasAllocations && !compact && setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {hasAllocations && !compact ? (
+            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+              <ChevronRight className={`h-4 w-4 text-blue-600 dark:text-blue-400 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                {index + 1}
+              </span>
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+              {format(startDate, "MMM d")} - {format(endDate, "MMM d")}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {forecast.paymentCount} {forecast.paymentCount === 1 ? "bill" : "bills"} · ${forecast.totalBills.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
-            {format(startDate, "MMM d")} - {format(endDate, "MMM d")}
+        
+        <div className="flex items-center gap-4 flex-shrink-0">
+          {!compact && (
+            <div className="hidden sm:block w-24">
+              <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${getUtilizationColor(utilizationPercent)} rounded-full transition-all`}
+                  style={{ width: `${utilizationPercent}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                {utilizationPercent.toFixed(0)}% used
+              </p>
+            </div>
+          )}
+          <div className="text-right">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Balance</p>
+            <p className={`font-semibold ${
+              forecast.projectedBalance >= 0 
+                ? "text-emerald-600 dark:text-emerald-400" 
+                : "text-red-600 dark:text-red-400"
+            }`}>
+              ${forecast.projectedBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {isExpanded && hasAllocations && (
+        <div className="bg-gray-100 dark:bg-gray-800/30 px-3 pb-3 space-y-2">
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide pt-2 px-2">
+            Bank Allocations
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {forecast.paymentCount} {forecast.paymentCount === 1 ? "bill" : "bills"} · ${forecast.totalBills.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          {forecast.allocations!.map((allocation, allocIdx) => (
+            <AllocationCard key={allocation.accountId || `unassigned-${allocIdx}`} allocation={allocation} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AllocationCard({ allocation }: { allocation: BankAllocation }) {
+  const [showBills, setShowBills] = useState(false);
+  
+  return (
+    <div className="bg-white dark:bg-[#1c2128] rounded-lg border border-gray-200 dark:border-[#30363d] overflow-hidden">
+      <div 
+        className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#21262d] transition-colors"
+        onClick={() => setShowBills(!showBills)}
+      >
+        <div className="flex items-center gap-3">
+          <BankBadge bank={allocation.bank} size="sm" />
+          <div>
+            <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+              {allocation.accountName}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {allocation.bills.length} {allocation.bills.length === 1 ? "bill" : "bills"}
+              {allocation.lastFour && ` · •••• ${allocation.lastFour}`}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="font-semibold text-gray-900 dark:text-gray-100">
+            ${allocation.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
+          <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showBills ? "rotate-180" : ""}`} />
         </div>
       </div>
       
-      <div className="flex items-center gap-4 flex-shrink-0">
-        {!compact && (
-          <div className="hidden sm:block w-24">
-            <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full ${getUtilizationColor(utilizationPercent)} rounded-full transition-all`}
-                style={{ width: `${utilizationPercent}%` }}
-              />
+      {showBills && (
+        <div className="border-t border-gray-100 dark:border-gray-800 px-3 pb-2">
+          {allocation.bills.map((bill, billIdx) => (
+            <div key={billIdx} className="flex items-center justify-between py-2 text-sm">
+              <div>
+                <p className="text-gray-900 dark:text-gray-100">{bill.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{bill.dueDate}</p>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300">
+                ${bill.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </p>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-              {utilizationPercent.toFixed(0)}% used
-            </p>
-          </div>
-        )}
-        <div className="text-right">
-          <p className="text-xs text-gray-500 dark:text-gray-400">Balance</p>
-          <p className={`font-semibold ${
-            forecast.projectedBalance >= 0 
-              ? "text-emerald-600 dark:text-emerald-400" 
-              : "text-red-600 dark:text-red-400"
-          }`}>
-            ${forecast.projectedBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </p>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -51,6 +51,35 @@ const BANK_CONFIG = {
     initials: ""
   }
 };
+const SIZE_CLASSES = {
+  sm: "text-xs px-2 py-0.5",
+  md: "text-sm px-3 py-1",
+  lg: "text-base px-4 py-1.5"
+};
+function BankInitials({ initials, size = "sm" }) {
+  const iconSizes = { sm: 12, md: 14, lg: 16 };
+  if (!initials) {
+    return /* @__PURE__ */ jsx(Building2, { size: iconSizes[size] });
+  }
+  return /* @__PURE__ */ jsx("span", { className: "font-bold tracking-tight", children: initials });
+}
+function BankBadge({ bank, size = "sm", showName = true }) {
+  const config = BANK_CONFIG[bank] || BANK_CONFIG.OTHER;
+  return /* @__PURE__ */ jsxs(
+    "span",
+    {
+      className: `
+        inline-flex items-center gap-1.5 rounded-full font-medium
+        ${config.bg} ${config.text} ${SIZE_CLASSES[size]}
+        shadow-sm
+      `,
+      children: [
+        /* @__PURE__ */ jsx(BankInitials, { initials: config.initials, size }),
+        showName && /* @__PURE__ */ jsx("span", { children: config.name })
+      ]
+    }
+  );
+}
 function BankSelector({
   value,
   onChange,
@@ -97,5 +126,5 @@ const BANK_OPTIONS = Object.entries(BANK_CONFIG).map(([value, config]) => ({
   initials: config.initials
 }));
 
-export { BankSelector as B, BANK_OPTIONS as a };
-//# sourceMappingURL=bank-badge_CrB3W5ys.mjs.map
+export { BankSelector as B, BankBadge as a, BANK_OPTIONS as b };
+//# sourceMappingURL=bank-badge_CGzskWB7.mjs.map

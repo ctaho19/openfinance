@@ -1,12 +1,13 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute, l as renderScript } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CdcQ6Wnq.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BDUB174U.mjs';
 import { g as getCurrentPayPeriod, a as getPreviousPayPeriod, b as getNextPayPeriod, c as getPayPeriods, f as formatPayPeriod, S as SectionCard } from '../../chunks/section-card_v4AMPtzv.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, TrendingUp, ChevronDown, DollarSign, Calendar, AlertTriangle, ChevronUp, Wallet, Building2, Circle, CheckCircle2, CreditCard } from 'lucide-react';
 import { B as BankAccountAllocationCard } from '../../chunks/bank-account-card_SiXbaX8W.mjs';
 import { format, startOfDay, endOfDay, addDays, isToday, isTomorrow, differenceInDays } from 'date-fns';
+import { a as BankBadge } from '../../chunks/bank-badge_CGzskWB7.mjs';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { b as getPaymentsForPeriod } from '../../chunks/pay-periods_DCqwAcZQ.mjs';
 import { p as prisma } from '../../chunks/auth-config_mz_UKjvQ.mjs';
@@ -319,6 +320,7 @@ function AnnualForecast({ forecastData, paycheckAmount }) {
   ] });
 }
 function ForecastRow({ forecast, paycheckAmount, index, compact }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const startDate = new Date(forecast.period.startDate);
   const endDate = new Date(forecast.period.endDate);
   const utilizationPercent = paycheckAmount > 0 ? Math.min(forecast.totalBills / paycheckAmount * 100, 100) : 0;
@@ -327,46 +329,103 @@ function ForecastRow({ forecast, paycheckAmount, index, compact }) {
     if (percent >= 70) return "bg-amber-500";
     return "bg-emerald-500";
   };
-  return /* @__PURE__ */ jsxs("div", { className: `flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg ${compact ? "" : "hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"}`, children: [
-    /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 flex-1 min-w-0", children: [
-      /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("span", { className: "text-xs font-semibold text-blue-600 dark:text-blue-400", children: index + 1 }) }),
-      /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
-        /* @__PURE__ */ jsxs("p", { className: "font-medium text-gray-900 dark:text-gray-100 truncate", children: [
-          format(startDate, "MMM d"),
-          " - ",
-          format(endDate, "MMM d")
-        ] }),
-        /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500 dark:text-gray-400", children: [
-          forecast.paymentCount,
-          " ",
-          forecast.paymentCount === 1 ? "bill" : "bills",
-          " · $",
-          forecast.totalBills.toLocaleString(void 0, { minimumFractionDigits: 2 })
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 flex-shrink-0", children: [
-      !compact && /* @__PURE__ */ jsxs("div", { className: "hidden sm:block w-24", children: [
-        /* @__PURE__ */ jsx("div", { className: "h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden", children: /* @__PURE__ */ jsx(
-          "div",
-          {
-            className: `h-full ${getUtilizationColor(utilizationPercent)} rounded-full transition-all`,
-            style: { width: `${utilizationPercent}%` }
-          }
-        ) }),
-        /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 dark:text-gray-400 mt-1 text-center", children: [
-          utilizationPercent.toFixed(0),
-          "% used"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "text-right", children: [
-        /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: "Balance" }),
-        /* @__PURE__ */ jsxs("p", { className: `font-semibold ${forecast.projectedBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`, children: [
-          "$",
-          forecast.projectedBalance.toLocaleString(void 0, { minimumFractionDigits: 2 })
-        ] })
-      ] })
+  const hasAllocations = forecast.allocations && forecast.allocations.length > 0;
+  return /* @__PURE__ */ jsxs("div", { className: "rounded-lg overflow-hidden", children: [
+    /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: `flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 ${compact ? "" : "hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"} ${hasAllocations && !compact ? "cursor-pointer" : ""}`,
+        onClick: () => hasAllocations && !compact && setIsExpanded(!isExpanded),
+        children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 flex-1 min-w-0", children: [
+            hasAllocations && !compact ? /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx(ChevronRight, { className: `h-4 w-4 text-blue-600 dark:text-blue-400 transition-transform ${isExpanded ? "rotate-90" : ""}` }) }) : /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("span", { className: "text-xs font-semibold text-blue-600 dark:text-blue-400", children: index + 1 }) }),
+            /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
+              /* @__PURE__ */ jsxs("p", { className: "font-medium text-gray-900 dark:text-gray-100 truncate", children: [
+                format(startDate, "MMM d"),
+                " - ",
+                format(endDate, "MMM d")
+              ] }),
+              /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500 dark:text-gray-400", children: [
+                forecast.paymentCount,
+                " ",
+                forecast.paymentCount === 1 ? "bill" : "bills",
+                " · $",
+                forecast.totalBills.toLocaleString(void 0, { minimumFractionDigits: 2 })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 flex-shrink-0", children: [
+            !compact && /* @__PURE__ */ jsxs("div", { className: "hidden sm:block w-24", children: [
+              /* @__PURE__ */ jsx("div", { className: "h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden", children: /* @__PURE__ */ jsx(
+                "div",
+                {
+                  className: `h-full ${getUtilizationColor(utilizationPercent)} rounded-full transition-all`,
+                  style: { width: `${utilizationPercent}%` }
+                }
+              ) }),
+              /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 dark:text-gray-400 mt-1 text-center", children: [
+                utilizationPercent.toFixed(0),
+                "% used"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "text-right", children: [
+              /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: "Balance" }),
+              /* @__PURE__ */ jsxs("p", { className: `font-semibold ${forecast.projectedBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`, children: [
+                "$",
+                forecast.projectedBalance.toLocaleString(void 0, { minimumFractionDigits: 2 })
+              ] })
+            ] })
+          ] })
+        ]
+      }
+    ),
+    isExpanded && hasAllocations && /* @__PURE__ */ jsxs("div", { className: "bg-gray-100 dark:bg-gray-800/30 px-3 pb-3 space-y-2", children: [
+      /* @__PURE__ */ jsx("p", { className: "text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide pt-2 px-2", children: "Bank Allocations" }),
+      forecast.allocations.map((allocation, allocIdx) => /* @__PURE__ */ jsx(AllocationCard, { allocation }, allocation.accountId || `unassigned-${allocIdx}`))
     ] })
+  ] });
+}
+function AllocationCard({ allocation }) {
+  const [showBills, setShowBills] = useState(false);
+  return /* @__PURE__ */ jsxs("div", { className: "bg-white dark:bg-[#1c2128] rounded-lg border border-gray-200 dark:border-[#30363d] overflow-hidden", children: [
+    /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: "flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#21262d] transition-colors",
+        onClick: () => setShowBills(!showBills),
+        children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsx(BankBadge, { bank: allocation.bank, size: "sm" }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx("p", { className: "font-medium text-gray-900 dark:text-gray-100 text-sm", children: allocation.accountName }),
+              /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: [
+                allocation.bills.length,
+                " ",
+                allocation.bills.length === 1 ? "bill" : "bills",
+                allocation.lastFour && ` · •••• ${allocation.lastFour}`
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxs("p", { className: "font-semibold text-gray-900 dark:text-gray-100", children: [
+              "$",
+              allocation.total.toLocaleString(void 0, { minimumFractionDigits: 2 })
+            ] }),
+            /* @__PURE__ */ jsx(ChevronDown, { className: `h-4 w-4 text-gray-400 transition-transform ${showBills ? "rotate-180" : ""}` })
+          ] })
+        ]
+      }
+    ),
+    showBills && /* @__PURE__ */ jsx("div", { className: "border-t border-gray-100 dark:border-gray-800 px-3 pb-2", children: allocation.bills.map((bill, billIdx) => /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between py-2 text-sm", children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx("p", { className: "text-gray-900 dark:text-gray-100", children: bill.name }),
+        /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: bill.dueDate })
+      ] }),
+      /* @__PURE__ */ jsxs("p", { className: "text-gray-700 dark:text-gray-300", children: [
+        "$",
+        bill.amount.toLocaleString(void 0, { minimumFractionDigits: 2 })
+      ] })
+    ] }, billIdx)) })
   ] });
 }
 
@@ -428,6 +487,37 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
       );
       const totalBills = periodPayments.reduce((sum, p) => sum + Number(p.amount), 0);
       const projectedBalance = paycheckAmount - totalBills;
+      const accountMap2 = /* @__PURE__ */ new Map();
+      periodPayments.forEach((payment) => {
+        const bankId = payment.bill.bankAccountId;
+        if (!accountMap2.has(bankId)) {
+          accountMap2.set(bankId, []);
+        }
+        accountMap2.get(bankId).push(payment);
+      });
+      const allocations = [];
+      accountMap2.forEach((accountPayments, bankId) => {
+        const account = bankId ? bankAccounts.find((a) => a.id === bankId) : null;
+        const bills = accountPayments.map((p) => ({
+          name: p.bill.name,
+          amount: Number(p.amount),
+          dueDate: format(p.dueDate, "MMM d")
+        }));
+        const total = bills.reduce((sum, b) => sum + b.amount, 0);
+        allocations.push({
+          accountId: bankId,
+          accountName: account?.name || "Unassigned",
+          bank: account?.bank || "OTHER",
+          lastFour: account?.lastFour || null,
+          total,
+          bills
+        });
+      });
+      allocations.sort((a, b) => {
+        if (a.accountId && !b.accountId) return -1;
+        if (!a.accountId && b.accountId) return 1;
+        return b.total - a.total;
+      });
       return {
         period: {
           startDate: period.startDate.toISOString(),
@@ -436,7 +526,8 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
         },
         totalBills,
         projectedBalance,
-        paymentCount: periodPayments.length
+        paymentCount: periodPayments.length,
+        allocations
       };
     })
   );
