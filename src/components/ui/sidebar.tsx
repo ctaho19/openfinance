@@ -9,7 +9,6 @@ import {
   Calendar,
   PiggyBank,
   ChevronRight,
-  Search,
   User,
   LogOut,
 } from "lucide-react";
@@ -83,12 +82,6 @@ export function Sidebar({ currentPath = "" }: SidebarProps) {
             </div>
           </Link>
           <div className="flex-1" />
-          <button
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-          </button>
           <Link
             href="/dashboard/settings"
             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

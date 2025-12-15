@@ -5,6 +5,18 @@ All notable changes to OpenFinance will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2024-12-14
+
+### Fixed
+
+- **Debt Freedom Card Light Mode** - Improved gradient contrast in light mode (now uses brighter accent-500 start color)
+- **Non-functional Search Buttons** - Removed placeholder search buttons from sidebar and header that had no functionality
+
+### Changed
+
+- **Landing Page** - Replaced "Connect All Accounts" feature with "Pay Period Planning" to reflect actual implemented features
+- **Landing Page** - Updated pricing section to show "Pay period scheduling" instead of "Secure account linking"
+
 ## [0.2.5] - 2024-12-14
 
 ### Fixed

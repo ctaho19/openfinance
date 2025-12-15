@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface AccountSummaryCardProps {
   title: string;
@@ -11,7 +11,6 @@ interface AccountSummaryCardProps {
     value: string;
   }>;
   children?: ReactNode;
-  showActions?: boolean;
 }
 
 export function AccountSummaryCard({
@@ -21,7 +20,6 @@ export function AccountSummaryCard({
   primaryLabel = "Total accounts",
   secondaryItems,
   children,
-  showActions = true,
 }: AccountSummaryCardProps) {
   const formattedAmount = primaryAmount.toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -46,48 +44,14 @@ export function AccountSummaryCard({
       </div>
 
       <div className="px-5 py-5">
-        {/* Top row: link and actions */}
-        <div className="flex items-center justify-between mb-4">
-          <a
-            href="/dashboard"
-            className="text-[#0060f0] hover:text-[#004dc0] text-sm font-medium inline-flex items-center gap-0.5"
-          >
-            {primaryLabel}
-            <ChevronRight className="h-4 w-4" />
-          </a>
-          {showActions && (
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-1.5 text-sm font-medium text-[#0060f0] border border-[#0060f0] rounded-md hover:bg-[#e6f2fc] transition-colors">
-                Link account
-              </button>
-              <button className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-1">
-                More
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-
         {/* Balance Display - Chase style with large numbers */}
-        <div className="flex flex-wrap items-baseline gap-x-12 gap-y-4">
-          <div>
-            <p className="text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight">
-              ${formattedAmount}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Total assets
-            </p>
-          </div>
-          
-          {/* Secondary amount - liabilities style */}
-          <div>
-            <p className="text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight">
-              $0.00
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Total liabilities
-            </p>
-          </div>
+        <div>
+          <p className="text-[2.5rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight">
+            ${formattedAmount}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            {primaryLabel}
+          </p>
         </div>
 
         {/* Secondary Items */}

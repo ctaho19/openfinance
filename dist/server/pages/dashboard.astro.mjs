@@ -1,8 +1,8 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_BDUB174U.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_Bq6NtJ36.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
-import { ChevronDown, ChevronRight, XCircle, AlertTriangle, CheckCircle, Info, X, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ChevronDown, XCircle, AlertTriangle, CheckCircle, Info, X, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
 import { g as getCurrentPayPeriod, b as getNextPayPeriod, f as formatPayPeriod, S as SectionCard } from '../chunks/section-card_v4AMPtzv.mjs';
 import { g as getSession } from '../chunks/get-session-astro_CVC6HSBT.mjs';
 import { p as prisma } from '../chunks/auth-config_mz_UKjvQ.mjs';
@@ -15,8 +15,7 @@ function AccountSummaryCard({
   primaryAmount,
   primaryLabel = "Total accounts",
   secondaryItems,
-  children,
-  showActions = true
+  children
 }) {
   const formattedAmount = primaryAmount.toLocaleString(void 0, {
     minimumFractionDigits: 2,
@@ -31,38 +30,12 @@ function AccountSummaryCard({
       /* @__PURE__ */ jsx(ChevronDown, { className: "h-5 w-5 text-gray-400" })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "px-5 py-5", children: [
-      /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between mb-4", children: [
-        /* @__PURE__ */ jsxs(
-          "a",
-          {
-            href: "/dashboard",
-            className: "text-[#0060f0] hover:text-[#004dc0] text-sm font-medium inline-flex items-center gap-0.5",
-            children: [
-              primaryLabel,
-              /* @__PURE__ */ jsx(ChevronRight, { className: "h-4 w-4" })
-            ]
-          }
-        ),
-        showActions && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsx("button", { className: "px-3 py-1.5 text-sm font-medium text-[#0060f0] border border-[#0060f0] rounded-md hover:bg-[#e6f2fc] transition-colors", children: "Link account" }),
-          /* @__PURE__ */ jsxs("button", { className: "px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-1", children: [
-            "More",
-            /* @__PURE__ */ jsx(ChevronDown, { className: "h-3.5 w-3.5" })
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap items-baseline gap-x-12 gap-y-4", children: [
-        /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsxs("p", { className: "text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight", children: [
-            "$",
-            formattedAmount
-          ] }),
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 mt-1", children: "Total assets" })
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsxs("p", { className: "text-[2.5rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight", children: [
+          "$",
+          formattedAmount
         ] }),
-        /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("p", { className: "text-[2rem] leading-none font-normal text-gray-900 dark:text-gray-100 tracking-tight", children: "$0.00" }),
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 mt-1", children: "Total liabilities" })
-        ] })
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 dark:text-gray-400 mt-2", children: primaryLabel })
       ] }),
       secondaryItems && secondaryItems.length > 0 && /* @__PURE__ */ jsx("div", { className: "flex flex-wrap gap-x-8 gap-y-3 mt-6 pt-4 border-t border-gray-100 dark:border-[#30363d]", children: secondaryItems.map((item, index) => /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 dark:text-gray-400 font-medium", children: item.label }),

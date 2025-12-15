@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Search, User, X, LogOut, Settings, ChevronRight } from "lucide-react";
+import { Menu, User, X, LogOut, Settings, ChevronRight } from "lucide-react";
 import { Link } from "./link";
 
 interface ChaseHeaderProps {
@@ -45,12 +45,6 @@ export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {
           </Link>
 
           <div className="flex items-center gap-1">
-            <button
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors touch-target"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
             <Link
               href="/dashboard/settings"
               className="p-2 rounded-lg hover:bg-white/10 transition-colors touch-target"

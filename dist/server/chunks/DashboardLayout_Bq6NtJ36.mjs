@@ -1,9 +1,9 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, n as renderSlot } from './astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from './BaseLayout_CfQ5SKdz.mjs';
+import { $ as $$BaseLayout } from './BaseLayout_BD-Qo8bx.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, createContext, useEffect, useContext } from 'react';
-import { Menu, Search, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, LayoutDashboard, Receipt, CreditCard, Calendar, PiggyBank, Target, ArrowLeftRight, ListOrdered, Calculator, Lightbulb, ExternalLink } from 'lucide-react';
+import { Menu, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, LayoutDashboard, Receipt, CreditCard, Calendar, PiggyBank, Target, ArrowLeftRight, ListOrdered, Calculator, Lightbulb, ExternalLink } from 'lucide-react';
 
 function Link({ href, children, ...props }) {
   return /* @__PURE__ */ jsx("a", { href, ...props, children });
@@ -36,24 +36,14 @@ function ChaseHeader({ currentPath, user }) {
           }
         ),
         /* @__PURE__ */ jsx(Link, { href: "/dashboard", className: "flex items-center gap-2", children: /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center", children: /* @__PURE__ */ jsx("span", { className: "font-bold text-sm", children: "OF" }) }) }),
-        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1", children: [
-          /* @__PURE__ */ jsx(
-            "button",
-            {
-              className: "p-2 rounded-lg hover:bg-white/10 transition-colors touch-target",
-              "aria-label": "Search",
-              children: /* @__PURE__ */ jsx(Search, { className: "h-5 w-5" })
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            Link,
-            {
-              href: "/dashboard/settings",
-              className: "p-2 rounded-lg hover:bg-white/10 transition-colors touch-target",
-              children: /* @__PURE__ */ jsx(User, { className: "h-5 w-5" })
-            }
-          )
-        ] })
+        /* @__PURE__ */ jsx("div", { className: "flex items-center gap-1", children: /* @__PURE__ */ jsx(
+          Link,
+          {
+            href: "/dashboard/settings",
+            className: "p-2 rounded-lg hover:bg-white/10 transition-colors touch-target",
+            children: /* @__PURE__ */ jsx(User, { className: "h-5 w-5" })
+          }
+        ) })
       ] }),
       /* @__PURE__ */ jsx("nav", { className: "flex items-center gap-1 px-4 overflow-x-auto scrollbar-hide", children: navItems$1.map((item) => /* @__PURE__ */ jsxs(
         Link,
@@ -353,14 +343,6 @@ function Sidebar({ currentPath = "" }) {
       /* @__PURE__ */ jsx(Link, { href: "/dashboard", className: "flex items-center gap-2.5 group", children: /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-[#0060f0] flex items-center justify-center shadow-sm", children: /* @__PURE__ */ jsx("span", { className: "text-white font-bold text-sm", children: "OF" }) }) }),
       /* @__PURE__ */ jsx("div", { className: "flex-1" }),
       /* @__PURE__ */ jsx(
-        "button",
-        {
-          className: "p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
-          "aria-label": "Search",
-          children: /* @__PURE__ */ jsx(Search, { className: "h-5 w-5 text-gray-600 dark:text-gray-400" })
-        }
-      ),
-      /* @__PURE__ */ jsx(
         Link,
         {
           href: "/dashboard/settings",
@@ -551,4 +533,4 @@ const $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/DashboardLayout.astro", void 0);
 
 export { $$DashboardLayout as $, Link as L, ThemeProvider as T, ThemeToggle as a, useTheme as u };
-//# sourceMappingURL=DashboardLayout_BDUB174U.mjs.map
+//# sourceMappingURL=DashboardLayout_Bq6NtJ36.mjs.map

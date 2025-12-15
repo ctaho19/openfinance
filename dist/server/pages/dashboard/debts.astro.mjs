@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BDUB174U.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_Bq6NtJ36.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { C as Card, a as CardHeader, b as CardTitle, c as CardContent, S as StatCard } from '../../chunks/card_XHmopkrD.mjs';
@@ -215,7 +215,7 @@ function DebtFreedomCard({ debts }) {
     month: "long",
     year: "numeric"
   });
-  return /* @__PURE__ */ jsxs("div", { className: "relative overflow-hidden rounded-xl bg-gradient-to-br from-accent-600 via-accent-600 to-accent-700 dark:from-accent-700 dark:via-accent-700 dark:to-accent-800 text-white shadow-lg", children: [
+  return /* @__PURE__ */ jsxs("div", { className: "relative overflow-hidden rounded-xl bg-gradient-to-br from-accent-500 via-accent-600 to-accent-700 dark:from-accent-700 dark:via-accent-700 dark:to-accent-800 text-white shadow-lg", children: [
     /* @__PURE__ */ jsx("div", { className: "absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" }),
     /* @__PURE__ */ jsx("div", { className: "absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" }),
     /* @__PURE__ */ jsx(

@@ -161,7 +161,7 @@ export function DebtFreedomCard({ debts }: DebtFreedomCardProps) {
   });
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-accent-600 via-accent-600 to-accent-700 dark:from-accent-700 dark:via-accent-700 dark:to-accent-800 text-white shadow-lg">
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-accent-500 via-accent-600 to-accent-700 dark:from-accent-700 dark:via-accent-700 dark:to-accent-800 text-white shadow-lg">
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
       
