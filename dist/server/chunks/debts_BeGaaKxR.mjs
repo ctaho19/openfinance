@@ -58,6 +58,7 @@ function serializeDebt(debt) {
     minimumPayment: Number(debt.minimumPayment),
     pastDueAmount: debt.pastDueAmount ? Number(debt.pastDueAmount) : null,
     dueDay: debt.dueDay,
+    paymentFrequency: debt.paymentFrequency,
     startDate: debt.startDate.toISOString(),
     deferredUntil: debt.deferredUntil ? debt.deferredUntil.toISOString() : null,
     bankAccountId: debt.bankAccountId,
@@ -134,6 +135,7 @@ async function createDebt(userId, data) {
       totalRepayable: data.totalRepayable || null,
       minimumPayment: data.minimumPayment,
       dueDay: data.dueDay,
+      paymentFrequency: isBNPL ? data.paymentFrequency : null,
       notes: data.notes || null,
       bankAccountId: data.bankAccountId || null
     }
@@ -237,6 +239,7 @@ async function updateDebt(userId, debtId, data) {
       ...data.minimumPayment !== void 0 && { minimumPayment: data.minimumPayment },
       ...data.pastDueAmount !== void 0 && { pastDueAmount: data.pastDueAmount || null },
       ...data.dueDay !== void 0 && { dueDay: data.dueDay },
+      ...data.paymentFrequency !== void 0 && { paymentFrequency: data.paymentFrequency },
       ...data.deferredUntil !== void 0 && { deferredUntil: data.deferredUntil ? new Date(data.deferredUntil) : null },
       ...data.notes !== void 0 && { notes: data.notes },
       ...data.isActive !== void 0 && { isActive: data.isActive },
@@ -349,4 +352,4 @@ async function recordPayment(userId, debtId, data) {
 }
 
 export { createDebt as c, getDebt as g, listDebts as l, recordPayment as r, updateDebt as u };
-//# sourceMappingURL=debts_CS0jnHWh.mjs.map
+//# sourceMappingURL=debts_BeGaaKxR.mjs.map

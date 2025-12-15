@@ -5,6 +5,19 @@ All notable changes to OpenFinance will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2024-12-14
+
+### Fixed
+
+- **BNPL Payment Frequency Persistence** - BNPL payment frequency (weekly/bi-weekly/monthly) is now saved to the database and persists across sessions
+- Payment frequency field now appears in the Edit Debt form for BNPL debts
+- Forecast and payoff calculations now respect the stored payment frequency
+
+### Changed
+
+- Added `paymentFrequency` field to Debt model in database schema
+- Edit Debt form shows payment frequency dropdown for BNPL debts
+
 ## [0.2.3] - 2024-12-14
 
 ### Added

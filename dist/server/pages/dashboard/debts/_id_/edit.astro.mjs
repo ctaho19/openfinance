@@ -26,6 +26,11 @@ const DEBT_STATUSES = [
   { value: "IN_COLLECTIONS", label: "In Collections" },
   { value: "PAID_OFF", label: "Paid Off" }
 ];
+const PAYMENT_FREQUENCIES = [
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Bi-weekly" },
+  { value: "monthly", label: "Monthly" }
+];
 function EditDebtForm({ debtId }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,6 +38,7 @@ function EditDebtForm({ debtId }) {
   const [debt, setDebt] = useState(null);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
+  const [paymentFrequency, setPaymentFrequency] = useState("");
   useEffect(() => {
     Promise.all([
       fetch(`/api/debts/${debtId}`).then((res) => res.json()),
@@ -43,6 +49,7 @@ function EditDebtForm({ debtId }) {
       } else {
         setDebt(debtData);
         setSelectedBankAccountId(debtData.bankAccountId || "");
+        setPaymentFrequency(debtData.paymentFrequency || "monthly");
       }
       if (Array.isArray(accountsData)) {
         setBankAccounts(accountsData);
@@ -58,9 +65,10 @@ function EditDebtForm({ debtId }) {
     setSaving(true);
     setError("");
     const formData = new FormData(e.currentTarget);
+    const debtType = formData.get("type");
     const data = {
       name: formData.get("name"),
-      type: formData.get("type"),
+      type: debtType,
       currentBalance: parseFloat(formData.get("currentBalance")),
       originalBalance: parseFloat(formData.get("originalBalance")),
       interestRate: parseFloat(formData.get("interestRate")),
@@ -70,6 +78,9 @@ function EditDebtForm({ debtId }) {
       notes: formData.get("notes") || null,
       bankAccountId: selectedBankAccountId || null
     };
+    if (debtType === "BNPL") {
+      data.paymentFrequency = paymentFrequency;
+    }
     const res = await fetch(`/api/debts/${debtId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -227,21 +238,37 @@ function EditDebtForm({ debtId }) {
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("label", { htmlFor: "dueDay", className: labelClasses, children: "Due Day of Month (1-31)" }),
-          /* @__PURE__ */ jsx(
-            "input",
-            {
-              type: "number",
-              id: "dueDay",
-              name: "dueDay",
-              required: true,
-              min: "1",
-              max: "31",
-              defaultValue: debt.dueDay,
-              className: inputClasses
-            }
-          )
+        /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("label", { htmlFor: "dueDay", className: labelClasses, children: "Due Day of Month (1-31)" }),
+            /* @__PURE__ */ jsx(
+              "input",
+              {
+                type: "number",
+                id: "dueDay",
+                name: "dueDay",
+                required: true,
+                min: "1",
+                max: "31",
+                defaultValue: debt.dueDay,
+                className: inputClasses
+              }
+            )
+          ] }),
+          isBNPL && /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("label", { htmlFor: "paymentFrequency", className: labelClasses, children: "Payment Frequency" }),
+            /* @__PURE__ */ jsx(
+              "select",
+              {
+                id: "paymentFrequency",
+                name: "paymentFrequency",
+                className: inputClasses,
+                value: paymentFrequency,
+                onChange: (e) => setPaymentFrequency(e.target.value),
+                children: PAYMENT_FREQUENCIES.map((freq) => /* @__PURE__ */ jsx("option", { value: freq.value, children: freq.label }, freq.value))
+              }
+            )
+          ] })
         ] }),
         bankAccounts.length > 0 && /* @__PURE__ */ jsxs("div", { children: [
           /* @__PURE__ */ jsx("label", { className: labelClasses, children: "Payment Bank Account" }),

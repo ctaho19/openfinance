@@ -110,6 +110,7 @@ export interface SerializedDebt {
   minimumPayment: number;
   pastDueAmount: number | null;
   dueDay: number;
+  paymentFrequency: string | null;
   startDate: string;
   deferredUntil: string | null;
   bankAccountId: string | null;
@@ -145,6 +146,7 @@ function serializeDebt(debt: DebtWithPayments): SerializedDebt {
     minimumPayment: Number(debt.minimumPayment),
     pastDueAmount: debt.pastDueAmount ? Number(debt.pastDueAmount) : null,
     dueDay: debt.dueDay,
+    paymentFrequency: debt.paymentFrequency,
     startDate: debt.startDate.toISOString(),
     deferredUntil: debt.deferredUntil ? debt.deferredUntil.toISOString() : null,
     bankAccountId: debt.bankAccountId,
@@ -230,6 +232,7 @@ export async function createDebt(userId: string, data: CreateDebtInput): Promise
       totalRepayable: data.totalRepayable || null,
       minimumPayment: data.minimumPayment,
       dueDay: data.dueDay,
+      paymentFrequency: isBNPL ? data.paymentFrequency : null,
       notes: data.notes || null,
       bankAccountId: data.bankAccountId || null,
     },
@@ -350,6 +353,7 @@ export async function updateDebt(
       ...(data.minimumPayment !== undefined && { minimumPayment: data.minimumPayment }),
       ...(data.pastDueAmount !== undefined && { pastDueAmount: data.pastDueAmount || null }),
       ...(data.dueDay !== undefined && { dueDay: data.dueDay }),
+      ...(data.paymentFrequency !== undefined && { paymentFrequency: data.paymentFrequency }),
       ...(data.deferredUntil !== undefined && { deferredUntil: data.deferredUntil ? new Date(data.deferredUntil) : null }),
       ...(data.notes !== undefined && { notes: data.notes }),
       ...(data.isActive !== undefined && { isActive: data.isActive }),

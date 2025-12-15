@@ -40,6 +40,7 @@ interface Debt {
   interestRate: number;
   minimumPayment: number;
   dueDay: number;
+  paymentFrequency: string | null;
   notes: string | null;
   bankAccountId: string | null;
   effectiveRate?: number | null;
@@ -48,6 +49,12 @@ interface Debt {
   deferredUntil?: string | null;
   startDate?: string;
 }
+
+const PAYMENT_FREQUENCIES = [
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Bi-weekly" },
+  { value: "monthly", label: "Monthly" },
+];
 
 interface EditDebtFormProps {
   debtId: string;
@@ -60,6 +67,7 @@ export default function EditDebtForm({ debtId }: EditDebtFormProps) {
   const [debt, setDebt] = useState<Debt | null>(null);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
+  const [paymentFrequency, setPaymentFrequency] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -72,6 +80,7 @@ export default function EditDebtForm({ debtId }: EditDebtFormProps) {
         } else {
           setDebt(debtData);
           setSelectedBankAccountId(debtData.bankAccountId || "");
+          setPaymentFrequency(debtData.paymentFrequency || "monthly");
         }
         if (Array.isArray(accountsData)) {
           setBankAccounts(accountsData);
@@ -91,9 +100,10 @@ export default function EditDebtForm({ debtId }: EditDebtFormProps) {
 
     const formData = new FormData(e.currentTarget);
 
+    const debtType = formData.get("type") as string;
     const data: Record<string, unknown> = {
       name: formData.get("name"),
-      type: formData.get("type"),
+      type: debtType,
       currentBalance: parseFloat(formData.get("currentBalance") as string),
       originalBalance: parseFloat(formData.get("originalBalance") as string),
       interestRate: parseFloat(formData.get("interestRate") as string),
@@ -103,6 +113,10 @@ export default function EditDebtForm({ debtId }: EditDebtFormProps) {
       notes: formData.get("notes") || null,
       bankAccountId: selectedBankAccountId || null,
     };
+
+    if (debtType === "BNPL") {
+      data.paymentFrequency = paymentFrequency;
+    }
 
     const res = await fetch(`/api/debts/${debtId}`, {
       method: "PATCH",
@@ -300,20 +314,43 @@ export default function EditDebtForm({ debtId }: EditDebtFormProps) {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="dueDay" className={labelClasses}>
-                Due Day of Month (1-31)
-              </label>
-              <input
-                type="number"
-                id="dueDay"
-                name="dueDay"
-                required
-                min="1"
-                max="31"
-                defaultValue={debt.dueDay}
-                className={inputClasses}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="dueDay" className={labelClasses}>
+                  Due Day of Month (1-31)
+                </label>
+                <input
+                  type="number"
+                  id="dueDay"
+                  name="dueDay"
+                  required
+                  min="1"
+                  max="31"
+                  defaultValue={debt.dueDay}
+                  className={inputClasses}
+                />
+              </div>
+
+              {isBNPL && (
+                <div>
+                  <label htmlFor="paymentFrequency" className={labelClasses}>
+                    Payment Frequency
+                  </label>
+                  <select
+                    id="paymentFrequency"
+                    name="paymentFrequency"
+                    className={inputClasses}
+                    value={paymentFrequency}
+                    onChange={(e) => setPaymentFrequency(e.target.value)}
+                  >
+                    {PAYMENT_FREQUENCIES.map((freq) => (
+                      <option key={freq.value} value={freq.value}>
+                        {freq.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             {bankAccounts.length > 0 && (
