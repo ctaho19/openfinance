@@ -465,22 +465,27 @@ function getPaymentStatus(date: Date): "overdue" | "due-soon" | "due-today" | "p
   </div>
 
   <script>
-    document.querySelectorAll('.payment-toggle').forEach(button => {
-      button.addEventListener('click', async () => {
-        const paymentId = (button as HTMLElement).dataset.paymentId;
-        try {
-          const response = await fetch(`/api/bill-payments/${paymentId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ togglePaid: true }),
-          });
-          if (response.ok) {
-            window.location.reload();
-          }
-        } catch (error) {
-          console.error('Failed to toggle payment:', error);
+    // Use event delegation to handle clicks on payment toggles
+    // This ensures buttons inside collapsed sections work when expanded
+    document.addEventListener('click', async (event) => {
+      const button = (event.target as HTMLElement).closest('.payment-toggle');
+      if (!button) return;
+      
+      const paymentId = (button as HTMLElement).dataset.paymentId;
+      if (!paymentId) return;
+      
+      try {
+        const response = await fetch(`/api/bill-payments/${paymentId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ togglePaid: true }),
+        });
+        if (response.ok) {
+          window.location.reload();
         }
-      });
+      } catch (error) {
+        console.error('Failed to toggle payment:', error);
+      }
     });
   </script>
 </DashboardLayout>

@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_COE-4DU8.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_D7aHZw7-.mjs';
 import { C as Card, c as CardContent, a as CardHeader, b as CardTitle, S as StatCard } from '../../chunks/card_XHmopkrD.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState } from 'react';
@@ -408,8 +408,8 @@ function BillsList({ regularBills, bnplGroups }) {
                       "button",
                       {
                         onClick: () => handleTogglePayment(nextPayment.id, isPaid),
-                        disabled: isLoading || isCompleted,
-                        className: `flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isPaid || isCompleted ? "bg-accent-500 border-accent-500 text-white" : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"} ${isLoading || isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+                        disabled: isLoading,
+                        className: `flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isPaid || isCompleted ? "bg-accent-500 border-accent-500 text-white" : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"} ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
                         title: isPaid ? "Mark as unpaid" : "Mark as paid",
                         children: isLoading ? /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin text-theme-muted" }) : /* @__PURE__ */ jsx(Check, { className: `h-4 w-4 ${isCompleted ? "text-white" : ""}` })
                       }
