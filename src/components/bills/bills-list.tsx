@@ -267,12 +267,12 @@ export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
                         {nextPayment && (
                           <button
                             onClick={() => handleTogglePayment(nextPayment.id, isPaid)}
-                            disabled={isLoading || isCompleted}
+                            disabled={isLoading}
                             className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
                               isPaid || isCompleted
                                 ? "bg-accent-500 border-accent-500 text-white" 
                                 : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"
-                            } ${isLoading || isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                            } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                             title={isPaid ? "Mark as unpaid" : "Mark as paid"}
                           >
                             {isLoading ? (
