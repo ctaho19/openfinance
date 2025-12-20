@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_Bq6NtJ36.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../../chunks/DashboardLayout_COE-4DU8.mjs';
 import { C as Card, c as CardContent, a as CardHeader, b as CardTitle, S as StatCard } from '../../chunks/card_XHmopkrD.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState } from 'react';
@@ -293,7 +293,8 @@ function formatDueDate(bill) {
 function BillsList({ regularBills, bnplGroups }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [loadingPayments, setLoadingPayments] = useState(/* @__PURE__ */ new Set());
-  const handleTogglePayment = async (paymentId) => {
+  const [completedPayments, setCompletedPayments] = useState(/* @__PURE__ */ new Set());
+  const handleTogglePayment = async (paymentId, currentlyPaid) => {
     setLoadingPayments((prev) => new Set(prev).add(paymentId));
     try {
       const response = await fetch(`/api/bill-payments/${paymentId}`, {
@@ -302,7 +303,14 @@ function BillsList({ regularBills, bnplGroups }) {
         body: JSON.stringify({ togglePaid: true })
       });
       if (response.ok) {
-        window.location.reload();
+        if (!currentlyPaid) {
+          setCompletedPayments((prev) => new Set(prev).add(paymentId));
+          setTimeout(() => {
+            window.location.reload();
+          }, 600);
+        } else {
+          window.location.reload();
+        }
       }
     } catch (error) {
       console.error("Failed to toggle payment:", error);
@@ -389,20 +397,21 @@ function BillsList({ regularBills, bnplGroups }) {
             const nextPayment = bill.payments[0];
             const isPaid = nextPayment?.status === "PAID";
             const isLoading = nextPayment && loadingPayments.has(nextPayment.id);
+            const isCompleted = nextPayment && completedPayments.has(nextPayment.id);
             return /* @__PURE__ */ jsxs(
               "div",
               {
-                className: `flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${!bill.isActive ? "opacity-50" : ""}`,
+                className: `flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${!bill.isActive ? "opacity-50" : ""} ${isCompleted ? "animate-fade-out-right bg-accent-500/10" : ""}`,
                 children: [
                   /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
                     nextPayment && /* @__PURE__ */ jsx(
                       "button",
                       {
-                        onClick: () => handleTogglePayment(nextPayment.id),
-                        disabled: isLoading,
-                        className: `flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isPaid ? "bg-accent-500 border-accent-500 text-white" : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"} ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+                        onClick: () => handleTogglePayment(nextPayment.id, isPaid),
+                        disabled: isLoading || isCompleted,
+                        className: `flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isPaid || isCompleted ? "bg-accent-500 border-accent-500 text-white" : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"} ${isLoading || isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
                         title: isPaid ? "Mark as unpaid" : "Mark as paid",
-                        children: isLoading ? /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin text-theme-muted" }) : /* @__PURE__ */ jsx(Check, { className: "h-4 w-4" })
+                        children: isLoading ? /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin text-theme-muted" }) : /* @__PURE__ */ jsx(Check, { className: `h-4 w-4 ${isCompleted ? "text-white" : ""}` })
                       }
                     ),
                     /* @__PURE__ */ jsxs("div", { className: "flex-1 min-w-0", children: [

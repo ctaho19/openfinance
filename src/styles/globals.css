@@ -534,6 +534,21 @@ select option {
   animation: pulse-subtle 2s var(--ease-in-out) infinite;
 }
 
+@keyframes fadeOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+.animate-fade-out-right {
+  animation: fadeOutRight 500ms var(--ease-out) forwards;
+}
+
 /* Staggered animation delays */
 .stagger-1 { animation-delay: 40ms; }
 .stagger-2 { animation-delay: 80ms; }

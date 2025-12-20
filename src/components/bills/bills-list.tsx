@@ -98,8 +98,9 @@ function formatDueDate(bill: Bill): string {
 export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [loadingPayments, setLoadingPayments] = useState<Set<string>>(new Set());
+  const [completedPayments, setCompletedPayments] = useState<Set<string>>(new Set());
 
-  const handleTogglePayment = async (paymentId: string) => {
+  const handleTogglePayment = async (paymentId: string, currentlyPaid: boolean) => {
     setLoadingPayments(prev => new Set(prev).add(paymentId));
     try {
       const response = await fetch(`/api/bill-payments/${paymentId}`, {
@@ -108,7 +109,14 @@ export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
         body: JSON.stringify({ togglePaid: true }),
       });
       if (response.ok) {
-        window.location.reload();
+        if (!currentlyPaid) {
+          setCompletedPayments(prev => new Set(prev).add(paymentId));
+          setTimeout(() => {
+            window.location.reload();
+          }, 600);
+        } else {
+          window.location.reload();
+        }
       }
     } catch (error) {
       console.error("Failed to toggle payment:", error);
@@ -246,30 +254,31 @@ export function BillsList({ regularBills, bnplGroups }: BillsListProps) {
                     const nextPayment = bill.payments[0];
                     const isPaid = nextPayment?.status === "PAID";
                     const isLoading = nextPayment && loadingPayments.has(nextPayment.id);
+                    const isCompleted = nextPayment && completedPayments.has(nextPayment.id);
                     
                     return (
                     <div
                       key={bill.id}
                       className={`flex items-center justify-between py-4 px-6 hover:bg-theme-secondary/50 transition-colors ${
                         !bill.isActive ? "opacity-50" : ""
-                      }`}
+                      } ${isCompleted ? "animate-fade-out-right bg-accent-500/10" : ""}`}
                     >
                       <div className="flex items-center gap-3">
                         {nextPayment && (
                           <button
-                            onClick={() => handleTogglePayment(nextPayment.id)}
-                            disabled={isLoading}
+                            onClick={() => handleTogglePayment(nextPayment.id, isPaid)}
+                            disabled={isLoading || isCompleted}
                             className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                              isPaid 
+                              isPaid || isCompleted
                                 ? "bg-accent-500 border-accent-500 text-white" 
                                 : "border-theme-muted hover:border-accent-500 text-transparent hover:text-accent-500"
-                            } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                            } ${isLoading || isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                             title={isPaid ? "Mark as unpaid" : "Mark as paid"}
                           >
                             {isLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin text-theme-muted" />
                             ) : (
-                              <Check className="h-4 w-4" />
+                              <Check className={`h-4 w-4 ${isCompleted ? "text-white" : ""}`} />
                             )}
                           </button>
                         )}

@@ -56,6 +56,7 @@ interface Debt {
   minimumPayment: string;
   pastDueAmount: string | null;
   dueDay: number;
+  paymentFrequency: string | null;
   deferredUntil: string | null;
   isActive: boolean;
   notes: string | null;
@@ -101,6 +102,20 @@ function formatCurrency(value: string | number): string {
   }).format(Number(value));
 }
 
+function getMonthlyPaymentMultiplier(frequency: string | null): number {
+  switch (frequency?.toLowerCase()) {
+    case "weekly":
+      return 52 / 12;
+    case "biweekly":
+      return 26 / 12;
+    case "yearly":
+      return 1 / 12;
+    case "monthly":
+    default:
+      return 1;
+  }
+}
+
 function calculatePayoffInfo(debt: Debt): { months: number | null; date: string; method: string } {
   const balance = Number(debt.currentBalance);
   const rate = Number(debt.interestRate);
@@ -126,6 +141,9 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
     return { months: null, date: "N/A", method: "standard" };
   }
 
+  const monthlyMultiplier = getMonthlyPaymentMultiplier(debt.paymentFrequency);
+  const monthlyPayment = payment * monthlyMultiplier;
+
   let adjustedBalance = balance;
   if (isDeferred && debt.deferredUntil) {
     const deferredUntil = new Date(debt.deferredUntil);
@@ -140,7 +158,7 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
   const monthlyRate = rate / 100 / 12;
   
   if (monthlyRate === 0) {
-    const months = Math.ceil(adjustedBalance / payment);
+    const months = Math.ceil(adjustedBalance / monthlyPayment);
     const date = new Date();
     date.setMonth(date.getMonth() + months);
     return {
@@ -151,12 +169,12 @@ function calculatePayoffInfo(debt: Debt): { months: number | null; date: string;
   }
 
   const monthlyInterest = adjustedBalance * monthlyRate;
-  if (payment <= monthlyInterest) {
+  if (monthlyPayment <= monthlyInterest) {
     return { months: null, date: "Never (payment too low)", method: "standard" };
   }
 
   const months = Math.ceil(
-    Math.log(payment / (payment - adjustedBalance * monthlyRate)) / Math.log(1 + monthlyRate)
+    Math.log(monthlyPayment / (monthlyPayment - adjustedBalance * monthlyRate)) / Math.log(1 + monthlyRate)
   );
   const date = new Date();
   date.setMonth(date.getMonth() + months);

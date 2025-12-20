@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_Bq6NtJ36.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_COE-4DU8.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { C as Card, a as CardHeader, b as CardTitle, c as CardContent, S as StatCard } from '../../chunks/card_XHmopkrD.mjs';
@@ -303,6 +303,19 @@ function formatCurrency(value) {
     currency: "USD"
   }).format(Number(value));
 }
+function getMonthlyPaymentMultiplier(frequency) {
+  switch (frequency?.toLowerCase()) {
+    case "weekly":
+      return 52 / 12;
+    case "biweekly":
+      return 26 / 12;
+    case "yearly":
+      return 1 / 12;
+    case "monthly":
+    default:
+      return 1;
+  }
+}
 function calculatePayoffInfo(debt) {
   const balance = Number(debt.currentBalance);
   const rate = Number(debt.interestRate);
@@ -325,6 +338,8 @@ function calculatePayoffInfo(debt) {
   if (payment <= 0 || balance <= 0) {
     return { months: null, date: "N/A", method: "standard" };
   }
+  const monthlyMultiplier = getMonthlyPaymentMultiplier(debt.paymentFrequency);
+  const monthlyPayment = payment * monthlyMultiplier;
   let adjustedBalance = balance;
   if (isDeferred && debt.deferredUntil) {
     const deferredUntil = new Date(debt.deferredUntil);
@@ -337,7 +352,7 @@ function calculatePayoffInfo(debt) {
   }
   const monthlyRate = rate / 100 / 12;
   if (monthlyRate === 0) {
-    const months2 = Math.ceil(adjustedBalance / payment);
+    const months2 = Math.ceil(adjustedBalance / monthlyPayment);
     const date2 = /* @__PURE__ */ new Date();
     date2.setMonth(date2.getMonth() + months2);
     return {
@@ -347,11 +362,11 @@ function calculatePayoffInfo(debt) {
     };
   }
   const monthlyInterest = adjustedBalance * monthlyRate;
-  if (payment <= monthlyInterest) {
+  if (monthlyPayment <= monthlyInterest) {
     return { months: null, date: "Never (payment too low)", method: "standard" };
   }
   const months = Math.ceil(
-    Math.log(payment / (payment - adjustedBalance * monthlyRate)) / Math.log(1 + monthlyRate)
+    Math.log(monthlyPayment / (monthlyPayment - adjustedBalance * monthlyRate)) / Math.log(1 + monthlyRate)
   );
   const date = /* @__PURE__ */ new Date();
   date.setMonth(date.getMonth() + months);

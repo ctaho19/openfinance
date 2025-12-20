@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_Bq6NtJ36.mjs';
+import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_COE-4DU8.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
 import { C as Card, c as CardContent, a as CardHeader, b as CardTitle } from '../../../chunks/card_XHmopkrD.mjs';
