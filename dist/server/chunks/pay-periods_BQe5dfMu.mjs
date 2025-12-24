@@ -137,6 +137,32 @@ async function markPaymentUnpaid(userId, paymentId) {
     }
   });
 }
+const LENDER_KEYWORDS = [
+  { key: "affirm", label: "Affirm" },
+  { key: "afterpay", label: "Afterpay" },
+  { key: "klarna", label: "Klarna" },
+  { key: "sezzle", label: "Sezzle" },
+  { key: "zip", label: "Zip" },
+  { key: "paypal", label: "PayPal Pay Later" },
+  { key: "apple pay later", label: "Apple Pay Later" },
+  { key: "quadpay", label: "Zip" },
+  // QuadPay rebranded to Zip
+  { key: "splitit", label: "Splitit" },
+  { key: "perpay", label: "Perpay" }
+];
+function extractLenderName(raw) {
+  const lower = raw.toLowerCase();
+  for (const { key, label } of LENDER_KEYWORDS) {
+    if (lower.includes(key)) return label;
+  }
+  const separatorMatch = raw.split(/[-–—(]/)[0];
+  const trimmed = separatorMatch?.trim();
+  return trimmed || raw;
+}
+function getLenderNameFromPayment(payment) {
+  const sourceName = payment.bill.debt?.name ?? payment.bill.name;
+  return extractLenderName(sourceName);
+}
 async function getPaymentStatus(userId, paymentId) {
   const payment = await prisma.billPayment.findFirst({
     where: { id: paymentId },
@@ -153,5 +179,5 @@ async function getPaymentStatus(userId, paymentId) {
   return payment.status;
 }
 
-export { markPaymentPaid as a, getPaymentsForPeriod as b, getPaymentStatus as g, markPaymentUnpaid as m };
-//# sourceMappingURL=pay-periods_DCqwAcZQ.mjs.map
+export { markPaymentPaid as a, getPaymentsForPeriod as b, getLenderNameFromPayment as c, getPaymentStatus as g, markPaymentUnpaid as m };
+//# sourceMappingURL=pay-periods_BQe5dfMu.mjs.map

@@ -192,6 +192,47 @@ export async function markPaymentUnpaid(
   });
 }
 
+// Known BNPL lender keywords for canonical name extraction
+const LENDER_KEYWORDS: { key: string; label: string }[] = [
+  { key: "affirm", label: "Affirm" },
+  { key: "afterpay", label: "Afterpay" },
+  { key: "klarna", label: "Klarna" },
+  { key: "sezzle", label: "Sezzle" },
+  { key: "zip", label: "Zip" },
+  { key: "paypal", label: "PayPal Pay Later" },
+  { key: "apple pay later", label: "Apple Pay Later" },
+  { key: "quadpay", label: "Zip" }, // QuadPay rebranded to Zip
+  { key: "splitit", label: "Splitit" },
+  { key: "perpay", label: "Perpay" },
+];
+
+/**
+ * Extract canonical lender name from a debt/bill name string
+ */
+export function extractLenderName(raw: string): string {
+  const lower = raw.toLowerCase();
+
+  // 1) Keyword-based canonicalization
+  for (const { key, label } of LENDER_KEYWORDS) {
+    if (lower.includes(key)) return label;
+  }
+
+  // 2) Fallback: prefix before separators ("Affirm - 4 payments left")
+  const separatorMatch = raw.split(/[-–—(]/)[0];
+  const trimmed = separatorMatch?.trim();
+
+  // 3) Final fallback: return trimmed or raw
+  return trimmed || raw;
+}
+
+/**
+ * Get lender name from a payment with bill/debt info
+ */
+export function getLenderNameFromPayment(payment: PaymentWithBill): string {
+  const sourceName = payment.bill.debt?.name ?? payment.bill.name;
+  return extractLenderName(sourceName);
+}
+
 export async function getPaymentStatus(
   userId: string,
   paymentId: string

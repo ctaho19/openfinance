@@ -1,15 +1,15 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute, l as renderScript } from '../../chunks/astro/server_B4LN2q8c.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_D7aHZw7-.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BPgctkYE.mjs';
 import { g as getCurrentPayPeriod, a as getPreviousPayPeriod, b as getNextPayPeriod, c as getPayPeriods, f as formatPayPeriod, S as SectionCard } from '../../chunks/section-card_v4AMPtzv.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, TrendingUp, ChevronDown, DollarSign, Calendar, AlertTriangle, ChevronUp, Wallet, Building2, Circle, CheckCircle2, CreditCard } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, ChevronDown, DollarSign, Calendar, AlertTriangle, ChevronUp, Wallet, Building2, CreditCard, Circle, CheckCircle2 } from 'lucide-react';
 import { B as BankAccountAllocationCard } from '../../chunks/bank-account-card_SiXbaX8W.mjs';
 import { format, startOfDay, endOfDay, addDays, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import { a as BankBadge } from '../../chunks/bank-badge_CGzskWB7.mjs';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
-import { b as getPaymentsForPeriod } from '../../chunks/pay-periods_DCqwAcZQ.mjs';
+import { b as getPaymentsForPeriod, c as getLenderNameFromPayment } from '../../chunks/pay-periods_BQe5dfMu.mjs';
 import { p as prisma } from '../../chunks/auth-config_mz_UKjvQ.mjs';
 export { renderers } from '../../renderers.mjs';
 
@@ -558,6 +558,26 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
     if (!a.account && b.account) return 1;
     return b.total - a.total;
   });
+  const bnplPayments = unpaidPayments.filter(
+    (p) => p.bill.category === "BNPL" || p.bill.debt?.type === "BNPL"
+  );
+  const lenderMap = /* @__PURE__ */ new Map();
+  bnplPayments.forEach((payment) => {
+    const lenderName = getLenderNameFromPayment(payment);
+    if (!lenderMap.has(lenderName)) lenderMap.set(lenderName, []);
+    lenderMap.get(lenderName).push(payment);
+  });
+  const lenderAllocations = [];
+  lenderMap.forEach((payments2, lenderName) => {
+    const bills = payments2.map((p) => ({
+      name: p.bill.name,
+      amount: Number(p.amount),
+      dueDate: format(p.dueDate, "MMM d")
+    }));
+    const total = bills.reduce((sum, b) => sum + b.amount, 0);
+    lenderAllocations.push({ lenderName, total, bills });
+  });
+  lenderAllocations.sort((a, b) => b.total - a.total);
   function formatDueDate(date) {
     if (isToday(date)) return "Today";
     if (isTomorrow(date)) return "Tomorrow";
@@ -582,7 +602,9 @@ $${paycheckAmount.toLocaleString(void 0, { minimumFractionDigits: 2 })} paycheck
 $${safeToSpend.toLocaleString(void 0, { minimumFractionDigits: 2 })} </p> </div> </div> ${renderComponent($$result2, "AllocationChart", AllocationChart, { "client:visible": true, "items": allocationItems, "total": paycheckAmount, "client:component-hydration": "visible", "client:component-path": "/Users/chris/projects/dev/openfinance/src/components/pay-periods/AllocationChart", "client:component-export": "AllocationChart" })} </div> <!-- Bank Account Allocation --> ${bankAllocations.length > 0 && bankAllocations.some((a) => a.account !== null) && renderTemplate`${renderComponent($$result2, "SectionCard", SectionCard, { "client:visible": true, "title": "Transfer by Account", "subtitle": `${bankAllocations.filter((a) => a.account).length} accounts`, "defaultOpen": true, "client:component-hydration": "visible", "client:component-path": "/Users/chris/projects/dev/openfinance/src/components/ui/section-card", "client:component-export": "SectionCard" }, { "default": async ($$result3) => renderTemplate` <div class="grid grid-cols-1 lg:grid-cols-2 gap-4"> ${bankAllocations.map((allocation) => allocation.account ? renderTemplate`${renderComponent($$result3, "BankAccountAllocationCard", BankAccountAllocationCard, { "client:visible": true, "name": allocation.account.name, "bank": allocation.account.bank, "lastFour": allocation.account.lastFour, "amount": allocation.total, "bills": allocation.bills, "client:component-hydration": "visible", "client:component-path": "/Users/chris/projects/dev/openfinance/src/components/ui/bank-account-card", "client:component-export": "BankAccountAllocationCard" })}` : null)} </div> ${bankAllocations.some((a) => a.account === null) && renderTemplate`<div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700"> <div class="flex items-center gap-3 mb-3"> <div class="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center"> ${renderComponent($$result3, "Building2", Building2, { "className": "h-5 w-5 text-gray-500 dark:text-gray-400" })} </div> <div> <p class="font-medium text-gray-700 dark:text-gray-300">Unassigned Bills</p> <p class="text-sm text-gray-500 dark:text-gray-400">
 $${bankAllocations.find((a) => a.account === null)?.total.toLocaleString(void 0, { minimumFractionDigits: 2 })} total
 </p> </div> </div> <div class="space-y-1"> ${bankAllocations.find((a) => a.account === null)?.bills.map((bill) => renderTemplate`<div class="flex items-center justify-between text-sm"> <span class="text-gray-600 dark:text-gray-400">${bill.name}</span> <span class="text-gray-700 dark:text-gray-300">$${bill.amount.toLocaleString(void 0, { minimumFractionDigits: 2 })}</span> </div>`)} </div> <p class="text-xs text-gray-500 dark:text-gray-400 mt-3"> <a href="/dashboard/bills" class="text-blue-600 dark:text-blue-400 hover:underline">Assign bank accounts</a> to these bills for better tracking
-</p> </div>`}` })}`} <!-- Summary Stats --> <div class="grid grid-cols-2 lg:grid-cols-4 gap-4"> <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4"> <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Due</p> <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
+</p> </div>`}` })}`} <!-- Transfer by Lender (BNPL) --> ${lenderAllocations.length > 0 && renderTemplate`${renderComponent($$result2, "SectionCard", SectionCard, { "client:visible": true, "title": "Transfer by Lender (BNPL)", "subtitle": `${lenderAllocations.length} provider${lenderAllocations.length !== 1 ? "s" : ""} \xB7 $${lenderAllocations.reduce((sum, l) => sum + l.total, 0).toLocaleString(void 0, { minimumFractionDigits: 2 })} total`, "defaultOpen": true, "client:component-hydration": "visible", "client:component-path": "/Users/chris/projects/dev/openfinance/src/components/ui/section-card", "client:component-export": "SectionCard" }, { "default": async ($$result3) => renderTemplate` <div class="grid grid-cols-1 lg:grid-cols-2 gap-4"> ${lenderAllocations.map((allocation) => renderTemplate`<div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] overflow-hidden"> <div class="p-4 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500"> <div class="flex items-center justify-between"> <div class="flex items-center gap-3"> <div class="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center"> ${renderComponent($$result3, "CreditCard", CreditCard, { "className": "h-5 w-5 text-white" })} </div> <div> <p class="font-semibold text-white">${allocation.lenderName}</p> <p class="text-sm text-white/70">${allocation.bills.length} installment${allocation.bills.length !== 1 ? "s" : ""}</p> </div> </div> <div class="text-right"> <p class="text-xs text-white/70">Transfer Amount</p> <p class="text-xl font-bold text-white">
+$${allocation.total.toLocaleString(void 0, { minimumFractionDigits: 2 })} </p> </div> </div> </div> ${allocation.bills.length > 0 && renderTemplate`<div class="p-4 divide-y divide-gray-100 dark:divide-gray-800"> ${allocation.bills.map((bill) => renderTemplate`<div class="flex items-center justify-between py-2 first:pt-0 last:pb-0"> <div> <p class="font-medium text-gray-900 dark:text-gray-100 text-sm">${bill.name}</p> <p class="text-xs text-gray-500 dark:text-gray-400">${bill.dueDate}</p> </div> <p class="font-medium text-gray-700 dark:text-gray-300">
+$${bill.amount.toLocaleString(void 0, { minimumFractionDigits: 2 })} </p> </div>`)} </div>`} </div>`)} </div> ` })}`} <!-- Summary Stats --> <div class="grid grid-cols-2 lg:grid-cols-4 gap-4"> <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4"> <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Due</p> <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
 $${totalDue.toLocaleString(void 0, { minimumFractionDigits: 2 })} </p> <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${payments.length} bills</p> </div> <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4"> <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Paid</p> <p class="text-2xl font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
 $${totalPaid.toLocaleString(void 0, { minimumFractionDigits: 2 })} </p> <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${paidPayments.length} completed</p> </div> <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4"> <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Remaining</p> <p${addAttribute(`text-2xl font-semibold mt-1 ${totalRemaining > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`, "class")}>
 $${totalRemaining.toLocaleString(void 0, { minimumFractionDigits: 2 })} </p> <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${unpaidPayments.length} pending</p> </div> <div class="bg-white dark:bg-[#1c2128] rounded-xl border border-gray-200 dark:border-[#30363d] p-4"> <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Progress</p> <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1"> ${payments.length > 0 ? Math.round(paidPayments.length / payments.length * 100) : 0}%
