@@ -229,8 +229,8 @@ function DebtFreedomCard({ debts }) {
     ),
     /* @__PURE__ */ jsxs("div", { className: "relative p-5", children: [
       /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 mb-3", children: [
-        /* @__PURE__ */ jsx("div", { className: "p-1.5 rounded-lg bg-white/20", children: /* @__PURE__ */ jsx(Target, { className: "h-4 w-4" }) }),
-        /* @__PURE__ */ jsx("h3", { className: "font-semibold text-sm", children: "Debt Freedom Plan" })
+        /* @__PURE__ */ jsx("div", { className: "p-1.5 rounded-lg bg-white/20", children: /* @__PURE__ */ jsx(Target, { className: "h-4 w-4 text-white" }) }),
+        /* @__PURE__ */ jsx("h3", { className: "font-semibold text-sm text-white", children: "Debt Freedom Plan" })
       ] }),
       /* @__PURE__ */ jsx("p", { className: "text-white/80 text-sm mb-1", children: "Stay consistent and be debt-free by" }),
       /* @__PURE__ */ jsx("p", { className: "text-2xl font-bold tracking-tight mb-4", children: formattedDate }),

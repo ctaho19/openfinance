@@ -176,9 +176,9 @@ export function DebtFreedomCard({ debts }: DebtFreedomCardProps) {
       <div className="relative p-5">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-1.5 rounded-lg bg-white/20">
-            <Target className="h-4 w-4" />
+            <Target className="h-4 w-4 text-white" />
           </div>
-          <h3 className="font-semibold text-sm">Debt Freedom Plan</h3>
+          <h3 className="font-semibold text-sm text-white">Debt Freedom Plan</h3>
         </div>
 
         <p className="text-white/80 text-sm mb-1">Stay consistent and be debt-free by</p>
