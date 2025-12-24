@@ -1,0 +1,18 @@
+---
+import DashboardLayout from '../../../../layouts/DashboardLayout.astro';
+import EditBillForm from '../../../../components/forms/edit-bill-form';
+import { getSession } from '../../../../lib/get-session-astro';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/dashboard/bills');
+}
+---
+<DashboardLayout title="Edit Bill" currentPath="/dashboard/bills" user={session.user} showExploreSidebar={false}>
+  <EditBillForm client:load billId={id} />
+</DashboardLayout>

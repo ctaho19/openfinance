@@ -1,4 +1,4 @@
-import { q as NOOP_MIDDLEWARE_HEADER, R as REDIRECT_STATUS_CODES, A as AstroError, v as ActionsReturnedInvalidDataError, D as DEFAULT_404_COMPONENT } from './astro/server_B4LN2q8c.mjs';
+import { p as NOOP_MIDDLEWARE_HEADER, R as REDIRECT_STATUS_CODES, A as AstroError, q as ActionsReturnedInvalidDataError, D as DEFAULT_404_COMPONENT } from './astro/server_BM1N7mdu.mjs';
 import { parse, stringify } from 'devalue';
 import '@astrojs/internal-helpers/path';
 import { escape } from 'html-escaper';
@@ -363,4 +363,4 @@ const default404Instance = {
 };
 
 export { ActionError as A, DEFAULT_404_ROUTE as D, NOOP_MIDDLEWARE_FN as N, ACTION_RPC_ROUTE_PATTERN as a, ACTION_QUERY_PARAMS as b, default404Instance as c, deserializeActionResult as d, ensure404Route as e, getActionQueryString as g, serializeActionResult as s };
-//# sourceMappingURL=astro-designed-error-pages_3WybCo3v.mjs.map
+//# sourceMappingURL=astro-designed-error-pages_DAaxIbHK.mjs.map

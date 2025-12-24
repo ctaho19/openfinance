@@ -1,6 +1,6 @@
-import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../../chunks/astro/server_B4LN2q8c.mjs';
+import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../../chunks/astro/server_BM1N7mdu.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_BPgctkYE.mjs';
+import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_HpgxuAcY.mjs';
 import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';

@@ -54,6 +54,19 @@ async function updateBill(userId, billId, data) {
   if (!existing) {
     throw new Error("Bill not found");
   }
+  if (data.dueDate) {
+    const newDueDate = new Date(data.dueDate);
+    await prisma.billPayment.updateMany({
+      where: {
+        billId,
+        status: "UNPAID"
+      },
+      data: {
+        dueDate: newDueDate
+      }
+    });
+    data.dueDay = newDueDate.getDate();
+  }
   return prisma.bill.update({
     where: { id: billId },
     data: {
@@ -84,4 +97,4 @@ async function deleteBill(userId, billId) {
 }
 
 export { createBill as c, deleteBill as d, getBill as g, listBills as l, updateBill as u };
-//# sourceMappingURL=bills_DrTPm3JP.mjs.map
+//# sourceMappingURL=bills_Bja9DX58.mjs.map

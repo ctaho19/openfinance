@@ -1,14 +1,14 @@
-import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../../chunks/astro/server_BM1N7mdu.mjs';
+import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../../../chunks/astro/server_BM1N7mdu.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../../chunks/DashboardLayout_HpgxuAcY.mjs';
+import { $ as $$DashboardLayout } from '../../../../chunks/DashboardLayout_HpgxuAcY.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
-import { C as Card, a as CardHeader, b as CardTitle, c as CardContent } from '../../../chunks/card_XHmopkrD.mjs';
-import { B as Button } from '../../../chunks/button_VWZV24pY.mjs';
-import { B as BankSelector } from '../../../chunks/bank-badge_CGzskWB7.mjs';
+import { C as Card, c as CardContent, a as CardHeader, b as CardTitle } from '../../../../chunks/card_XHmopkrD.mjs';
+import { B as Button } from '../../../../chunks/button_VWZV24pY.mjs';
+import { B as BankSelector } from '../../../../chunks/bank-badge_CGzskWB7.mjs';
 import { ArrowLeft } from 'lucide-react';
-import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
-export { renderers } from '../../../renderers.mjs';
+import { g as getSession } from '../../../../chunks/get-session-astro_CVC6HSBT.mjs';
+export { renderers } from '../../../../renderers.mjs';
 
 const categories = [
   { value: "SUBSCRIPTION", label: "Subscription" },
@@ -26,7 +26,8 @@ const frequencies = [
   { value: "MONTHLY", label: "Monthly" },
   { value: "YEARLY", label: "Yearly" }
 ];
-function NewBillForm() {
+function EditBillForm({ billId }) {
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [debts, setDebts] = useState([]);
@@ -37,6 +38,7 @@ function NewBillForm() {
     category: "OTHER",
     amount: "",
     dueDay: "",
+    dueDate: "",
     isRecurring: true,
     frequency: "MONTHLY",
     debtId: "",
@@ -44,38 +46,68 @@ function NewBillForm() {
   });
   useEffect(() => {
     Promise.all([
+      fetch(`/api/bills/${billId}`).then((res) => res.json()),
       fetch("/api/debts").then((res) => res.json()),
       fetch("/api/bank-accounts").then((res) => res.json())
-    ]).then(([debtsData, accountsData]) => {
+    ]).then(([billData, debtsData, accountsData]) => {
+      if (billData && !billData.error) {
+        billData.frequency === "ONCE" || !billData.isRecurring;
+        setFormData({
+          name: billData.name || "",
+          category: billData.category || "OTHER",
+          amount: billData.amount?.toString() || "",
+          dueDay: billData.dueDay?.toString() || "",
+          dueDate: "",
+          isRecurring: billData.isRecurring ?? true,
+          frequency: billData.frequency || "MONTHLY",
+          debtId: billData.debtId || "",
+          notes: billData.notes || ""
+        });
+        setSelectedBankAccountId(billData.bankAccountId || "");
+      } else {
+        setError("Failed to load bill");
+      }
       if (Array.isArray(debtsData)) {
         setDebts(debtsData);
       }
       if (Array.isArray(accountsData)) {
         setBankAccounts(accountsData);
-        const defaultAccount = accountsData.find((a) => a.isDefault);
-        if (defaultAccount) {
-          setSelectedBankAccountId(defaultAccount.id);
-        }
       }
     }).catch(() => {
+      setError("Failed to load bill data");
+    }).finally(() => {
+      setIsLoading(false);
     });
-  }, []);
+  }, [billId]);
+  const isOneTimeBill = formData.frequency === "ONCE" || !formData.isRecurring;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/bills", {
-        method: "POST",
+      const payload = {
+        name: formData.name,
+        category: formData.category,
+        amount: parseFloat(formData.amount),
+        isRecurring: formData.isRecurring,
+        frequency: formData.isRecurring ? formData.frequency : "ONCE",
+        debtId: formData.debtId || null,
+        bankAccountId: selectedBankAccountId || null,
+        notes: formData.notes || null
+      };
+      if (isOneTimeBill && formData.dueDate) {
+        payload.dueDate = new Date(formData.dueDate).toISOString();
+      } else {
+        payload.dueDay = parseInt(formData.dueDay, 10);
+      }
+      const res = await fetch(`/api/bills/${billId}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          bankAccountId: selectedBankAccountId || null
-        })
+        body: JSON.stringify(payload)
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to create bill");
+        throw new Error(data.error || "Failed to update bill");
       }
       window.location.href = "/dashboard/bills";
     } catch (err) {
@@ -92,12 +124,24 @@ function NewBillForm() {
     }));
   };
   const inputClasses = "w-full px-4 py-2 bg-theme-secondary border border-theme rounded-xl text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500";
+  if (isLoading) {
+    return /* @__PURE__ */ jsxs("div", { className: "animate-fade-in space-y-6 lg:space-y-8", children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
+        /* @__PURE__ */ jsx("a", { href: "/dashboard/bills", children: /* @__PURE__ */ jsx(Button, { variant: "ghost", size: "sm", leftIcon: /* @__PURE__ */ jsx(ArrowLeft, { className: "h-4 w-4" }), children: "Back" }) }),
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsx("h1", { className: "text-2xl font-bold text-theme-primary", children: "Edit Bill" }),
+          /* @__PURE__ */ jsx("p", { className: "text-theme-secondary mt-1", children: "Loading bill details..." })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx(Card, { children: /* @__PURE__ */ jsx(CardContent, { className: "py-12", children: /* @__PURE__ */ jsx("div", { className: "flex justify-center", children: /* @__PURE__ */ jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-accent-500" }) }) }) })
+    ] });
+  }
   return /* @__PURE__ */ jsxs("div", { className: "animate-fade-in space-y-6 lg:space-y-8", children: [
     /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
       /* @__PURE__ */ jsx("a", { href: "/dashboard/bills", children: /* @__PURE__ */ jsx(Button, { variant: "ghost", size: "sm", leftIcon: /* @__PURE__ */ jsx(ArrowLeft, { className: "h-4 w-4" }), children: "Back" }) }),
       /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("h1", { className: "text-2xl font-bold text-theme-primary", children: "Add New Bill" }),
-        /* @__PURE__ */ jsx("p", { className: "text-theme-secondary mt-1", children: "Create a new recurring bill or payment" })
+        /* @__PURE__ */ jsx("h1", { className: "text-2xl font-bold text-theme-primary", children: "Edit Bill" }),
+        /* @__PURE__ */ jsx("p", { className: "text-theme-secondary mt-1", children: "Update bill details" })
       ] })
     ] }),
     /* @__PURE__ */ jsxs(Card, { children: [
@@ -158,7 +202,21 @@ function NewBillForm() {
               )
             ] })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          isOneTimeBill ? /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsx("label", { htmlFor: "dueDate", className: "block text-sm font-medium text-theme-secondary", children: "Due Date" }),
+            /* @__PURE__ */ jsx(
+              "input",
+              {
+                type: "date",
+                id: "dueDate",
+                name: "dueDate",
+                value: formData.dueDate,
+                onChange: handleChange,
+                className: inputClasses
+              }
+            ),
+            /* @__PURE__ */ jsx("p", { className: "text-xs text-theme-muted", children: "Leave empty to keep current due date" })
+          ] }) : /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
             /* @__PURE__ */ jsx("label", { htmlFor: "dueDay", className: "block text-sm font-medium text-theme-secondary", children: "Due Day (1-31) *" }),
             /* @__PURE__ */ jsx(
               "input",
@@ -254,7 +312,7 @@ function NewBillForm() {
           )
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "flex gap-4 pt-4", children: [
-          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: isSubmitting, children: isSubmitting ? "Creating..." : "Create Bill" }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: isSubmitting, children: isSubmitting ? "Saving..." : "Save Changes" }),
           /* @__PURE__ */ jsx("a", { href: "/dashboard/bills", children: /* @__PURE__ */ jsx(Button, { type: "button", variant: "secondary", children: "Cancel" }) })
         ] })
       ] }) })
@@ -263,22 +321,26 @@ function NewBillForm() {
 }
 
 const $$Astro = createAstro();
-const $$New = createComponent(async ($$result, $$props, $$slots) => {
+const $$Edit = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
-  Astro2.self = $$New;
+  Astro2.self = $$Edit;
   const session = await getSession(Astro2.request);
   if (!session?.user?.id) {
     return Astro2.redirect("/login");
   }
-  return renderTemplate`${renderComponent($$result, "DashboardLayout", $$DashboardLayout, { "title": "Add Bill", "currentPath": "/dashboard/bills", "user": session.user, "showExploreSidebar": false }, { "default": async ($$result2) => renderTemplate` ${renderComponent($$result2, "NewBillForm", NewBillForm, { "client:load": true, "client:component-hydration": "load", "client:component-path": "/Users/chris/projects/dev/openfinance/src/components/forms/new-bill-form", "client:component-export": "default" })} ` })}`;
-}, "/Users/chris/projects/dev/openfinance/src/pages/dashboard/bills/new.astro", void 0);
+  const { id } = Astro2.params;
+  if (!id) {
+    return Astro2.redirect("/dashboard/bills");
+  }
+  return renderTemplate`${renderComponent($$result, "DashboardLayout", $$DashboardLayout, { "title": "Edit Bill", "currentPath": "/dashboard/bills", "user": session.user, "showExploreSidebar": false }, { "default": async ($$result2) => renderTemplate` ${renderComponent($$result2, "EditBillForm", EditBillForm, { "client:load": true, "billId": id, "client:component-hydration": "load", "client:component-path": "/Users/chris/projects/dev/openfinance/src/components/forms/edit-bill-form", "client:component-export": "default" })} ` })}`;
+}, "/Users/chris/projects/dev/openfinance/src/pages/dashboard/bills/[id]/edit.astro", void 0);
 
-const $$file = "/Users/chris/projects/dev/openfinance/src/pages/dashboard/bills/new.astro";
-const $$url = "/dashboard/bills/new";
+const $$file = "/Users/chris/projects/dev/openfinance/src/pages/dashboard/bills/[id]/edit.astro";
+const $$url = "/dashboard/bills/[id]/edit";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
-  default: $$New,
+  default: $$Edit,
   file: $$file,
   url: $$url
 }, Symbol.toStringTag, { value: 'Module' }));
@@ -286,4 +348,4 @@ const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
 const page = () => _page;
 
 export { page };
-//# sourceMappingURL=new.astro.mjs.map
+//# sourceMappingURL=edit.astro.mjs.map

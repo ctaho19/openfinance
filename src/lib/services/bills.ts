@@ -22,6 +22,7 @@ export interface UpdateBillInput {
   name?: string;
   amount?: number;
   dueDay?: number;
+  dueDate?: string; // ISO date string for updating the actual BillPayment due date
   category?: BillCategory;
   isRecurring?: boolean;
   frequency?: BillFrequency;
@@ -94,6 +95,25 @@ export async function updateBill(
 
   if (!existing) {
     throw new Error("Bill not found");
+  }
+
+  // If dueDate is provided, update the unpaid BillPayment record(s)
+  if (data.dueDate) {
+    const newDueDate = new Date(data.dueDate);
+    
+    // Update all unpaid bill payments for this bill
+    await prisma.billPayment.updateMany({
+      where: {
+        billId,
+        status: "UNPAID",
+      },
+      data: {
+        dueDate: newDueDate,
+      },
+    });
+
+    // Also update dueDay to match the new date
+    data.dueDay = newDueDate.getDate();
   }
 
   return prisma.bill.update({

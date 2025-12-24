@@ -1,7 +1,7 @@
-import { e as createComponent, f as createAstro, r as renderTemplate, n as renderSlot, o as renderHead } from './astro/server_B4LN2q8c.mjs';
+import { e as createComponent, f as createAstro, r as renderTemplate, n as renderSlot, v as renderHead } from './astro/server_BM1N7mdu.mjs';
 import 'piccolore';
 import 'clsx';
-/* empty css                         */
+/* empty css                        */
 
 var __freeze = Object.freeze;
 var __defProp = Object.defineProperty;
@@ -16,4 +16,4 @@ const $$BaseLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/BaseLayout.astro", void 0);
 
 export { $$BaseLayout as $ };
-//# sourceMappingURL=BaseLayout_DdYj0M9y.mjs.map
+//# sourceMappingURL=BaseLayout_DLjSP18j.mjs.map
