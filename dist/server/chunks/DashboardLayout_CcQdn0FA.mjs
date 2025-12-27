@@ -11,11 +11,11 @@ function Link({ href, children, ...props }) {
 
 const navItems$1 = [
   { label: "Dashboard", href: "/dashboard" },
+  { label: "Paycheck Plan", href: "/dashboard/paycheck-plan" },
   { label: "Bills", href: "/dashboard/bills" },
   { label: "Debts", href: "/dashboard/debts" },
   { label: "Forecast", href: "/dashboard/pay-periods" },
-  { label: "Goals", href: "/dashboard/goals" },
-  { label: "FOO Plan", href: "/dashboard/foo" }
+  { label: "Goals", href: "/dashboard/goals" }
 ];
 function ChaseHeader({ currentPath, user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -92,6 +92,7 @@ function ChaseHeader({ currentPath, user }) {
         ] }),
         /* @__PURE__ */ jsx("nav", { className: "flex-1 py-2 overflow-y-auto", children: [
           { label: "Dashboard", href: "/dashboard" },
+          { label: "Paycheck Plan", href: "/dashboard/paycheck-plan" },
           { label: "Forecast", href: "/dashboard/pay-periods" },
           { label: "Bills", href: "/dashboard/bills" },
           { label: "Debts", href: "/dashboard/debts" },
@@ -534,4 +535,4 @@ const $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/DashboardLayout.astro", void 0);
 
 export { $$DashboardLayout as $, Link as L, ThemeProvider as T, ThemeToggle as a, useTheme as u };
-//# sourceMappingURL=DashboardLayout_B-AXRllM.mjs.map
+//# sourceMappingURL=DashboardLayout_CcQdn0FA.mjs.map
