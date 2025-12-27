@@ -5,14 +5,22 @@ async function getPaymentsForPeriod(userId, startDate, endDate) {
     where: {
       bill: {
         userId,
+        isActive: true,
         OR: [
+          // Non-debt bills always show
           { debtId: null },
+          // Debt-linked bills: show only if debt is active and not currently deferred
           {
             debt: {
+              isActive: true,
               OR: [
+                // Debt is not deferred at all
                 { status: { not: "DEFERRED" } },
-                { deferredUntil: null },
-                { deferredUntil: { lte: endDate } }
+                // Debt was deferred but deferral has ended (deferredUntil is before period start)
+                {
+                  status: "DEFERRED",
+                  deferredUntil: { lte: startDate }
+                }
               ]
             }
           }
@@ -204,4 +212,4 @@ async function getPaymentStatus(userId, paymentId) {
 }
 
 export { markPaymentPaid as a, getPaymentsForPeriod as b, getLenderNameFromPayment as c, getPaymentStatus as g, markPaymentUnpaid as m };
-//# sourceMappingURL=pay-periods_D_PB9Fr3.mjs.map
+//# sourceMappingURL=pay-periods_CvpFDPv8.mjs.map

@@ -1,5 +1,5 @@
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
-import { b as getDollarAllocationPlan, s as setupUserStrategy } from '../../chunks/dollar-allocation-plan_BLinAmuv.mjs';
+import { b as getDollarAllocationPlan, s as setupUserStrategy } from '../../chunks/dollar-allocation-plan_Dm62CO0y.mjs';
 import { a as apiError, b as apiResponse } from '../../chunks/api-utils_VuBcwo3s.mjs';
 export { renderers } from '../../renderers.mjs';
 
