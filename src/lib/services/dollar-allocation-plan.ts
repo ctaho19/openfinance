@@ -70,7 +70,9 @@ export interface BankAccountSummary {
 export interface DollarAllocationPlan {
   period: PayPeriod;
   paycheckAmount: number;
-  billsDueThisPeriod: number;
+  totalBillsThisPeriod: number;      // All bills for period (paid + unpaid)
+  billsRemainingThisPeriod: number;  // Only unpaid bills
+  billsPaidThisPeriod: number;       // Already paid
   discretionaryThisPaycheck: number;
   surplusSplit: SurplusSplit;
   avalancheTarget?: AvalancheTarget;
@@ -273,8 +275,22 @@ export async function getDollarAllocationPlan(
   }
 
   const unpaidPayments = payments.filter((p) => p.status === "UNPAID");
+  const paidPayments = payments.filter((p) => p.status === "PAID");
 
-  const billsDueThisPeriod = unpaidPayments.reduce(
+  // Total bills for the period (both paid and unpaid) - used for surplus calculation
+  const totalBillsThisPeriod = payments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0
+  );
+
+  // Only unpaid bills remaining - shown in UI for "bills remaining"
+  const billsRemainingThisPeriod = unpaidPayments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0
+  );
+
+  // Already paid this period
+  const billsPaidThisPeriod = paidPayments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
   );
@@ -305,9 +321,11 @@ export async function getDollarAllocationPlan(
   const debtSurplusPercent = Number(user.debtSurplusPercent ?? 0.8);
   const savingsSurplusPercent = Number(user.savingsSurplusPercent ?? 0.2);
 
+  // Use TOTAL bills (not just unpaid) for surplus calculation
+  // This gives the TRUE surplus for the pay period
   const surplusSplit = computeSurplusSplit({
     paycheckAmount,
-    billsDueThisPeriod,
+    billsDueThisPeriod: totalBillsThisPeriod,
     discretionary,
     emergencyFundTarget,
     currentEmergencyAmount,
@@ -511,7 +529,9 @@ export async function getDollarAllocationPlan(
   return {
     period,
     paycheckAmount,
-    billsDueThisPeriod,
+    totalBillsThisPeriod,
+    billsRemainingThisPeriod,
+    billsPaidThisPeriod,
     discretionaryThisPaycheck: discretionary,
     surplusSplit,
     avalancheTarget,

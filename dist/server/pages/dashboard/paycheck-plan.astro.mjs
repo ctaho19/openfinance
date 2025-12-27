@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_CcQdn0FA.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_BS33xuhQ.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Wallet, Target, PiggyBank, TrendingDown, CheckCircle2, Circle, Zap, CreditCard, ArrowRight } from 'lucide-react';
@@ -231,17 +231,25 @@ function PaycheckPlanView() {
       ] }),
       /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold text-white mb-1", children: formatCurrency(plan.paycheckAmount) }),
       /* @__PURE__ */ jsx("p", { className: "text-white/70", children: periodLabel }),
-      /* @__PURE__ */ jsxs("div", { className: "mt-6 grid grid-cols-3 gap-4", children: [
+      /* @__PURE__ */ jsxs("div", { className: "mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4", children: [
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("p", { className: "text-xs text-white/60 uppercase tracking-wide", children: "Bills" }),
-          /* @__PURE__ */ jsx("p", { className: "text-lg font-semibold text-white", children: formatCurrency(plan.billsDueThisPeriod) })
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-white/60 uppercase tracking-wide", children: "Total Bills" }),
+          /* @__PURE__ */ jsx("p", { className: "text-lg font-semibold text-white", children: formatCurrency(plan.totalBillsThisPeriod) })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { children: [
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-white/60 uppercase tracking-wide", children: "Remaining" }),
+          /* @__PURE__ */ jsx("p", { className: "text-lg font-semibold text-amber-300", children: formatCurrency(plan.billsRemainingThisPeriod) }),
+          plan.billsPaidThisPeriod > 0 && /* @__PURE__ */ jsxs("p", { className: "text-xs text-white/50", children: [
+            formatCurrency(plan.billsPaidThisPeriod),
+            " paid"
+          ] })
         ] }),
         /* @__PURE__ */ jsxs("div", { children: [
           /* @__PURE__ */ jsx("p", { className: "text-xs text-white/60 uppercase tracking-wide", children: "Spending" }),
           /* @__PURE__ */ jsx("p", { className: "text-lg font-semibold text-white", children: formatCurrency(plan.discretionaryThisPaycheck) })
         ] }),
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("p", { className: "text-xs text-white/60 uppercase tracking-wide", children: "Surplus" }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-white/60 uppercase tracking-wide", children: "True Surplus" }),
           /* @__PURE__ */ jsx("p", { className: `text-lg font-semibold ${plan.surplusSplit.isNegative ? "text-red-300" : "text-emerald-300"}`, children: formatCurrency(plan.surplusSplit.surplus) })
         ] })
       ] }),

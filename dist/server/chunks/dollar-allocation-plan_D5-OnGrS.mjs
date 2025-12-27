@@ -133,7 +133,16 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
     throw new Error("User not found");
   }
   const unpaidPayments = payments.filter((p) => p.status === "UNPAID");
-  const billsDueThisPeriod = unpaidPayments.reduce(
+  const paidPayments = payments.filter((p) => p.status === "PAID");
+  const totalBillsThisPeriod = payments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0
+  );
+  const billsRemainingThisPeriod = unpaidPayments.reduce(
+    (sum, p) => sum + Number(p.amount),
+    0
+  );
+  const billsPaidThisPeriod = paidPayments.reduce(
     (sum, p) => sum + Number(p.amount),
     0
   );
@@ -157,7 +166,7 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
   const savingsSurplusPercent = Number(user.savingsSurplusPercent ?? 0.2);
   const surplusSplit = computeSurplusSplit({
     paycheckAmount,
-    billsDueThisPeriod,
+    billsDueThisPeriod: totalBillsThisPeriod,
     discretionary,
     emergencyFundTarget,
     currentEmergencyAmount,
@@ -330,7 +339,9 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
   return {
     period,
     paycheckAmount,
-    billsDueThisPeriod,
+    totalBillsThisPeriod,
+    billsRemainingThisPeriod,
+    billsPaidThisPeriod,
     discretionaryThisPaycheck: discretionary,
     surplusSplit,
     avalancheTarget,
@@ -528,4 +539,4 @@ async function getCurrentDebtTotal(userId) {
 }
 
 export { recalculatePayoffBaseline as a, getDollarAllocationPlan as b, getCurrentDebtTotal as g, recordExtraDebtPayment as r, setupUserStrategy as s, updateEmergencyFund as u };
-//# sourceMappingURL=dollar-allocation-plan_CHTs8beh.mjs.map
+//# sourceMappingURL=dollar-allocation-plan_D5-OnGrS.mjs.map

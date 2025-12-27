@@ -61,7 +61,9 @@ interface DollarAllocationPlan {
     paycheckDate: string;
   };
   paycheckAmount: number;
-  billsDueThisPeriod: number;
+  totalBillsThisPeriod: number;      // All bills for period (paid + unpaid)
+  billsRemainingThisPeriod: number;  // Only unpaid bills
+  billsPaidThisPeriod: number;       // Already paid
   discretionaryThisPaycheck: number;
   surplusSplit: {
     surplus: number;
@@ -358,12 +360,23 @@ export function PaycheckPlanView() {
           </h1>
           <p className="text-white/70">{periodLabel}</p>
 
-          <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-white/60 uppercase tracking-wide">Bills</p>
+              <p className="text-xs text-white/60 uppercase tracking-wide">Total Bills</p>
               <p className="text-lg font-semibold text-white">
-                {formatCurrency(plan.billsDueThisPeriod)}
+                {formatCurrency(plan.totalBillsThisPeriod)}
               </p>
+            </div>
+            <div>
+              <p className="text-xs text-white/60 uppercase tracking-wide">Remaining</p>
+              <p className="text-lg font-semibold text-amber-300">
+                {formatCurrency(plan.billsRemainingThisPeriod)}
+              </p>
+              {plan.billsPaidThisPeriod > 0 && (
+                <p className="text-xs text-white/50">
+                  {formatCurrency(plan.billsPaidThisPeriod)} paid
+                </p>
+              )}
             </div>
             <div>
               <p className="text-xs text-white/60 uppercase tracking-wide">Spending</p>
@@ -372,7 +385,7 @@ export function PaycheckPlanView() {
               </p>
             </div>
             <div>
-              <p className="text-xs text-white/60 uppercase tracking-wide">Surplus</p>
+              <p className="text-xs text-white/60 uppercase tracking-wide">True Surplus</p>
               <p className={`text-lg font-semibold ${plan.surplusSplit.isNegative ? "text-red-300" : "text-emerald-300"}`}>
                 {formatCurrency(plan.surplusSplit.surplus)}
               </p>
