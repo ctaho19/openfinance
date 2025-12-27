@@ -65,3 +65,17 @@ export {
   type CreateGoalInput,
   type UpdateGoalInput,
 } from "./goals";
+
+export {
+  getDollarAllocationPlan,
+  recordExtraDebtPayment,
+  updateEmergencyFund,
+  setupUserStrategy,
+  type DollarAllocationPlan,
+  type PlanStep,
+  type PlanStepType,
+  type SurplusSplit,
+  type AvalancheTarget,
+  type PayoffProgress,
+  type BankAccountSummary,
+} from "./dollar-allocation-plan";

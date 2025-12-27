@@ -11,7 +11,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Bills", href: "/dashboard/bills" },
   { label: "Debts", href: "/dashboard/debts" },
-  { label: "Pay Periods", href: "/dashboard/pay-periods" },
+  { label: "Forecast", href: "/dashboard/pay-periods" },
   { label: "Goals", href: "/dashboard/goals" },
   { label: "FOO Plan", href: "/dashboard/foo" },
 ];
@@ -111,7 +111,7 @@ export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {
             <nav className="flex-1 py-2 overflow-y-auto">
               {[
                 { label: "Dashboard", href: "/dashboard" },
-                { label: "Pay Periods", href: "/dashboard/pay-periods" },
+                { label: "Forecast", href: "/dashboard/pay-periods" },
                 { label: "Bills", href: "/dashboard/bills" },
                 { label: "Debts", href: "/dashboard/debts" },
                 { label: "Goals", href: "/dashboard/goals" },

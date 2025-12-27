@@ -62,6 +62,21 @@ model User {
   paycheckDay       Int       @default(3) // 0=Sun, 1=Mon, ..., 3=Wed
   lastPaycheckDate  DateTime?
 
+  // Paycheck routing & strategy
+  paycheckBankAccountId  String?   // Bank account where paycheck is deposited
+  spendingBankAccountId  String?   // Bank account for day-to-day spending
+
+  // Dollar allocation strategy
+  discretionaryBudgetMonthly Decimal? @db.Decimal(10, 2) // Monthly spending budget (e.g., 750)
+  emergencyFundTarget        Decimal? @db.Decimal(10, 2) // Emergency fund goal (default 1000)
+  debtSurplusPercent         Decimal? @db.Decimal(5, 4)  // % of surplus to debt (0.8000 = 80%)
+  savingsSurplusPercent      Decimal? @db.Decimal(5, 4)  // % of surplus to savings (0.2000 = 20%)
+
+  // Payoff projection tracking
+  payoffStartDate       DateTime?
+  payoffStartTotalDebt  Decimal?  @db.Decimal(10, 2)
+  payoffTargetDate      DateTime?
+
   accounts      Account[]
   sessions      Session[]
   bills         Bill[]

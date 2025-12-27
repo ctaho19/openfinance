@@ -361,6 +361,20 @@ export async function updateDebt(
     },
   });
 
+  const billUpdates: Record<string, unknown> = {};
+  if (data.minimumPayment !== undefined) {
+    billUpdates.amount = data.minimumPayment;
+  }
+  if (data.dueDay !== undefined) {
+    billUpdates.dueDay = data.dueDay;
+  }
+  if (Object.keys(billUpdates).length > 0) {
+    await prisma.bill.updateMany({
+      where: { debtId, userId },
+      data: billUpdates,
+    });
+  }
+
   if (isBNPL && data.regenerateSchedule && data.numberOfPayments && data.firstPaymentDate && data.paymentFrequency) {
     const totalAmount = data.totalRepayable || balance;
     const schedule = generatePaymentSchedule({
@@ -482,6 +496,22 @@ export async function recordPayment(
       data: { currentBalance: newBalance },
     }),
   ]);
+
+  const bill = await prisma.bill.findFirst({ where: { debtId, userId } });
+  if (bill) {
+    const paymentDate = new Date(data.date);
+    const startOfMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
+    const endOfMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0);
+    
+    await prisma.billPayment.updateMany({
+      where: { 
+        billId: bill.id, 
+        status: "UNPAID",
+        dueDate: { gte: startOfMonth, lte: endOfMonth }
+      },
+      data: { status: "PAID", paidAt: paymentDate }
+    });
+  }
 
   return payment;
 }

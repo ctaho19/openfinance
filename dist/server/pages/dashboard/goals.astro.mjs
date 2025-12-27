@@ -1,6 +1,6 @@
-import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../../chunks/astro/server_BM1N7mdu.mjs';
+import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../../chunks/astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_HpgxuAcY.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_B-AXRllM.mjs';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
 import { l as listGoals } from '../../chunks/goals_D9yX8bsM.mjs';
 import { Plus, Target, PiggyBank } from 'lucide-react';

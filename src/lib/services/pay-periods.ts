@@ -132,15 +132,21 @@ export async function markPaymentPaid(
       });
 
       if (debt.type === "BNPL") {
+        const dateStart = new Date(payment.dueDate);
+        dateStart.setDate(dateStart.getDate() - 3);
+        const dateEnd = new Date(payment.dueDate);
+        dateEnd.setDate(dateEnd.getDate() + 3);
+
         const scheduledPayment = await tx.scheduledPayment.findFirst({
           where: {
             debtId: debt.id,
             isPaid: false,
             dueDate: {
-              gte: new Date(payment.dueDate.getTime() - 24 * 60 * 60 * 1000),
-              lte: new Date(payment.dueDate.getTime() + 24 * 60 * 60 * 1000),
+              gte: dateStart,
+              lte: dateEnd,
             },
           },
+          orderBy: { dueDate: "asc" },
         });
 
         if (scheduledPayment) {
@@ -183,12 +189,33 @@ export async function markPaymentUnpaid(
     throw new Error("Unauthorized");
   }
 
-  return prisma.billPayment.update({
-    where: { id: paymentId },
-    data: {
-      status: "UNPAID",
-      paidAt: null,
-    },
+  return prisma.$transaction(async (tx) => {
+    if (payment.bill.debtId && payment.paidAt) {
+      const debtPayment = await tx.debtPayment.findFirst({
+        where: { 
+          debtId: payment.bill.debtId,
+          date: payment.paidAt,
+          amount: Number(payment.amount)
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+      
+      if (debtPayment) {
+        await tx.debt.update({
+          where: { id: payment.bill.debtId },
+          data: { currentBalance: { increment: Number(debtPayment.principal) } }
+        });
+        await tx.debtPayment.delete({ where: { id: debtPayment.id } });
+      }
+    }
+
+    return tx.billPayment.update({
+      where: { id: paymentId },
+      data: {
+        status: "UNPAID",
+        paidAt: null,
+      },
+    });
   });
 }
 

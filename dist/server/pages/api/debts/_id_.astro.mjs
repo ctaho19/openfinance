@@ -1,5 +1,5 @@
 import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
-import { g as getDebt, u as updateDebt } from '../../../chunks/debts_BeGaaKxR.mjs';
+import { g as getDebt, u as updateDebt } from '../../../chunks/debts_ClTN3PuL.mjs';
 import { p as prisma } from '../../../chunks/auth-config_mz_UKjvQ.mjs';
 import { a as apiError, b as apiResponse } from '../../../chunks/api-utils_VuBcwo3s.mjs';
 export { renderers } from '../../../renderers.mjs';
@@ -52,10 +52,16 @@ const DELETE = async ({ request, params }) => {
     if (!existing) {
       return apiError("Debt not found", 404);
     }
-    await prisma.debt.update({
-      where: { id },
-      data: { isActive: false }
-    });
+    await prisma.$transaction([
+      prisma.debt.update({
+        where: { id },
+        data: { isActive: false }
+      }),
+      prisma.bill.updateMany({
+        where: { debtId: id },
+        data: { isActive: false }
+      })
+    ]);
     return apiResponse({ success: true });
   } catch (error) {
     return apiError(error instanceof Error ? error.message : "Failed to delete debt", 400);

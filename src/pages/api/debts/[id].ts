@@ -63,10 +63,16 @@ export const DELETE: APIRoute = async ({ request, params }) => {
       return apiError("Debt not found", 404);
     }
 
-    await prisma.debt.update({
-      where: { id },
-      data: { isActive: false },
-    });
+    await prisma.$transaction([
+      prisma.debt.update({
+        where: { id },
+        data: { isActive: false },
+      }),
+      prisma.bill.updateMany({
+        where: { debtId: id },
+        data: { isActive: false },
+      }),
+    ]);
 
     return apiResponse({ success: true });
   } catch (error) {

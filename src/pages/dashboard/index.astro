@@ -16,6 +16,7 @@ import {
   TrendingUp,
   ChevronRight,
   CheckCircle2,
+  Wallet,
 } from 'lucide-react';
 
 // Auth check
@@ -52,9 +53,9 @@ const hasOverdue = data.overdueCount > 0;
 const needsAttention = hasOverdue || data.dueSoonCount > 0 || data.hasBnplDue;
 
 const quickActions = [
+  { label: "Paycheck Plan", icon: Wallet, href: "/dashboard/paycheck-plan" },
   { label: "Add Bill", icon: Receipt, href: "/dashboard/bills/new" },
   { label: "Add Debt", icon: CreditCard, href: "/dashboard/debts/new" },
-  { label: "Pay Period", icon: Calendar, href: "/dashboard/pay-periods" },
   { label: "FOO Plan", icon: Target, href: "/dashboard/foo" },
 ];
 ---

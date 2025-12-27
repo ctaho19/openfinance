@@ -1,0 +1,28 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import { PaycheckPlanView } from '../../../components/paycheck-plan/PaycheckPlanView';
+import { getSession } from '../../../lib/get-session-astro';
+
+const session = await getSession(Astro.request);
+if (!session?.user?.id) {
+  return Astro.redirect('/login');
+}
+---
+<DashboardLayout 
+  title="Paycheck Plan" 
+  currentPath="/dashboard/paycheck-plan"
+  user={session.user}
+>
+  <div class="space-y-6 animate-fade-in">
+    <header class="hidden lg:block">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+        Paycheck Plan
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">
+        Your step-by-step guide to allocating this paycheck
+      </p>
+    </header>
+
+    <PaycheckPlanView client:load />
+  </div>
+</DashboardLayout>

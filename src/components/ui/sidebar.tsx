@@ -11,6 +11,7 @@ import {
   ChevronRight,
   User,
   LogOut,
+  Wallet,
 } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ThemeToggleCompact } from "./theme-toggle";
@@ -18,9 +19,10 @@ import { ThemeProvider } from "@/lib/theme-context";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Paycheck Plan", href: "/dashboard/paycheck-plan", icon: Wallet },
   { name: "Bills", href: "/dashboard/bills", icon: Receipt },
   { name: "Debts", href: "/dashboard/debts", icon: CreditCard },
-  { name: "Pay Periods", href: "/dashboard/pay-periods", icon: Calendar },
+  { name: "Forecast", href: "/dashboard/pay-periods", icon: Calendar },
   { name: "Goals", href: "/dashboard/goals", icon: PiggyBank },
   { name: "FOO Plan", href: "/dashboard/foo", icon: Target },
 ];

@@ -1,11 +1,12 @@
-import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_BM1N7mdu.mjs';
+import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_HpgxuAcY.mjs';
+import { L as Link, $ as $$DashboardLayout } from '../chunks/DashboardLayout_B-AXRllM.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
-import { ChevronDown, XCircle, AlertTriangle, CheckCircle, Info, X, Receipt, CreditCard, Calendar, Target, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
-import { g as getCurrentPayPeriod, b as getNextPayPeriod, f as formatPayPeriod, S as SectionCard } from '../chunks/section-card_v4AMPtzv.mjs';
+import { ChevronDown, XCircle, AlertTriangle, CheckCircle, Info, X, Wallet, Receipt, CreditCard, Target, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
+import { S as SectionCard } from '../chunks/section-card_C_ZUdxQb.mjs';
 import { g as getSession } from '../chunks/get-session-astro_CVC6HSBT.mjs';
 import { p as prisma } from '../chunks/auth-config_mz_UKjvQ.mjs';
+import { g as getCurrentPayPeriod, b as getNextPayPeriod, f as formatPayPeriod } from '../chunks/pay-periods_DoSYQF1E.mjs';
 import { startOfDay, endOfDay, differenceInDays, isToday, isTomorrow, format } from 'date-fns';
 export { renderers } from '../renderers.mjs';
 
@@ -323,9 +324,9 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
   const hasOverdue = data.overdueCount > 0;
   const needsAttention = hasOverdue || data.dueSoonCount > 0 || data.hasBnplDue;
   const quickActions = [
+    { label: "Paycheck Plan", icon: Wallet, href: "/dashboard/paycheck-plan" },
     { label: "Add Bill", icon: Receipt, href: "/dashboard/bills/new" },
     { label: "Add Debt", icon: CreditCard, href: "/dashboard/debts/new" },
-    { label: "Pay Period", icon: Calendar, href: "/dashboard/pay-periods" },
     { label: "FOO Plan", icon: Target, href: "/dashboard/foo" }
   ];
   return renderTemplate`${renderComponent($$result, "DashboardLayout", $$DashboardLayout, { "title": "Dashboard", "currentPath": "/dashboard", "user": session.user }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="space-y-6 animate-fade-in"> <!-- Welcome Header --> <header class="hidden lg:block"> <h1 class="text-2xl font-bold text-theme-primary tracking-tight">
