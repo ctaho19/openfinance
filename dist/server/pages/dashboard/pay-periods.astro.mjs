@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../../chunks/astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_DG9NWUmG.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_Dtx_fU2x.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, TrendingUp, DollarSign, Calendar, AlertTriangle, ChevronUp, Wallet, Building2, CreditCard, Circle, CheckCircle2 } from 'lucide-react';

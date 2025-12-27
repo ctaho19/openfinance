@@ -15,6 +15,8 @@ import {
   Heart,
   RotateCcw,
   Info,
+  Check,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { format } from "date-fns";
@@ -328,6 +330,7 @@ export function PaycheckPlanView() {
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [processingStep, setProcessingStep] = useState<string | null>(null);
   const [lifeHappenedAmount, setLifeHappenedAmount] = useState(0);
+  const [processingPastDue, setProcessingPastDue] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPlan();
@@ -426,6 +429,23 @@ export function PaycheckPlanView() {
   const handleLifeHappenedReset = () => {
     setLifeHappenedAmount(0);
   };
+
+  async function handleMarkPastDuePaid(paymentId: string) {
+    setProcessingPastDue(paymentId);
+    try {
+      const res = await fetch(`/api/bill-payments/${paymentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "PAID" }),
+      });
+      if (!res.ok) throw new Error("Failed to mark payment as paid");
+      await fetchPlan();
+    } catch (err) {
+      console.error("Failed to mark past-due payment as paid:", err);
+    } finally {
+      setProcessingPastDue(null);
+    }
+  }
 
   async function fetchPlan() {
     try {
@@ -639,14 +659,45 @@ export function PaycheckPlanView() {
           <CardContent className="py-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
-              <div>
+              <div className="flex-1">
                 <p className="font-medium text-orange-800 dark:text-orange-200">
                   {plan.unpaidPayments.length} bill{plan.unpaidPayments.length > 1 ? "s" : ""} from previous periods
                 </p>
-                <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                  {plan.unpaidPayments.map(p => p.bill.name).join(", ")} still unpaid. 
-                  They'll show up here until marked as paid.
+                <p className="text-sm text-orange-700 dark:text-orange-300 mt-1 mb-3">
+                  Mark as paid when you've caught up on these bills.
                 </p>
+                <div className="space-y-2">
+                  {plan.unpaidPayments.map(p => (
+                    <div 
+                      key={p.id} 
+                      className="flex items-center justify-between gap-3 p-2 rounded-lg bg-white/50 dark:bg-[#1c2128]/50"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          {p.bill.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Due {format(new Date(p.dueDate), "MMM d")} · {formatCurrency(p.amount)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleMarkPastDuePaid(p.id)}
+                        disabled={processingPastDue === p.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg 
+                          bg-orange-600 text-white hover:bg-orange-700 
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                          transition-colors"
+                      >
+                        {processingPastDue === p.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5" />
+                        )}
+                        Paid
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </CardContent>

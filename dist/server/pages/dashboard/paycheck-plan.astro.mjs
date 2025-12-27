@@ -1,9 +1,9 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_DG9NWUmG.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_Dtx_fU2x.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
-import { AlertTriangle, Wallet, Info, Target, PiggyBank, TrendingDown, CheckCircle2, Heart, RotateCcw, Circle, Zap, CreditCard, ArrowRight } from 'lucide-react';
+import { AlertTriangle, Wallet, Loader2, Check, Info, Target, PiggyBank, TrendingDown, CheckCircle2, Heart, RotateCcw, Circle, Zap, CreditCard, ArrowRight } from 'lucide-react';
 import { C as Card, c as CardContent, a as CardHeader, b as CardTitle } from '../../chunks/card_XHmopkrD.mjs';
 import { format } from 'date-fns';
 import { g as getSession } from '../../chunks/get-session-astro_CVC6HSBT.mjs';
@@ -186,6 +186,7 @@ function PaycheckPlanView() {
   const [completedSteps, setCompletedSteps] = useState(/* @__PURE__ */ new Set());
   const [processingStep, setProcessingStep] = useState(null);
   const [lifeHappenedAmount, setLifeHappenedAmount] = useState(0);
+  const [processingPastDue, setProcessingPastDue] = useState(null);
   useEffect(() => {
     fetchPlan();
   }, []);
@@ -268,6 +269,22 @@ function PaycheckPlanView() {
   const handleLifeHappenedReset = () => {
     setLifeHappenedAmount(0);
   };
+  async function handleMarkPastDuePaid(paymentId) {
+    setProcessingPastDue(paymentId);
+    try {
+      const res = await fetch(`/api/bill-payments/${paymentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "PAID" })
+      });
+      if (!res.ok) throw new Error("Failed to mark payment as paid");
+      await fetchPlan();
+    } catch (err) {
+      console.error("Failed to mark past-due payment as paid:", err);
+    } finally {
+      setProcessingPastDue(null);
+    }
+  }
   async function fetchPlan() {
     try {
       setLoading(true);
@@ -426,17 +443,44 @@ function PaycheckPlanView() {
     ] }) }) }),
     plan.unpaidPayments && plan.unpaidPayments.length > 0 && /* @__PURE__ */ jsx(Card, { variant: "outlined", className: "border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20", children: /* @__PURE__ */ jsx(CardContent, { className: "py-4", children: /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-3", children: [
       /* @__PURE__ */ jsx(AlertTriangle, { className: "h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" }),
-      /* @__PURE__ */ jsxs("div", { children: [
+      /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
         /* @__PURE__ */ jsxs("p", { className: "font-medium text-orange-800 dark:text-orange-200", children: [
           plan.unpaidPayments.length,
           " bill",
           plan.unpaidPayments.length > 1 ? "s" : "",
           " from previous periods"
         ] }),
-        /* @__PURE__ */ jsxs("p", { className: "text-sm text-orange-700 dark:text-orange-300 mt-1", children: [
-          plan.unpaidPayments.map((p) => p.bill.name).join(", "),
-          " still unpaid. They'll show up here until marked as paid."
-        ] })
+        /* @__PURE__ */ jsx("p", { className: "text-sm text-orange-700 dark:text-orange-300 mt-1 mb-3", children: "Mark as paid when you've caught up on these bills." }),
+        /* @__PURE__ */ jsx("div", { className: "space-y-2", children: plan.unpaidPayments.map((p) => /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "flex items-center justify-between gap-3 p-2 rounded-lg bg-white/50 dark:bg-[#1c2128]/50",
+            children: [
+              /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsx("p", { className: "text-sm font-medium text-gray-900 dark:text-gray-100 truncate", children: p.bill.name }),
+                /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: [
+                  "Due ",
+                  format(new Date(p.dueDate), "MMM d"),
+                  " · ",
+                  formatCurrency(p.amount)
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs(
+                "button",
+                {
+                  onClick: () => handleMarkPastDuePaid(p.id),
+                  disabled: processingPastDue === p.id,
+                  className: "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg \n                          bg-orange-600 text-white hover:bg-orange-700 \n                          disabled:opacity-50 disabled:cursor-not-allowed\n                          transition-colors",
+                  children: [
+                    processingPastDue === p.id ? /* @__PURE__ */ jsx(Loader2, { className: "h-3.5 w-3.5 animate-spin" }) : /* @__PURE__ */ jsx(Check, { className: "h-3.5 w-3.5" }),
+                    "Paid"
+                  ]
+                }
+              )
+            ]
+          },
+          p.id
+        )) })
       ] })
     ] }) }) }),
     /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-2 px-1", children: [
