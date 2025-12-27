@@ -249,7 +249,7 @@ export async function getDollarAllocationPlan(
 ): Promise<DollarAllocationPlan> {
   const period = getCurrentPayPeriod();
 
-  const [user, payments, debts, bankAccounts, savingsGoals] = await Promise.all([
+  const [user, payments, debts, bankAccounts, savingsGoals, pastDuePayments] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -270,6 +270,21 @@ export async function getDollarAllocationPlan(
     listDebts(userId, "effective"),
     prisma.bankAccount.findMany({ where: { userId } }),
     prisma.savingsGoal.findMany({ where: { userId } }),
+    prisma.billPayment.findMany({
+      where: {
+        bill: { userId },
+        dueDate: { lt: period.startDate },
+        status: "UNPAID",
+      },
+      include: {
+        bill: {
+          include: {
+            debt: { select: { id: true, name: true, type: true, status: true } },
+          },
+        },
+      },
+      orderBy: { dueDate: "asc" },
+    }),
   ]);
 
   if (!user) {
@@ -546,7 +561,7 @@ export async function getDollarAllocationPlan(
     bankAccountSummaries,
     emergencyFundCurrent: currentEmergencyAmount,
     emergencyFundTarget,
-    unpaidPayments,
+    unpaidPayments: pastDuePayments as PaymentWithBill[],
     debtSurplusPercent,
     savingsSurplusPercent,
   };

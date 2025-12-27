@@ -107,7 +107,7 @@ function computePayoffProgress(user, currentDebt) {
 }
 async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Date()) {
   const period = getCurrentPayPeriod();
-  const [user, payments, debts, bankAccounts, savingsGoals] = await Promise.all([
+  const [user, payments, debts, bankAccounts, savingsGoals, pastDuePayments] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -127,7 +127,22 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
     getPaymentsForPeriod(userId, period.startDate, period.endDate),
     listDebts(userId, "effective"),
     prisma.bankAccount.findMany({ where: { userId } }),
-    prisma.savingsGoal.findMany({ where: { userId } })
+    prisma.savingsGoal.findMany({ where: { userId } }),
+    prisma.billPayment.findMany({
+      where: {
+        bill: { userId },
+        dueDate: { lt: period.startDate },
+        status: "UNPAID"
+      },
+      include: {
+        bill: {
+          include: {
+            debt: { select: { id: true, name: true, type: true, status: true } }
+          }
+        }
+      },
+      orderBy: { dueDate: "asc" }
+    })
   ]);
   if (!user) {
     throw new Error("User not found");
@@ -354,7 +369,7 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
     bankAccountSummaries,
     emergencyFundCurrent: currentEmergencyAmount,
     emergencyFundTarget,
-    unpaidPayments,
+    unpaidPayments: pastDuePayments,
     debtSurplusPercent,
     savingsSurplusPercent
   };
@@ -541,4 +556,4 @@ async function getCurrentDebtTotal(userId) {
 }
 
 export { recalculatePayoffBaseline as a, getDollarAllocationPlan as b, getCurrentDebtTotal as g, recordExtraDebtPayment as r, setupUserStrategy as s, updateEmergencyFund as u };
-//# sourceMappingURL=dollar-allocation-plan_DZpW5fxy.mjs.map
+//# sourceMappingURL=dollar-allocation-plan_BLinAmuv.mjs.map

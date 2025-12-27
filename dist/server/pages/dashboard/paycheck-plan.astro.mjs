@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_Di38v9N9.mjs';
+import { $ as $$DashboardLayout } from '../../chunks/DashboardLayout_DG9NWUmG.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState, useEffect, useMemo } from 'react';
 import { AlertTriangle, Wallet, Info, Target, PiggyBank, TrendingDown, CheckCircle2, Heart, RotateCcw, Circle, Zap, CreditCard, ArrowRight } from 'lucide-react';

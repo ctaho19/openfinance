@@ -1,16 +1,15 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, q as renderSlot } from './astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from './BaseLayout_D6-uoacE.mjs';
+import { $ as $$BaseLayout } from './BaseLayout_J-sVTICP.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, createContext, useEffect, useContext } from 'react';
-import { Menu, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, LayoutDashboard, Wallet, Receipt, CreditCard, Calendar, PiggyBank, Target, ArrowLeftRight, ListOrdered, Calculator, Lightbulb, ExternalLink } from 'lucide-react';
+import { Menu, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, Wallet, Receipt, CreditCard, Calendar, PiggyBank, Target, LayoutDashboard, ArrowLeftRight, ListOrdered, Calculator, Lightbulb, ExternalLink } from 'lucide-react';
 
 function Link({ href, children, ...props }) {
   return /* @__PURE__ */ jsx("a", { href, ...props, children });
 }
 
 const navItems$1 = [
-  { label: "Dashboard", href: "/dashboard" },
   { label: "Paycheck Plan", href: "/dashboard/paycheck-plan" },
   { label: "Bills", href: "/dashboard/bills" },
   { label: "Debts", href: "/dashboard/debts" },
@@ -20,8 +19,7 @@ const navItems$1 = [
 function ChaseHeader({ currentPath, user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isActive = (href) => {
-    if (href === "/dashboard") return currentPath === "/dashboard";
-    return currentPath.startsWith(href);
+    return currentPath === href || currentPath.startsWith(href + "/");
   };
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs("header", { className: "bg-[#0a3254] text-white sticky top-0 z-50", children: [
@@ -35,7 +33,7 @@ function ChaseHeader({ currentPath, user }) {
             children: /* @__PURE__ */ jsx(Menu, { className: "h-6 w-6" })
           }
         ),
-        /* @__PURE__ */ jsx(Link, { href: "/dashboard", className: "flex items-center gap-2", children: /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center", children: /* @__PURE__ */ jsx("span", { className: "font-bold text-sm", children: "OF" }) }) }),
+        /* @__PURE__ */ jsx(Link, { href: "/dashboard/paycheck-plan", className: "flex items-center gap-2", children: /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center", children: /* @__PURE__ */ jsx("span", { className: "font-bold text-sm", children: "OF" }) }) }),
         /* @__PURE__ */ jsx("div", { className: "flex items-center gap-1", children: /* @__PURE__ */ jsx(
           Link,
           {
@@ -91,7 +89,6 @@ function ChaseHeader({ currentPath, user }) {
           ] })
         ] }),
         /* @__PURE__ */ jsx("nav", { className: "flex-1 py-2 overflow-y-auto", children: [
-          { label: "Dashboard", href: "/dashboard" },
           { label: "Paycheck Plan", href: "/dashboard/paycheck-plan" },
           { label: "Forecast", href: "/dashboard/pay-periods" },
           { label: "Bills", href: "/dashboard/bills" },
@@ -299,7 +296,6 @@ function ThemeToggleCompact() {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Paycheck Plan", href: "/dashboard/paycheck-plan", icon: Wallet },
   { name: "Bills", href: "/dashboard/bills", icon: Receipt },
   { name: "Debts", href: "/dashboard/debts", icon: CreditCard },
@@ -342,7 +338,7 @@ function Sidebar({ currentPath = "" }) {
           children: /* @__PURE__ */ jsx("svg", { className: "h-5 w-5 text-gray-600 dark:text-gray-400", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M4 6h16M4 12h16M4 18h16" }) })
         }
       ),
-      /* @__PURE__ */ jsx(Link, { href: "/dashboard", className: "flex items-center gap-2.5 group", children: /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-[#0060f0] flex items-center justify-center shadow-sm", children: /* @__PURE__ */ jsx("span", { className: "text-white font-bold text-sm", children: "OF" }) }) }),
+      /* @__PURE__ */ jsx(Link, { href: "/dashboard/paycheck-plan", className: "flex items-center gap-2.5 group", children: /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-[#0060f0] flex items-center justify-center shadow-sm", children: /* @__PURE__ */ jsx("span", { className: "text-white font-bold text-sm", children: "OF" }) }) }),
       /* @__PURE__ */ jsx("div", { className: "flex-1" }),
       /* @__PURE__ */ jsx(
         Link,
@@ -354,12 +350,12 @@ function Sidebar({ currentPath = "" }) {
       )
     ] }),
     /* @__PURE__ */ jsx("nav", { className: "flex-1 px-3 py-4 space-y-1 overflow-y-auto", children: navigation.map((item) => {
-      const isActive = currentPath === item.href || item.href !== "/dashboard" && currentPath.startsWith(item.href);
+      const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
       return /* @__PURE__ */ jsx(NavLink, { item, isActive }, item.name);
     }) }),
     /* @__PURE__ */ jsxs("div", { className: "px-3 py-4 border-t border-gray-200 dark:border-[#30363d] space-y-1", children: [
       bottomNav.map((item) => {
-        const isActive = currentPath === item.href || item.href !== "/dashboard" && currentPath.startsWith(item.href);
+        const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
         return /* @__PURE__ */ jsx(NavLink, { item, isActive }, item.name);
       }),
       /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between pt-3 px-1", children: [
@@ -372,10 +368,10 @@ function Sidebar({ currentPath = "" }) {
 
 const navItems = [
   {
-    name: "Dashboard",
-    href: "/dashboard",
+    name: "Plan",
+    href: "/dashboard/paycheck-plan",
     icon: LayoutDashboard,
-    activeMatch: (path) => path === "/dashboard"
+    activeMatch: (path) => path === "/dashboard/paycheck-plan"
   },
   {
     name: "Bills",
@@ -535,4 +531,4 @@ const $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/DashboardLayout.astro", void 0);
 
 export { $$DashboardLayout as $, Link as L, ThemeProvider as T, ThemeToggle as a, useTheme as u };
-//# sourceMappingURL=DashboardLayout_Di38v9N9.mjs.map
+//# sourceMappingURL=DashboardLayout_DG9NWUmG.mjs.map

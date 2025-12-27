@@ -8,7 +8,6 @@ interface ChaseHeaderProps {
 }
 
 const navItems = [
-  { label: "Dashboard", href: "/dashboard" },
   { label: "Paycheck Plan", href: "/dashboard/paycheck-plan" },
   { label: "Bills", href: "/dashboard/bills" },
   { label: "Debts", href: "/dashboard/debts" },
@@ -20,8 +19,7 @@ export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") return currentPath === "/dashboard";
-    return currentPath.startsWith(href);
+    return currentPath === href || currentPath.startsWith(href + "/");
   };
 
   return (
@@ -38,7 +36,7 @@ export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {
             <Menu className="h-6 w-6" />
           </button>
 
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/dashboard/paycheck-plan" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
               <span className="font-bold text-sm">OF</span>
             </div>
@@ -110,7 +108,6 @@ export function ChaseHeader({ currentPath, user }: ChaseHeaderProps) {
             {/* Menu Items */}
             <nav className="flex-1 py-2 overflow-y-auto">
               {[
-                { label: "Dashboard", href: "/dashboard" },
                 { label: "Paycheck Plan", href: "/dashboard/paycheck-plan" },
                 { label: "Forecast", href: "/dashboard/pay-periods" },
                 { label: "Bills", href: "/dashboard/bills" },

@@ -9,10 +9,10 @@ import {
 
 const navItems = [
   { 
-    name: "Dashboard", 
-    href: "/dashboard", 
+    name: "Plan", 
+    href: "/dashboard/paycheck-plan", 
     icon: LayoutDashboard,
-    activeMatch: (path: string) => path === "/dashboard"
+    activeMatch: (path: string) => path === "/dashboard/paycheck-plan"
   },
   { 
     name: "Bills", 

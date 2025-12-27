@@ -1,7 +1,6 @@
 import type { ComponentType } from "react";
 import { Link } from "./link";
 import {
-  LayoutDashboard,
   Receipt,
   CreditCard,
   Target,
@@ -10,7 +9,6 @@ import {
   PiggyBank,
   ChevronRight,
   User,
-  LogOut,
   Wallet,
 } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
@@ -18,7 +16,6 @@ import { ThemeToggleCompact } from "./theme-toggle";
 import { ThemeProvider } from "@/lib/theme-context";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Paycheck Plan", href: "/dashboard/paycheck-plan", icon: Wallet },
   { name: "Bills", href: "/dashboard/bills", icon: Receipt },
   { name: "Debts", href: "/dashboard/debts", icon: CreditCard },
@@ -78,7 +75,7 @@ export function Sidebar({ currentPath = "" }: SidebarProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <Link href="/dashboard/paycheck-plan" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-lg bg-[#0060f0] flex items-center justify-center shadow-sm">
               <span className="text-white font-bold text-sm">OF</span>
             </div>
@@ -95,7 +92,7 @@ export function Sidebar({ currentPath = "" }: SidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navigation.map((item) => {
-            const isActive = currentPath === item.href || (item.href !== "/dashboard" && currentPath.startsWith(item.href));
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
             return <NavLink key={item.name} item={item} isActive={isActive} />;
           })}
         </nav>
@@ -103,7 +100,7 @@ export function Sidebar({ currentPath = "" }: SidebarProps) {
         {/* Bottom section */}
         <div className="px-3 py-4 border-t border-gray-200 dark:border-[#30363d] space-y-1">
           {bottomNav.map((item) => {
-            const isActive = currentPath === item.href || (item.href !== "/dashboard" && currentPath.startsWith(item.href));
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
             return <NavLink key={item.name} item={item} isActive={isActive} />;
           })}
           
