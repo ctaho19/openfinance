@@ -86,6 +86,8 @@ export interface DollarAllocationPlan {
   emergencyFundCurrent: number;
   emergencyFundTarget: number;
   unpaidPayments: PaymentWithBill[];
+  debtSurplusPercent: number;
+  savingsSurplusPercent: number;
 }
 
 function checksPerYear(freq: string): number {
@@ -545,6 +547,8 @@ export async function getDollarAllocationPlan(
     emergencyFundCurrent: currentEmergencyAmount,
     emergencyFundTarget,
     unpaidPayments,
+    debtSurplusPercent,
+    savingsSurplusPercent,
   };
 }
 

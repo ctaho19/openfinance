@@ -1,6 +1,6 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate, m as maybeRenderHead, q as renderSlot } from './astro/server_CLo6n4dC.mjs';
 import 'piccolore';
-import { $ as $$BaseLayout } from './BaseLayout_BeU1-zxX.mjs';
+import { $ as $$BaseLayout } from './BaseLayout_D6-uoacE.mjs';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { useState, createContext, useEffect, useContext } from 'react';
 import { Menu, User, X, ChevronRight, Settings, LogOut, Monitor, Moon, Sun, LayoutDashboard, Wallet, Receipt, CreditCard, Calendar, PiggyBank, Target, ArrowLeftRight, ListOrdered, Calculator, Lightbulb, ExternalLink } from 'lucide-react';
@@ -535,4 +535,4 @@ const $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 }, "/Users/chris/projects/dev/openfinance/src/layouts/DashboardLayout.astro", void 0);
 
 export { $$DashboardLayout as $, Link as L, ThemeProvider as T, ThemeToggle as a, useTheme as u };
-//# sourceMappingURL=DashboardLayout_BS33xuhQ.mjs.map
+//# sourceMappingURL=DashboardLayout_Di38v9N9.mjs.map

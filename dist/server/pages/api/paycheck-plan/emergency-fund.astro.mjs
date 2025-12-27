@@ -1,5 +1,5 @@
 import { g as getSession } from '../../../chunks/get-session-astro_CVC6HSBT.mjs';
-import { u as updateEmergencyFund } from '../../../chunks/dollar-allocation-plan_D5-OnGrS.mjs';
+import { u as updateEmergencyFund } from '../../../chunks/dollar-allocation-plan_DZpW5fxy.mjs';
 import { a as apiError, b as apiResponse } from '../../../chunks/api-utils_VuBcwo3s.mjs';
 export { renderers } from '../../../renderers.mjs';
 

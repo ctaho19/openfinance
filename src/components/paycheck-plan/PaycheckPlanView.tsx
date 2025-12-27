@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -12,6 +12,9 @@ import {
   Zap,
   ArrowDown,
   Building2,
+  Heart,
+  RotateCcw,
+  Info,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { format } from "date-fns";
@@ -54,6 +57,16 @@ interface PayoffProgress {
   monthsRemaining?: number;
 }
 
+interface UnpaidPayment {
+  id: string;
+  dueDate: string;
+  amount: number;
+  status: string;
+  bill: {
+    name: string;
+  };
+}
+
 interface DollarAllocationPlan {
   period: {
     startDate: string;
@@ -80,6 +93,9 @@ interface DollarAllocationPlan {
   payoffProgress: PayoffProgress;
   emergencyFundCurrent: number;
   emergencyFundTarget: number;
+  unpaidPayments: UnpaidPayment[];
+  debtSurplusPercent?: number;
+  savingsSurplusPercent?: number;
 }
 
 function formatCurrency(amount: number): string {
@@ -225,25 +241,119 @@ function ProgressBar({
   );
 }
 
+function LifeHappenedCard({
+  amount,
+  onAmountChange,
+  onReset,
+  maxAmount,
+}: {
+  amount: number;
+  onAmountChange: (amount: number) => void;
+  onReset: () => void;
+  maxAmount: number;
+}) {
+  const [inputValue, setInputValue] = useState(amount > 0 ? amount.toString() : "");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9.]/g, "");
+    setInputValue(value);
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed) && parsed >= 0) {
+      onAmountChange(Math.min(parsed, maxAmount));
+    } else if (value === "") {
+      onAmountChange(0);
+    }
+  };
+
+  const handleReset = () => {
+    setInputValue("");
+    onReset();
+  };
+
+  return (
+    <Card variant="outlined" className="border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/10">
+      <CardContent className="py-4">
+        <div className="flex items-start gap-3">
+          <Heart className="h-5 w-5 text-rose-500 flex-shrink-0 mt-1" />
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+              Life Happened?
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              Unexpected expense this period? Enter it here and we'll adjust your plan. No judgment.
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 max-w-[200px]">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                  className="w-full pl-7 pr-3 py-2 rounded-lg border border-rose-200 dark:border-rose-700 
+                    bg-white dark:bg-[#1c2128] text-gray-900 dark:text-gray-100
+                    focus:ring-2 focus:ring-rose-500 focus:border-transparent
+                    placeholder:text-gray-400"
+                />
+              </div>
+              {amount > 0 && (
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium
+                    text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/30
+                    rounded-lg transition-colors"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Reset
+                </button>
+              )}
+            </div>
+            {amount > 0 && (
+              <p className="text-sm text-rose-600 dark:text-rose-400 mt-2">
+                Adjusting plan by −{formatCurrency(amount)}
+              </p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function PaycheckPlanView() {
   const [plan, setPlan] = useState<DollarAllocationPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [processingStep, setProcessingStep] = useState<string | null>(null);
+  const [lifeHappenedAmount, setLifeHappenedAmount] = useState(0);
 
   useEffect(() => {
     fetchPlan();
+  }, []);
+
+  useEffect(() => {
+    if (!plan) return;
     const saved = localStorage.getItem("paycheck-plan-completed");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.periodStart === plan?.period.startDate) {
+        if (parsed.periodStart === plan.period.startDate) {
           setCompletedSteps(new Set(parsed.steps));
         }
       } catch {}
     }
-  }, []);
+    const savedLifeHappened = localStorage.getItem("paycheck-plan-life-happened");
+    if (savedLifeHappened) {
+      try {
+        const parsed = JSON.parse(savedLifeHappened);
+        if (parsed.periodStart === plan.period.startDate) {
+          setLifeHappenedAmount(parsed.amount || 0);
+        }
+      } catch {}
+    }
+  }, [plan?.period.startDate]);
 
   useEffect(() => {
     if (plan) {
@@ -256,6 +366,66 @@ export function PaycheckPlanView() {
       );
     }
   }, [completedSteps, plan]);
+
+  useEffect(() => {
+    if (plan) {
+      localStorage.setItem(
+        "paycheck-plan-life-happened",
+        JSON.stringify({
+          periodStart: plan.period.startDate,
+          amount: lifeHappenedAmount,
+        })
+      );
+    }
+  }, [lifeHappenedAmount, plan]);
+
+  const adjusted = useMemo(() => {
+    if (!plan) return null;
+
+    const originalSurplus = plan.surplusSplit.surplus;
+    const adjustedSurplus = originalSurplus - lifeHappenedAmount;
+    const isNegative = adjustedSurplus <= 0;
+
+    const debtPercent = plan.debtSurplusPercent ?? 0.8;
+    const savingsPercent = plan.savingsSurplusPercent ?? 0.2;
+
+    let adjustedDebtAllocation = 0;
+    let adjustedSavingsAllocation = 0;
+
+    if (!isNegative) {
+      const efRemaining = Math.max(0, plan.emergencyFundTarget - plan.emergencyFundCurrent);
+      adjustedSavingsAllocation = Math.min(adjustedSurplus * savingsPercent, efRemaining);
+      adjustedDebtAllocation = adjustedSurplus - adjustedSavingsAllocation;
+    }
+
+    const adjustedExtraDebtStep = plan.extraDebtStep
+      ? { ...plan.extraDebtStep, amount: Math.max(0, adjustedDebtAllocation) }
+      : undefined;
+
+    const adjustedSavingsStep = plan.savingsStep
+      ? { ...plan.savingsStep, amount: Math.max(0, adjustedSavingsAllocation) }
+      : undefined;
+
+    return {
+      surplusSplit: {
+        surplus: adjustedSurplus,
+        savingsAllocation: adjustedSavingsAllocation,
+        debtAllocation: adjustedDebtAllocation,
+        isNegative,
+      },
+      extraDebtStep: adjustedExtraDebtStep,
+      savingsStep: adjustedSavingsStep,
+      originalSurplus,
+    };
+  }, [plan, lifeHappenedAmount]);
+
+  const handleLifeHappenedChange = (amount: number) => {
+    setLifeHappenedAmount(amount);
+  };
+
+  const handleLifeHappenedReset = () => {
+    setLifeHappenedAmount(0);
+  };
 
   async function fetchPlan() {
     try {
@@ -385,10 +555,17 @@ export function PaycheckPlanView() {
               </p>
             </div>
             <div>
-              <p className="text-xs text-white/60 uppercase tracking-wide">True Surplus</p>
-              <p className={`text-lg font-semibold ${plan.surplusSplit.isNegative ? "text-red-300" : "text-emerald-300"}`}>
-                {formatCurrency(plan.surplusSplit.surplus)}
+              <p className="text-xs text-white/60 uppercase tracking-wide">
+                True Surplus{lifeHappenedAmount > 0 ? " (Adjusted)" : ""}
               </p>
+              <p className={`text-lg font-semibold ${adjusted?.surplusSplit.isNegative ? "text-red-300" : "text-emerald-300"}`}>
+                {formatCurrency(adjusted?.surplusSplit.surplus ?? plan.surplusSplit.surplus)}
+              </p>
+              {lifeHappenedAmount > 0 && (
+                <p className="text-xs text-white/50 line-through">
+                  {formatCurrency(plan.surplusSplit.surplus)}
+                </p>
+              )}
             </div>
           </div>
 
@@ -409,7 +586,35 @@ export function PaycheckPlanView() {
         </CardContent>
       </Card>
 
-      {/* Negative Surplus Warning */}
+      {/* Life Happened Card - only show when there's positive surplus to adjust */}
+      {!plan.surplusSplit.isNegative && plan.surplusSplit.surplus > 0 && (
+        <LifeHappenedCard
+          amount={lifeHappenedAmount}
+          onAmountChange={handleLifeHappenedChange}
+          onReset={handleLifeHappenedReset}
+          maxAmount={plan.surplusSplit.surplus}
+        />
+      )}
+
+      {/* Negative Surplus Warning - show for original OR adjusted */}
+      {(adjusted?.surplusSplit.isNegative && !plan.surplusSplit.isNegative) && (
+        <Card variant="outlined" className="border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-amber-800 dark:text-amber-200">
+                  After adjustments, no surplus remains
+                </p>
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  Your surprise expense of {formatCurrency(lifeHappenedAmount)} uses all your surplus. 
+                  Extra debt and savings steps will be skipped this period.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {plan.surplusSplit.isNegative && (
         <Card variant="outlined" className="border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
           <CardContent className="py-4">
@@ -427,6 +632,35 @@ export function PaycheckPlanView() {
           </CardContent>
         </Card>
       )}
+
+      {/* Past-due bills warning */}
+      {plan.unpaidPayments && plan.unpaidPayments.length > 0 && (
+        <Card variant="outlined" className="border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20">
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-orange-800 dark:text-orange-200">
+                  {plan.unpaidPayments.length} bill{plan.unpaidPayments.length > 1 ? "s" : ""} from previous periods
+                </p>
+                <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
+                  {plan.unpaidPayments.map(p => p.bill.name).join(", ")} still unpaid. 
+                  They'll show up here until marked as paid.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Checklist explainer */}
+      <div className="flex items-start gap-2 px-1">
+        <Info className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          These checkboxes are just for your brain—nothing breaks if you skip them. 
+          Bill payments will automatically update their status when checked.
+        </p>
+      </div>
 
       {/* Step 1: Transfers */}
       {plan.transfers.length > 0 && (
@@ -479,7 +713,7 @@ export function PaycheckPlanView() {
       )}
 
       {/* Step 3: Extra Debt Payment */}
-      {plan.extraDebtStep && plan.avalancheTarget && (
+      {adjusted?.extraDebtStep && adjusted.extraDebtStep.amount > 0 && plan.avalancheTarget && (
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-sm">
@@ -511,16 +745,21 @@ export function PaycheckPlanView() {
           </Card>
 
           <ChecklistItem
-            step={plan.extraDebtStep}
-            isCompleted={completedSteps.has(plan.extraDebtStep.id)}
-            onToggle={() => handleToggleStep(plan.extraDebtStep!)}
-            isLoading={processingStep === plan.extraDebtStep.id}
+            step={adjusted.extraDebtStep}
+            isCompleted={completedSteps.has(adjusted.extraDebtStep.id)}
+            onToggle={() => handleToggleStep(adjusted.extraDebtStep!)}
+            isLoading={processingStep === adjusted.extraDebtStep.id}
           />
+          {lifeHappenedAmount > 0 && plan.extraDebtStep && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-2">
+              Reduced from {formatCurrency(plan.extraDebtStep.amount)} due to life adjustment
+            </p>
+          )}
         </div>
       )}
 
       {/* Step 4: Emergency Fund */}
-      {plan.savingsStep && (
+      {adjusted?.savingsStep && adjusted.savingsStep.amount > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-sm">
@@ -553,11 +792,16 @@ export function PaycheckPlanView() {
           </Card>
 
           <ChecklistItem
-            step={plan.savingsStep}
-            isCompleted={completedSteps.has(plan.savingsStep.id)}
-            onToggle={() => handleToggleStep(plan.savingsStep!)}
-            isLoading={processingStep === plan.savingsStep.id}
+            step={adjusted.savingsStep}
+            isCompleted={completedSteps.has(adjusted.savingsStep.id)}
+            onToggle={() => handleToggleStep(adjusted.savingsStep!)}
+            isLoading={processingStep === adjusted.savingsStep.id}
           />
+          {lifeHappenedAmount > 0 && plan.savingsStep && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-2">
+              Reduced from {formatCurrency(plan.savingsStep.amount)} due to life adjustment
+            </p>
+          )}
         </div>
       )}
 

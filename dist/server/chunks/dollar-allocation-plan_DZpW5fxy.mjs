@@ -162,7 +162,7 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
   );
   const currentEmergencyAmount = emergencyGoal ? Number(emergencyGoal.currentAmount) : 0;
   const emergencyFundTarget = Number(user.emergencyFundTarget ?? 1e3);
-  Number(user.debtSurplusPercent ?? 0.8);
+  const debtSurplusPercent = Number(user.debtSurplusPercent ?? 0.8);
   const savingsSurplusPercent = Number(user.savingsSurplusPercent ?? 0.2);
   const surplusSplit = computeSurplusSplit({
     paycheckAmount,
@@ -354,7 +354,9 @@ async function getDollarAllocationPlan(userId, forDate = /* @__PURE__ */ new Dat
     bankAccountSummaries,
     emergencyFundCurrent: currentEmergencyAmount,
     emergencyFundTarget,
-    unpaidPayments
+    unpaidPayments,
+    debtSurplusPercent,
+    savingsSurplusPercent
   };
 }
 async function recordExtraDebtPayment(userId, debtId, amount) {
@@ -539,4 +541,4 @@ async function getCurrentDebtTotal(userId) {
 }
 
 export { recalculatePayoffBaseline as a, getDollarAllocationPlan as b, getCurrentDebtTotal as g, recordExtraDebtPayment as r, setupUserStrategy as s, updateEmergencyFund as u };
-//# sourceMappingURL=dollar-allocation-plan_D5-OnGrS.mjs.map
+//# sourceMappingURL=dollar-allocation-plan_DZpW5fxy.mjs.map
